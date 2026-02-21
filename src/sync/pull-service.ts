@@ -18,7 +18,7 @@ export async function pullConfig(
   void tenantId
 
   const response = await apiClient
-    .get('api/v1/pos/sync/download', {
+    .get('pos/sync/download', {
       searchParams: { current_config_version: currentVersion },
     })
     .json<PullResponse>()

@@ -21,16 +21,16 @@ export const apiClient = ky.create({
           if (refreshToken) {
             try {
               const refreshResponse = await ky
-                .post(`${API_BASE_URL}/api/v1/auth/refresh`, {
-                  json: { refreshToken },
+                .post(`${API_BASE_URL}/auth/refresh`, {
+                  json: { refresh_token: refreshToken },
                 })
-                .json<{ token: string; refreshToken: string }>()
+                .json<{ data: { access_token: string; refresh_token: string } }>()
 
               const state = useAuthStore.getState()
               if (state.user) {
                 state.login(
-                  refreshResponse.token,
-                  refreshResponse.refreshToken,
+                  refreshResponse.data.access_token,
+                  refreshResponse.data.refresh_token,
                   state.user
                 )
               }

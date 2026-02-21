@@ -2,20 +2,43 @@ import { apiClient } from './api-client'
 import { useAuthStore, type AuthUser } from '@/stores/auth-store'
 import { db } from '@/db'
 
-interface LoginResponse {
-  token: string
-  refreshToken: string
-  user: AuthUser
+interface APILoginResponse {
+  data: {
+    access_token: string
+    refresh_token: string
+    user: {
+      id: string
+      name: string
+      email: string
+      role: string
+      tenant_id?: string
+    }
+  }
+}
+
+interface APIRefreshResponse {
+  data: {
+    access_token: string
+    refresh_token: string
+  }
 }
 
 export async function login(email: string, password: string): Promise<void> {
   const response = await apiClient
-    .post('api/v1/auth/login', {
+    .post('auth/login', {
       json: { email, password },
     })
-    .json<LoginResponse>()
+    .json<APILoginResponse>()
 
-  useAuthStore.getState().login(response.token, response.refreshToken, response.user)
+  const { access_token, refresh_token, user } = response.data
+  const authUser: AuthUser = {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    tenantId: user.tenant_id ?? '',
+  }
+  useAuthStore.getState().login(access_token, refresh_token, authUser)
 }
 
 export async function refresh(): Promise<void> {
@@ -25,14 +48,18 @@ export async function refresh(): Promise<void> {
   }
 
   const response = await apiClient
-    .post('api/v1/auth/refresh', {
-      json: { refreshToken },
+    .post('auth/refresh', {
+      json: { refresh_token: refreshToken },
     })
-    .json<{ token: string; refreshToken: string }>()
+    .json<APIRefreshResponse>()
 
   const user = useAuthStore.getState().user
   if (user) {
-    useAuthStore.getState().login(response.token, response.refreshToken, user)
+    useAuthStore.getState().login(
+      response.data.access_token,
+      response.data.refresh_token,
+      user
+    )
   }
 }
 

@@ -20,7 +20,7 @@ export async function pushPendingTransactions(tenantId: string): Promise<number>
 
   try {
     await apiClient
-      .post('api/v1/pos/sync/upload', {
+      .post('pos/sync/upload', {
         json: { transactions: pending },
       })
       .json()
