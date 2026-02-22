@@ -7,6 +7,7 @@ import {
 import { AppShell } from '@/components/layout/app-shell'
 import { LoginPage } from '@/pages/login'
 import { RegisterPage } from '@/pages/register'
+import { OnboardingPage } from '@/pages/onboarding'
 import { SetupPage } from '@/pages/setup'
 import { PosPage } from '@/pages/pos'
 import { DashboardPage } from '@/pages/dashboard'
@@ -43,6 +44,18 @@ const registerRoute = createRoute({
   },
 })
 
+const onboardingRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/onboarding',
+  component: OnboardingPage,
+  beforeLoad: () => {
+    const isAuthenticated = useAuthStore.getState().isAuthenticated()
+    if (!isAuthenticated) {
+      throw redirect({ to: '/login' })
+    }
+  },
+})
+
 const setupRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/setup',
@@ -60,9 +73,17 @@ const authenticatedRoute = createRoute({
   id: 'authenticated',
   component: AppShell,
   beforeLoad: ({ location }) => {
-    const isAuthenticated = useAuthStore.getState().isAuthenticated()
+    const authState = useAuthStore.getState()
+    const isAuthenticated = authState.isAuthenticated()
     if (!isAuthenticated) {
       throw redirect({ to: '/login' })
+    }
+
+    if (
+      authState.user?.role === 'tenant_owner' &&
+      !authState.onboardingComplete
+    ) {
+      throw redirect({ to: '/onboarding' })
     }
 
     const isReady = useDeviceStore.getState().isDeviceReady()
@@ -189,6 +210,7 @@ const manageAnalyticsRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   loginRoute,
   registerRoute,
+  onboardingRoute,
   setupRoute,
   authenticatedRoute.addChildren([
     posRoute,
