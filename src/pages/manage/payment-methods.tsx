@@ -1,0 +1,253 @@
+import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from '@tanstack/react-router'
+import { ArrowLeft, Plus, CreditCard, Trash } from '@phosphor-icons/react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog'
+import { LoadingSpinner } from '@/components/shared/loading-spinner'
+import { EmptyState } from '@/components/shared/empty-state'
+import { ownerApi } from '@/services/owner-api'
+
+interface PaymentMethod {
+  id: string
+  name: string
+  type: string
+  is_active: boolean
+  description: string
+}
+
+export function ManagePaymentMethodsPage() {
+  const router = useRouter()
+  const [methods, setMethods] = useState<PaymentMethod[]>([])
+  const [loading, setLoading] = useState(true)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [editingMethod, setEditingMethod] = useState<PaymentMethod | null>(null)
+  const [formName, setFormName] = useState('')
+  const [formType, setFormType] = useState('')
+  const [formDescription, setFormDescription] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+
+  const fetchMethods = useCallback(async () => {
+    try {
+      setLoading(true)
+      const res = await ownerApi.listPaymentMethods()
+      setMethods(res.data ?? [])
+    } catch {
+      alert('Gagal memuat data metode pembayaran')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchMethods()
+  }, [fetchMethods])
+
+  function openCreate() {
+    setEditingMethod(null)
+    setFormName('')
+    setFormType('cash')
+    setFormDescription('')
+    setDialogOpen(true)
+  }
+
+  function openEdit(method: PaymentMethod) {
+    setEditingMethod(method)
+    setFormName(method.name)
+    setFormType(method.type)
+    setFormDescription(method.description)
+    setDialogOpen(true)
+  }
+
+  async function handleSubmit() {
+    if (!formName.trim()) return
+    setSubmitting(true)
+    try {
+      const data = {
+        name: formName.trim(),
+        type: formType,
+        description: formDescription.trim(),
+      }
+      if (editingMethod) {
+        await ownerApi.updatePaymentMethod(editingMethod.id, data)
+      } else {
+        await ownerApi.createPaymentMethod(data)
+      }
+      setDialogOpen(false)
+      fetchMethods()
+    } catch {
+      alert('Gagal menyimpan metode pembayaran')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  async function handleToggleActive(method: PaymentMethod) {
+    try {
+      await ownerApi.updatePaymentMethod(method.id, {
+        is_active: !method.is_active,
+      })
+      fetchMethods()
+    } catch {
+      alert('Gagal mengubah status')
+    }
+  }
+
+  async function handleDelete(method: PaymentMethod) {
+    if (!confirm(`Hapus metode pembayaran "${method.name}"?`)) return
+    try {
+      await ownerApi.deletePaymentMethod(method.id)
+      fetchMethods()
+    } catch {
+      alert('Gagal menghapus metode pembayaran')
+    }
+  }
+
+  return (
+    <div className="flex flex-col h-full overflow-y-auto">
+      <div className="px-4 pt-4 pb-2 flex items-center gap-3">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => router.navigate({ to: '/manage' })}
+        >
+          <ArrowLeft size={20} />
+        </Button>
+        <div className="flex-1">
+          <h1 className="text-xl font-bold">Metode Pembayaran</h1>
+          <p className="text-sm text-[var(--muted-foreground)]">
+            Atur metode pembayaran
+          </p>
+        </div>
+        <Button size="sm" onClick={openCreate}>
+          <Plus size={16} className="mr-1" />
+          Tambah
+        </Button>
+      </div>
+
+      <div className="px-4 pb-6">
+        {loading ? (
+          <LoadingSpinner />
+        ) : methods.length === 0 ? (
+          <EmptyState
+            icon={<CreditCard size={48} />}
+            title="Belum Ada Metode Pembayaran"
+            description="Tambahkan metode pembayaran untuk digunakan di kasir."
+          />
+        ) : (
+          <div className="space-y-2">
+            {methods.map((method) => (
+              <div
+                key={method.id}
+                className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] p-4"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <button
+                    type="button"
+                    onClick={() => openEdit(method)}
+                    className="text-left min-w-0 flex-1"
+                  >
+                    <p className="text-sm font-semibold">{method.name}</p>
+                    <p className="text-xs text-[var(--muted-foreground)]">
+                      {method.type}
+                    </p>
+                    {method.description && (
+                      <p className="text-xs text-[var(--muted-foreground)] mt-0.5">
+                        {method.description}
+                      </p>
+                    )}
+                  </button>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleActive(method)}
+                      className={`text-xs px-2 py-0.5 rounded-full font-medium cursor-pointer ${
+                        method.is_active
+                          ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                          : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400'
+                      }`}
+                    >
+                      {method.is_active ? 'Aktif' : 'Nonaktif'}
+                    </button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-[var(--destructive)]"
+                      onClick={() => handleDelete(method)}
+                    >
+                      <Trash size={16} />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {editingMethod
+                ? 'Edit Metode Pembayaran'
+                : 'Tambah Metode Pembayaran'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <label htmlFor="pm-name" className="text-sm font-medium mb-1 block">Nama</label>
+              <Input
+                id="pm-name"
+                placeholder="Contoh: Transfer BCA"
+                value={formName}
+                onChange={(e) => setFormName(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="pm-type" className="text-sm font-medium mb-1 block">Tipe</label>
+              <select
+                id="pm-type"
+                className="flex h-11 w-full rounded-[var(--radius)] border border-[var(--input)] bg-[var(--background)] px-3 py-2 text-sm"
+                value={formType}
+                onChange={(e) => setFormType(e.target.value)}
+              >
+                <option value="cash">Tunai</option>
+                <option value="bank_transfer">Transfer Bank</option>
+                <option value="ewallet">E-Wallet</option>
+                <option value="qris">QRIS</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="pm-description" className="text-sm font-medium mb-1 block">Keterangan</label>
+              <Input
+                id="pm-description"
+                placeholder="Keterangan tambahan"
+                value={formDescription}
+                onChange={(e) => setFormDescription(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDialogOpen(false)}
+              disabled={submitting}
+            >
+              Batal
+            </Button>
+            <Button onClick={handleSubmit} disabled={submitting}>
+              {submitting ? 'Menyimpan...' : 'Simpan'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}
