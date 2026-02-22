@@ -224,6 +224,7 @@ export function DashboardPage() {
           <div className="space-y-2">
             {recentTransactions.map((tx) => (
               <button
+                type="button"
                 key={tx.id}
                 onClick={() =>
                   router.navigate({ to: '/transactions/$id', params: { id: tx.id } })

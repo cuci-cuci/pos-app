@@ -45,6 +45,7 @@ export function Header() {
 
         {/* Right: user */}
         <button
+          type="button"
           onClick={() => setUserMenuOpen(true)}
           className="flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity"
         >

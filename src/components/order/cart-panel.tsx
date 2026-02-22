@@ -50,6 +50,7 @@ export function CartPanel() {
           Keranjang ({items.length})
         </h2>
         <button
+          type="button"
           onClick={clear}
           className="text-[var(--muted-foreground)] hover:text-[var(--destructive)] p-2 rounded-lg"
           aria-label="Kosongkan keranjang"
@@ -82,6 +83,7 @@ export function CartPanel() {
       {/* Notes (collapsible) */}
       <div className="px-4 py-2 border-t border-[var(--border)]">
         <button
+          type="button"
           onClick={() => setNotesExpanded(!notesExpanded)}
           className="flex items-center gap-1 text-sm text-[var(--muted-foreground)] w-full"
         >
@@ -112,7 +114,7 @@ export function CartPanel() {
             min={0}
             max={100}
             value={discountPercent || ''}
-            onChange={(e) => setDiscount(Math.min(100, Math.max(0, parseInt(e.target.value) || 0)))}
+            onChange={(e) => setDiscount(Math.min(100, Math.max(0, parseInt(e.target.value, 10) || 0)))}
             placeholder="0"
             className="h-8 w-16 text-center text-sm"
           />

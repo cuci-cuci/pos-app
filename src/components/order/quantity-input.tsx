@@ -53,7 +53,7 @@ export function QuantityInput({
   const handleCustomChange = (value: string) => {
     setCustomInput(value)
     const parsed = parseFloat(value)
-    if (!isNaN(parsed) && parsed > 0) {
+    if (!Number.isNaN(parsed) && parsed > 0) {
       setQuantity(parsed)
     }
   }
@@ -87,6 +87,7 @@ export function QuantityInput({
         <div className="flex flex-wrap gap-2 mt-3">
           {presets.map((value) => (
             <button
+              type="button"
               key={value}
               onClick={() => handlePreset(value)}
               className={cn(
@@ -117,6 +118,7 @@ export function QuantityInput({
         {/* Quantity stepper */}
         <div className="flex items-center justify-center gap-6 py-4">
           <button
+            type="button"
             onClick={handleDecrement}
             className="w-12 h-12 rounded-full border-2 border-[var(--border)] flex items-center justify-center active:bg-[var(--accent)] touch-manipulation"
           >
@@ -129,6 +131,7 @@ export function QuantityInput({
           </div>
 
           <button
+            type="button"
             onClick={handleIncrement}
             className="w-12 h-12 rounded-full border-2 border-[var(--primary)] text-[var(--primary)] flex items-center justify-center active:bg-[var(--primary)]/10 touch-manipulation"
           >

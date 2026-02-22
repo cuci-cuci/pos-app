@@ -48,6 +48,7 @@ function ToastItem({ toast }: { toast: Toast }) {
     >
       <span className="flex-1">{toast.message}</span>
       <button
+        type="button"
         onClick={() => removeToast(toast.id)}
         className="shrink-0 p-1 rounded hover:opacity-80"
       >

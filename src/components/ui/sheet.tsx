@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback, type ReactNode, type HTMLAttributes, type MouseEvent } from 'react'
+import { useRef, useEffect, useCallback, type ReactNode, type HTMLAttributes, type MouseEvent, type KeyboardEvent } from 'react'
 import { cn } from '@/lib/utils'
 
 interface SheetProps {
@@ -42,6 +42,15 @@ function Sheet({ open, onOpenChange, children }: SheetProps) {
     [onOpenChange]
   )
 
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDialogElement>) => {
+      if (e.key === 'Escape') {
+        onOpenChange(false)
+      }
+    },
+    [onOpenChange]
+  )
+
   return (
     <dialog
       ref={dialogRef}
@@ -50,6 +59,7 @@ function Sheet({ open, onOpenChange, children }: SheetProps) {
         open ? 'flex items-end justify-center' : ''
       )}
       onClick={handleBackdropClick}
+      onKeyDown={handleKeyDown}
       onClose={() => onOpenChange(false)}
     >
       {children}

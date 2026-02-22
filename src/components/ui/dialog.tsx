@@ -5,6 +5,7 @@ import {
   type ReactNode,
   type HTMLAttributes,
   type MouseEvent,
+  type KeyboardEvent,
 } from 'react'
 import { cn } from '@/lib/utils'
 
@@ -49,11 +50,21 @@ function Dialog({ open, onOpenChange, children }: DialogProps) {
     [onOpenChange]
   )
 
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDialogElement>) => {
+      if (e.key === 'Escape') {
+        onOpenChange(false)
+      }
+    },
+    [onOpenChange]
+  )
+
   return (
     <dialog
       ref={dialogRef}
       className="m-auto backdrop:bg-black/50 bg-transparent p-0 max-w-lg w-[calc(100%-2rem)] open:animate-in open:fade-in-0 open:zoom-in-95"
       onClick={handleBackdropClick}
+      onKeyDown={handleKeyDown}
       onClose={() => onOpenChange(false)}
     >
       {children}

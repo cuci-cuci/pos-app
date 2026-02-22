@@ -21,6 +21,7 @@ export function CartItemRow({ item, onRemove, onUpdateQuantity }: CartItemRowPro
         </p>
         <div className="flex items-center gap-2 mt-2">
           <button
+            type="button"
             onClick={() => onUpdateQuantity(item.id, item.quantity - step)}
             className="w-7 h-7 rounded-full border border-[var(--border)] flex items-center justify-center text-sm font-bold active:bg-[var(--accent)] touch-manipulation"
           >
@@ -30,6 +31,7 @@ export function CartItemRow({ item, onRemove, onUpdateQuantity }: CartItemRowPro
             {item.quantity} {item.unit}
           </span>
           <button
+            type="button"
             onClick={() => onUpdateQuantity(item.id, item.quantity + step)}
             className="w-7 h-7 rounded-full border border-[var(--border)] flex items-center justify-center text-sm font-bold active:bg-[var(--accent)] touch-manipulation"
           >
@@ -40,6 +42,7 @@ export function CartItemRow({ item, onRemove, onUpdateQuantity }: CartItemRowPro
       <div className="flex flex-col items-end gap-1">
         <span className="text-sm font-semibold">{formatCurrency(item.subtotal)}</span>
         <button
+          type="button"
           onClick={() => onRemove(item.id)}
           className="p-1.5 rounded-full hover:bg-[var(--destructive)]/10 text-[var(--muted-foreground)] hover:text-[var(--destructive)]"
           aria-label="Hapus item"
