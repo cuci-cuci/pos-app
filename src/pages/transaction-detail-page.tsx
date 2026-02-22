@@ -13,7 +13,6 @@ import {
   CheckCircle,
   XCircle,
   ArrowsClockwise,
-  Warning,
   Clock,
   Receipt,
   CloudCheck,
