@@ -36,7 +36,7 @@ export function BottomNav() {
   const navItems = role === ROLE_TENANT_OWNER ? ownerNavItems : cashierNavItems
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-card border-t border-border md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-card border-t border-border">
       <div className="flex items-stretch justify-around">
         {navItems.map((item) => {
           const isActive =
