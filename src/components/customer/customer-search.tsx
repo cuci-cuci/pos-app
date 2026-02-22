@@ -19,15 +19,15 @@ import {
 } from '@/components/ui/dialog'
 import { showToast } from '@/components/ui/toast'
 import {
-  UserCircle,
+  CircleUser,
   X,
-  MagnifyingGlass,
+  Search,
   UserPlus,
   Crown,
   Tag,
-  CurrencyCircleDollar,
-  SpinnerGap,
-} from '@phosphor-icons/react'
+  CircleDollarSign,
+  Loader2,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const TIER_CONFIG: Record<MemberTier, { label: string; color: string; bg: string }> = {
@@ -222,7 +222,7 @@ export function CustomerSearch() {
     return (
       <div className="space-y-2">
         <div className="flex items-start gap-3 bg-accent rounded-[var(--radius)] px-3 py-3">
-          <UserCircle size={28} className="text-primary shrink-0 mt-0.5" weight="fill" />
+          <CircleUser size={28} className="text-primary shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm font-semibold">{memberInfo.name}</span>
@@ -233,7 +233,7 @@ export function CustomerSearch() {
                   tierConfig.color
                 )}
               >
-                <Crown size={10} weight="fill" className="mr-0.5" />
+                <Crown size={10} className="mr-0.5" />
                 {tierConfig.label}
               </Badge>
             </div>
@@ -242,11 +242,11 @@ export function CustomerSearch() {
             </p>
             <div className="flex items-center gap-3 mt-1.5 flex-wrap">
               <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                <CurrencyCircleDollar size={12} />
+                <CircleDollarSign size={12} />
                 {formatCurrency(memberInfo.totalSpending)}
               </span>
               <span className="flex items-center gap-1 text-xs text-primary font-medium">
-                <Tag size={12} weight="fill" />
+                <Tag size={12} />
                 Diskon {memberInfo.discountPercent}%
               </span>
             </div>
@@ -267,7 +267,7 @@ export function CustomerSearch() {
   if (customerId) {
     return (
       <div className="flex items-center gap-2 bg-accent rounded-[var(--radius)] px-3 py-2">
-        <UserCircle size={20} className="text-primary" weight="fill" />
+        <CircleUser size={20} className="text-primary" />
         <span className="text-sm font-medium flex-1">{customerName}</span>
         <button
           type="button"
@@ -329,7 +329,7 @@ export function CustomerSearch() {
       <div className="relative">
         <div className="flex gap-2">
           <div className="relative flex-1">
-            <MagnifyingGlass
+            <Search
               size={16}
               className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
             />
@@ -342,7 +342,7 @@ export function CustomerSearch() {
               className="h-10 pl-9"
             />
             {isSearchingApi && (
-              <SpinnerGap
+              <Loader2
                 size={16}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground animate-spin"
               />
@@ -399,7 +399,7 @@ export function CustomerSearch() {
                     'min-h-[44px]'
                   )}
                 >
-                  <UserCircle
+                  <CircleUser
                     size={24}
                     className={cn(
                       'shrink-0',
@@ -533,7 +533,7 @@ export function CustomerSearch() {
             >
               {isRegistering ? (
                 <>
-                  <SpinnerGap size={16} className="animate-spin mr-1" />
+                  <Loader2 size={16} className="animate-spin mr-1" />
                   Mendaftar...
                 </>
               ) : (

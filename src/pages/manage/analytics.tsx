@@ -2,12 +2,12 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import {
   ArrowLeft,
-  CurrencyDollar,
+  DollarSign,
   Receipt,
   TrendUp,
-  ChartBar,
-  Storefront,
-} from '@phosphor-icons/react'
+  BarChart3,
+  Store,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { LoadingSpinner } from '@/components/shared/loading-spinner'
 import { EmptyState } from '@/components/shared/empty-state'
@@ -143,7 +143,7 @@ export function ManageAnalyticsPage() {
           <LoadingSpinner />
         ) : !summary ? (
           <EmptyState
-            icon={<ChartBar size={48} />}
+            icon={<BarChart3 size={48} />}
             title="Data Tidak Tersedia"
             description="Belum ada data analitik untuk periode ini."
           />
@@ -151,21 +151,21 @@ export function ManageAnalyticsPage() {
           <>
             <div className="grid grid-cols-2 gap-3 mb-4">
               <SummaryCard
-                icon={<CurrencyDollar size={22} weight="bold" />}
+                icon={<DollarSign size={22} />}
                 label="Total Revenue"
                 value={formatCurrency(summary.total_revenue)}
                 iconBg="bg-emerald-100 dark:bg-emerald-900/30"
                 iconColor="text-emerald-600 dark:text-emerald-400"
               />
               <SummaryCard
-                icon={<Receipt size={22} weight="bold" />}
+                icon={<Receipt size={22} />}
                 label="Total Transaksi"
                 value={String(summary.total_transactions)}
                 iconBg="bg-blue-100 dark:bg-blue-900/30"
                 iconColor="text-blue-600 dark:text-blue-400"
               />
               <SummaryCard
-                icon={<TrendUp size={22} weight="bold" />}
+                icon={<TrendUp size={22} />}
                 label="Rata-rata"
                 value={formatCurrency(summary.avg_transaction)}
                 subValue="per transaksi"
@@ -173,7 +173,7 @@ export function ManageAnalyticsPage() {
                 iconColor="text-purple-600 dark:text-purple-400"
               />
               <SummaryCard
-                icon={<ChartBar size={22} weight="bold" />}
+                icon={<BarChart3 size={22} />}
                 label="Pertumbuhan"
                 value={`${summary.growth_pct >= 0 ? '+' : ''}${summary.growth_pct}%`}
                 subValue="dari periode sebelumnya"
@@ -215,7 +215,7 @@ export function ManageAnalyticsPage() {
                       >
                         <td className="p-3">
                           <div className="flex items-center gap-2">
-                            <Storefront
+                            <Store
                               size={16}
                               className="text-muted-foreground"
                             />

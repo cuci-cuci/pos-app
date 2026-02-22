@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from '@tanstack/react-router'
-import { ArrowLeft, Plus, UserCircle } from '@phosphor-icons/react'
+import { ArrowLeft, Plus, CircleUser } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -134,7 +134,7 @@ export function ManageCashiersPage() {
           <LoadingSpinner />
         ) : cashiers.length === 0 ? (
           <EmptyState
-            icon={<UserCircle size={48} />}
+            icon={<CircleUser size={48} />}
             title="Belum Ada Kasir"
             description="Tambahkan kasir untuk membantu operasional."
           />

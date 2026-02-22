@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from '@tanstack/react-router'
-import { ArrowLeft, Tag, FloppyDisk } from '@phosphor-icons/react'
+import { ArrowLeft, Tag, Save } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { LoadingSpinner } from '@/components/shared/loading-spinner'
@@ -92,7 +92,7 @@ export function ManagePricingPage() {
         </div>
         {hasChanges && (
           <Button size="sm" onClick={handleSaveAll} disabled={saving}>
-            <FloppyDisk size={16} className="mr-1" />
+            <Save size={16} className="mr-1" />
             {saving ? 'Menyimpan...' : 'Simpan'}
           </Button>
         )}

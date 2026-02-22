@@ -9,7 +9,7 @@ import { apiClient } from '@/services/api-client'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Storefront, MapPin, Phone, CheckCircle } from '@phosphor-icons/react'
+import { Store, MapPin, Phone, CheckCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function SetupPage() {
@@ -92,7 +92,7 @@ export function SetupPage() {
             <CardContent className="p-8 text-center">
               <div className="flex justify-center mb-6">
                 <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Storefront size={48} className="text-primary" weight="duotone" />
+                  <Store size={48} className="text-primary" weight="duotone" />
                 </div>
               </div>
               <h1 className="text-2xl font-bold mb-2">Selamat datang di LaundryPOS</h1>
@@ -151,7 +151,7 @@ export function SetupPage() {
                             ? 'bg-primary text-primary-foreground'
                             : 'bg-muted text-muted-foreground'
                         )}>
-                          <Storefront size={20} weight="fill" />
+                          <Store size={20} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-sm">{outlet.name}</p>
@@ -169,7 +169,7 @@ export function SetupPage() {
                           )}
                         </div>
                         {selectedOutletId === outlet.id && (
-                          <CheckCircle size={24} className="text-primary shrink-0" weight="fill" />
+                          <CheckCircle size={24} className="text-primary shrink-0" />
                         )}
                       </div>
                     </button>

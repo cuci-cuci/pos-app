@@ -7,7 +7,7 @@ import { PaymentDialog } from '@/components/payment/payment-dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
-import { ShoppingCart, Trash, CaretDown, CaretUp, Crown } from '@phosphor-icons/react'
+import { ShoppingCart, Trash, ChevronDown, ChevronUp, Crown } from 'lucide-react'
 import { EmptyState } from '@/components/shared/empty-state'
 
 export function CartPanel() {
@@ -88,7 +88,7 @@ export function CartPanel() {
           onClick={() => setNotesExpanded(!notesExpanded)}
           className="flex items-center gap-1 text-sm text-muted-foreground w-full"
         >
-          {notesExpanded ? <CaretUp size={14} /> : <CaretDown size={14} />}
+          {notesExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           <span>Catatan pesanan</span>
           {notes && !notesExpanded && (
             <span className="text-xs text-primary ml-auto truncate max-w-[120px]">{notes}</span>
@@ -109,7 +109,7 @@ export function CartPanel() {
         {/* Discount input */}
         {memberInfo ? (
           <div className="flex items-center gap-2 text-sm">
-            <Crown size={14} className="text-primary" weight="fill" />
+            <Crown size={14} className="text-primary" />
             <span className="text-primary font-medium">
               Diskon Member ({memberInfo.tier.charAt(0).toUpperCase() + memberInfo.tier.slice(1)})
             </span>

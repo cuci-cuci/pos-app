@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { APP_NAME } from '@/lib/constants'
-import { Drop, SpinnerGap, WarningCircle } from '@phosphor-icons/react'
+import { Droplet, Loader2, AlertCircle } from 'lucide-react'
 
 const loginSchema = z.object({
   email: z.string().email('Email tidak valid'),
@@ -92,7 +92,7 @@ export function LoginPage() {
         {/* Logo and app name */}
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-3">
-            <Drop size={36} className="text-primary-foreground" weight="duotone" />
+            <Droplet size={36} className="text-primary-foreground" weight="duotone" />
           </div>
           <h1 className="text-2xl font-bold">{APP_NAME}</h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -108,7 +108,7 @@ export function LoginPage() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {error && (
                 <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/20 text-destructive text-sm rounded-[var(--radius)] p-3">
-                  <WarningCircle size={18} className="shrink-0 mt-0.5" weight="bold" />
+                  <AlertCircle size={18} className="shrink-0 mt-0.5" />
                   <span>{error}</span>
                 </div>
               )}
@@ -155,7 +155,7 @@ export function LoginPage() {
               >
                 {isLoading ? (
                   <span className="flex items-center gap-2">
-                    <SpinnerGap size={20} className="animate-spin" />
+                    <Loader2 size={20} className="animate-spin" />
                     {stateMessages[loginState]}
                   </span>
                 ) : (

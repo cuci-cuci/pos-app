@@ -15,19 +15,19 @@ import { showToast } from '@/components/ui/toast'
 import { APP_NAME } from '@/lib/constants'
 import { formatDate, formatTime } from '@/lib/format'
 import {
-  ArrowsClockwise,
-  SignOut,
-  WifiHigh,
-  WifiSlash,
+  RefreshCw,
+  LogOut,
+  Wifi,
+  WifiOff,
   CloudCheck,
-  Warning,
+  AlertTriangle,
   DeviceMobile,
-  Storefront,
-  UserCircle,
+  Store,
+  CircleUser,
   Wrench,
   Trash,
   Info,
-} from '@phosphor-icons/react'
+} from 'lucide-react'
 
 export function SettingsPage() {
   const router = useRouter()
@@ -139,7 +139,7 @@ export function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2">
-              <ArrowsClockwise size={18} />
+              <RefreshCw size={18} />
               Sinkronisasi
             </CardTitle>
           </CardHeader>
@@ -149,12 +149,12 @@ export function SettingsPage() {
               <div className="flex items-center gap-1.5">
                 {isOnline ? (
                   <>
-                    <WifiHigh size={16} className="text-success" weight="bold" />
+                    <Wifi size={16} className="text-success" />
                     <span className="text-sm text-success">Online</span>
                   </>
                 ) : (
                   <>
-                    <WifiSlash size={16} className="text-destructive" weight="bold" />
+                    <WifiOff size={16} className="text-destructive" />
                     <span className="text-sm text-destructive">Offline</span>
                   </>
                 )}
@@ -188,7 +188,7 @@ export function SettingsPage() {
                 <span className="text-sm">Transaksi Gagal</span>
                 <Badge variant="destructive">
                   <span className="flex items-center gap-1">
-                    <Warning size={12} /> {failedCount}
+                    <AlertTriangle size={12} /> {failedCount}
                   </span>
                 </Badge>
               </div>
@@ -205,7 +205,7 @@ export function SettingsPage() {
               onClick={handleSync}
               disabled={syncing || isSyncing || !isOnline}
             >
-              <ArrowsClockwise
+              <RefreshCw
                 size={18}
                 className={syncing || isSyncing ? 'animate-spin mr-2' : 'mr-2'}
               />
@@ -219,7 +219,7 @@ export function SettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-sm flex items-center gap-2">
-                <Storefront size={18} />
+                <Store size={18} />
                 Toko
               </CardTitle>
             </CardHeader>
@@ -250,7 +250,7 @@ export function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2">
-              <UserCircle size={18} />
+              <CircleUser size={18} />
               Akun
             </CardTitle>
           </CardHeader>
@@ -325,7 +325,7 @@ export function SettingsPage() {
                   className="flex-1 h-11"
                   onClick={handleLogout}
                 >
-                  <SignOut size={18} className="mr-2" />
+                  <LogOut size={18} className="mr-2" />
                   Keluar
                 </Button>
               </div>
@@ -337,7 +337,7 @@ export function SettingsPage() {
             className="w-full h-12"
             onClick={() => setShowLogoutConfirm(true)}
           >
-            <SignOut size={20} className="mr-2" />
+            <LogOut size={20} className="mr-2" />
             Keluar
           </Button>
         )}

@@ -3,10 +3,10 @@ import { useRouter } from '@tanstack/react-router'
 import {
   ArrowLeft,
   Plus,
-  Storefront,
+  Store,
   MapPin,
   Phone,
-} from '@phosphor-icons/react'
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -121,7 +121,7 @@ export function ManageOutletsPage() {
           <LoadingSpinner />
         ) : outlets.length === 0 ? (
           <EmptyState
-            icon={<Storefront size={48} />}
+            icon={<Store size={48} />}
             title="Belum Ada Outlet"
             description="Tambahkan outlet pertama Anda untuk mulai."
           />

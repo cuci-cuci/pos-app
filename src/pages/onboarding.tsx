@@ -5,10 +5,10 @@ import {
   ArrowRight,
   CheckCircle,
   CreditCard,
-  CurrencyDollar,
-  Storefront,
+  DollarSign,
+  Store,
   UserPlus,
-} from '@phosphor-icons/react'
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
@@ -212,7 +212,7 @@ export function OnboardingPage() {
               <CardContent className="p-8 text-center">
                 <div className="flex justify-center mb-6">
                   <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Storefront
+                    <Store
                       size={48}
                       className="text-primary"
                       weight="duotone"
@@ -265,7 +265,7 @@ export function OnboardingPage() {
                   <LoadingSpinner />
                 ) : services.length === 0 ? (
                   <div className="text-center py-8">
-                    <CurrencyDollar
+                    <DollarSign
                       size={48}
                       className="mx-auto text-muted-foreground mb-3"
                     />
@@ -375,7 +375,7 @@ export function OnboardingPage() {
                     <CheckCircle
                       size={48}
                       className="mx-auto text-emerald-500 mb-3"
-                      weight="fill"
+                     
                     />
                     <p className="text-sm font-semibold mb-1">
                       Kasir berhasil ditambahkan!
@@ -567,7 +567,7 @@ export function OnboardingPage() {
                     <CheckCircle
                       size={48}
                       className="text-emerald-500"
-                      weight="fill"
+                     
                     />
                   </div>
                 </div>

@@ -7,7 +7,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { GearSix, SignOut, Storefront, Desktop } from '@phosphor-icons/react'
+import { Settings, LogOut, Store, Monitor } from 'lucide-react'
 
 interface UserMenuProps {
   open: boolean
@@ -67,14 +67,14 @@ export function UserMenu({ open, onOpenChange }: UserMenuProps) {
         {/* Device info */}
         <div className="space-y-3 mb-4">
           <div className="flex items-center gap-3 text-sm">
-            <Storefront size={18} className="text-muted-foreground shrink-0" />
+            <Store size={18} className="text-muted-foreground shrink-0" />
             <div className="min-w-0">
               <p className="text-muted-foreground text-xs">Outlet</p>
               <p className="font-medium truncate">{outletName || '-'}</p>
             </div>
           </div>
           <div className="flex items-center gap-3 text-sm">
-            <Desktop size={18} className="text-muted-foreground shrink-0" />
+            <Monitor size={18} className="text-muted-foreground shrink-0" />
             <div className="min-w-0">
               <p className="text-muted-foreground text-xs">Perangkat</p>
               <p className="font-medium truncate">{deviceName || '-'}</p>
@@ -90,7 +90,7 @@ export function UserMenu({ open, onOpenChange }: UserMenuProps) {
             className="w-full justify-start gap-3 h-11"
             onClick={handleSettings}
           >
-            <GearSix size={20} />
+            <Settings size={20} />
             Pengaturan
           </Button>
           <Button
@@ -98,7 +98,7 @@ export function UserMenu({ open, onOpenChange }: UserMenuProps) {
             className="w-full justify-start gap-3 h-11 text-destructive hover:text-destructive"
             onClick={() => void handleLogout()}
           >
-            <SignOut size={20} />
+            <LogOut size={20} />
             Keluar
           </Button>
         </div>

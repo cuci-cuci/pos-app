@@ -1,16 +1,16 @@
-import { Drop, Fire, Wind, Scales, Lightning, SneakerMove, TShirt, Tag, type Icon } from '@phosphor-icons/react'
+import { Droplet, Flame, Wind, Scale, Zap, Footprints, Shirt, Tag, type LucideIcon } from 'lucide-react'
 
-const CATEGORY_ICONS: Record<string, Icon> = {
-  'Cuci': Drop,
-  'Setrika': Fire,
+const CATEGORY_ICONS: Record<string, LucideIcon> = {
+  'Cuci': Droplet,
+  'Setrika': Flame,
   'Dry Clean': Wind,
-  'Kiloan': Scales,
-  'Express': Lightning,
-  'Sepatu': SneakerMove,
-  'Pakaian': TShirt,
+  'Kiloan': Scale,
+  'Express': Zap,
+  'Sepatu': Footprints,
+  'Pakaian': Shirt,
 }
 
-export function getCategoryIcon(name: string): Icon {
+export function getCategoryIcon(name: string): LucideIcon {
   const key = Object.keys(CATEGORY_ICONS).find(k =>
     name.toLowerCase().includes(k.toLowerCase())
   )

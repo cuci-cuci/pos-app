@@ -13,7 +13,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { showToast } from '@/components/ui/toast'
-import { LockOpen, CurrencyDollar } from '@phosphor-icons/react'
+import { LockOpen, DollarSign } from 'lucide-react'
 
 interface OpenShiftDialogProps {
   open: boolean
@@ -70,7 +70,7 @@ export function OpenShiftDialog({ open, onOpenChange }: OpenShiftDialogProps) {
               Kas Awal
             </label>
             <div className="relative">
-              <CurrencyDollar
+              <DollarSign
                 size={18}
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
               />

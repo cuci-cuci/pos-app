@@ -12,12 +12,12 @@ import {
   ArrowLeft,
   CheckCircle,
   XCircle,
-  ArrowsClockwise,
+  RefreshCw,
   Clock,
   Receipt,
   CloudCheck,
   CloudSlash,
-} from '@phosphor-icons/react'
+} from 'lucide-react'
 import type { SyncStatus, TransactionStatus } from '@/db/schema'
 
 function statusLabel(status: TransactionStatus) {
@@ -27,7 +27,7 @@ function statusLabel(status: TransactionStatus) {
     case 'cancelled':
       return { label: 'Dibatalkan', variant: 'destructive' as const, icon: XCircle }
     case 'refunded':
-      return { label: 'Refund', variant: 'secondary' as const, icon: ArrowsClockwise }
+      return { label: 'Refund', variant: 'secondary' as const, icon: RefreshCw }
   }
 }
 
@@ -38,7 +38,7 @@ function syncStatusInfo(syncStatus: SyncStatus) {
     case 'pending':
       return { label: 'Menunggu sinkronisasi', color: 'text-muted-foreground', icon: Clock }
     case 'syncing':
-      return { label: 'Sedang sinkronisasi...', color: 'text-primary', icon: ArrowsClockwise }
+      return { label: 'Sedang sinkronisasi...', color: 'text-primary', icon: RefreshCw }
     case 'failed':
       return { label: 'Gagal sinkron', color: 'text-destructive', icon: CloudSlash }
   }
@@ -149,7 +149,7 @@ export function TransactionDetailPage() {
             <div className="flex justify-between items-center text-xs mt-1">
               <span className="text-muted-foreground">Status</span>
               <Badge variant={status.variant} className="gap-1">
-                <StatusIcon size={12} weight="bold" />
+                <StatusIcon size={12} />
                 {status.label}
               </Badge>
             </div>
@@ -256,7 +256,7 @@ export function TransactionDetailPage() {
                   sync.color,
                   transaction.syncStatus === 'syncing' && 'animate-spin'
                 )}
-                weight="bold"
+               
               />
               <span className={cn('text-xs font-medium', sync.color)}>
                 {sync.label}

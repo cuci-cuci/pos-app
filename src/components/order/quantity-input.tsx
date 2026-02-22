@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Minus, Plus } from '@phosphor-icons/react'
+import { Minus, Plus } from 'lucide-react'
 import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
@@ -122,7 +122,7 @@ export function QuantityInput({
             onClick={handleDecrement}
             className="w-12 h-12 rounded-full border-2 border-border flex items-center justify-center active:bg-accent touch-manipulation"
           >
-            <Minus size={22} weight="bold" />
+            <Minus size={22} />
           </button>
 
           <div className="text-center">
@@ -135,7 +135,7 @@ export function QuantityInput({
             onClick={handleIncrement}
             className="w-12 h-12 rounded-full border-2 border-primary text-primary flex items-center justify-center active:bg-primary/10 touch-manipulation"
           >
-            <Plus size={22} weight="bold" />
+            <Plus size={22} />
           </button>
         </div>
 

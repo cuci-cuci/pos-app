@@ -13,7 +13,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { showToast } from '@/components/ui/toast'
-import { LockSimple, CurrencyDollar, Receipt, Warning } from '@phosphor-icons/react'
+import { Lock, DollarSign, Receipt, AlertTriangle } from 'lucide-react'
 import type { ShiftSummary } from '@/services/shift-api'
 
 interface CloseShiftDialogProps {
@@ -72,7 +72,7 @@ export function CloseShiftDialog({ open, onOpenChange }: CloseShiftDialogProps) 
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <LockSimple size={20} />
+            <Lock size={20} />
             Tutup Shift
           </DialogTitle>
           <DialogDescription>
@@ -119,7 +119,7 @@ export function CloseShiftDialog({ open, onOpenChange }: CloseShiftDialogProps) 
                 Kas Akhir (Aktual)
               </label>
               <div className="relative">
-                <CurrencyDollar
+                <DollarSign
                   size={18}
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                 />
@@ -153,7 +153,7 @@ export function CloseShiftDialog({ open, onOpenChange }: CloseShiftDialogProps) 
                 }`}
               >
                 <span className="flex items-center gap-1.5">
-                  {difference !== 0 && <Warning size={16} />}
+                  {difference !== 0 && <AlertTriangle size={16} />}
                   Selisih
                 </span>
                 <span className="font-bold">{formatCurrency(difference)}</span>

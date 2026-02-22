@@ -1,19 +1,19 @@
 import { useRouter } from '@tanstack/react-router'
 import {
-  Storefront,
+  Store,
   Tag,
-  UserCircle,
+  CircleUser,
   CreditCard,
   Users,
-  ChartBar,
-  CaretRight,
-} from '@phosphor-icons/react'
-import type { Icon } from '@phosphor-icons/react'
+  BarChart3,
+  ChevronRight,
+} from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 
 interface ManageMenuItem {
   label: string
   description: string
-  icon: Icon
+  icon: LucideIcon
   iconBg: string
   iconColor: string
   path: string
@@ -23,7 +23,7 @@ const menuItems: ManageMenuItem[] = [
   {
     label: 'Outlet',
     description: 'Kelola outlet dan cabang',
-    icon: Storefront,
+    icon: Store,
     iconBg: 'bg-blue-100 dark:bg-blue-900/30',
     iconColor: 'text-blue-600 dark:text-blue-400',
     path: '/manage/outlets',
@@ -39,7 +39,7 @@ const menuItems: ManageMenuItem[] = [
   {
     label: 'Kasir',
     description: 'Kelola akun kasir',
-    icon: UserCircle,
+    icon: CircleUser,
     iconBg: 'bg-purple-100 dark:bg-purple-900/30',
     iconColor: 'text-purple-600 dark:text-purple-400',
     path: '/manage/cashiers',
@@ -63,7 +63,7 @@ const menuItems: ManageMenuItem[] = [
   {
     label: 'Analitik',
     description: 'Lihat laporan dan statistik',
-    icon: ChartBar,
+    icon: BarChart3,
     iconBg: 'bg-cyan-100 dark:bg-cyan-900/30',
     iconColor: 'text-cyan-600 dark:text-cyan-400',
     path: '/manage/analytics',
@@ -88,7 +88,7 @@ function MenuCard({
         <div
           className={`shrink-0 w-10 h-10 rounded-[var(--radius)] flex items-center justify-center ${item.iconBg}`}
         >
-          <IconComponent size={22} weight="bold" className={item.iconColor} />
+          <IconComponent size={22} className={item.iconColor} />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold">{item.label}</p>
@@ -96,7 +96,7 @@ function MenuCard({
             {item.description}
           </p>
         </div>
-        <CaretRight
+        <ChevronRight
           size={18}
           className="shrink-0 text-muted-foreground"
         />

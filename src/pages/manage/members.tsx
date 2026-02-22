@@ -4,9 +4,9 @@ import {
   ArrowLeft,
   Plus,
   Users,
-  MagnifyingGlass,
+  Search,
   Phone,
-} from '@phosphor-icons/react'
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -130,7 +130,7 @@ export function ManageMembersPage() {
 
       <div className="px-4 pb-3">
         <div className="relative">
-          <MagnifyingGlass
+          <Search
             size={16}
             className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
           />

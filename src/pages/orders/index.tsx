@@ -9,8 +9,8 @@ import { orderApi } from '@/services/order-api'
 import type { Order, OrderStatus } from '@/services/order-api'
 import {
   Package,
-  ArrowsClockwise,
-} from '@phosphor-icons/react'
+  RefreshCw,
+} from 'lucide-react'
 
 type FilterTab = 'all' | OrderStatus
 
@@ -143,7 +143,7 @@ export function OrdersPage() {
           disabled={refreshing}
           className="p-2 rounded-[var(--radius)] hover:bg-muted transition-colors touch-manipulation"
         >
-          <ArrowsClockwise
+          <RefreshCw
             size={22}
             className={cn(
               'text-muted-foreground',

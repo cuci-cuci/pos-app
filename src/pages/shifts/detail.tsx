@@ -5,7 +5,7 @@ import { ShiftSummary } from '@/components/shift/shift-summary'
 import { LoadingSpinner } from '@/components/shared/loading-spinner'
 import { EmptyState } from '@/components/shared/empty-state'
 import { Button } from '@/components/ui/button'
-import { CaretLeft, Warning } from '@phosphor-icons/react'
+import { ChevronLeft, AlertTriangle } from 'lucide-react'
 import type { ShiftSummary as ShiftSummaryType } from '@/services/shift-api'
 
 export function ShiftDetailPage() {
@@ -33,7 +33,7 @@ export function ShiftDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center h-full p-4">
         <EmptyState
-          icon={<Warning size={48} />}
+          icon={<AlertTriangle size={48} />}
           title="Gagal memuat"
           description="Tidak dapat memuat detail shift."
         />
@@ -42,7 +42,7 @@ export function ShiftDetailPage() {
           className="mt-4"
           onClick={() => router.navigate({ to: '/shifts' })}
         >
-          <CaretLeft size={16} className="mr-1" />
+          <ChevronLeft size={16} className="mr-1" />
           Kembali
         </Button>
       </div>
@@ -57,7 +57,7 @@ export function ShiftDetailPage() {
           onClick={() => router.navigate({ to: '/shifts' })}
           className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-2"
         >
-          <CaretLeft size={16} />
+          <ChevronLeft size={16} />
           Kembali
         </button>
         <h1 className="text-xl font-bold">Detail Shift</h1>

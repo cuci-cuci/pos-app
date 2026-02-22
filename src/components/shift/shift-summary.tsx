@@ -3,12 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
   Clock,
-  UserCircle,
-  Storefront,
+  CircleUser,
+  Store,
   Receipt,
-  CurrencyDollar,
+  DollarSign,
   ArrowsLeftRight,
-} from '@phosphor-icons/react'
+} from 'lucide-react'
 import type { ShiftSummary as ShiftSummaryType } from '@/services/shift-api'
 
 interface ShiftSummaryProps {
@@ -36,14 +36,14 @@ export function ShiftSummary({ summary }: ShiftSummaryProps) {
         <CardContent className="space-y-2 text-sm">
           <div className="flex justify-between">
             <span className="text-muted-foreground flex items-center gap-1.5">
-              <UserCircle size={14} />
+              <CircleUser size={14} />
               Kasir
             </span>
             <span className="font-medium">{summary.cashier_name}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground flex items-center gap-1.5">
-              <Storefront size={14} />
+              <Store size={14} />
               Outlet
             </span>
             <span className="font-medium text-xs text-muted-foreground">
@@ -98,7 +98,7 @@ export function ShiftSummary({ summary }: ShiftSummaryProps) {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2">
-              <CurrencyDollar size={18} />
+              <DollarSign size={18} />
               Breakdown Pembayaran
             </CardTitle>
           </CardHeader>

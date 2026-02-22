@@ -11,14 +11,14 @@ import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/shared/empty-state'
 import { LoadingSpinner } from '@/components/shared/loading-spinner'
 import {
-  MagnifyingGlass,
+  Search,
   Receipt,
   CheckCircle,
   XCircle,
-  ArrowsClockwise,
-  Warning,
+  RefreshCw,
+  AlertTriangle,
   Clock,
-} from '@phosphor-icons/react'
+} from 'lucide-react'
 import type { SyncStatus, TransactionStatus } from '@/db/schema'
 
 type FilterTab = 'today' | 'all' | 'failed'
@@ -34,21 +34,21 @@ function getStatusBadge(status: TransactionStatus) {
     case 'completed':
       return (
         <Badge variant="success" className="gap-1">
-          <CheckCircle size={12} weight="bold" />
+          <CheckCircle size={12} />
           Selesai
         </Badge>
       )
     case 'cancelled':
       return (
         <Badge variant="destructive" className="gap-1">
-          <XCircle size={12} weight="bold" />
+          <XCircle size={12} />
           Batal
         </Badge>
       )
     case 'refunded':
       return (
         <Badge variant="secondary" className="gap-1">
-          <ArrowsClockwise size={12} weight="bold" />
+          <RefreshCw size={12} />
           Refund
         </Badge>
       )
@@ -58,13 +58,13 @@ function getStatusBadge(status: TransactionStatus) {
 function getSyncIcon(syncStatus: SyncStatus) {
   switch (syncStatus) {
     case 'synced':
-      return <CheckCircle size={14} className="text-success" weight="fill" />
+      return <CheckCircle size={14} className="text-success" />
     case 'pending':
-      return <Clock size={14} className="text-muted-foreground" weight="fill" />
+      return <Clock size={14} className="text-muted-foreground" />
     case 'syncing':
-      return <ArrowsClockwise size={14} className="text-primary animate-spin" />
+      return <RefreshCw size={14} className="text-primary animate-spin" />
     case 'failed':
-      return <Warning size={14} className="text-destructive" weight="fill" />
+      return <AlertTriangle size={14} className="text-destructive" />
   }
 }
 
@@ -157,7 +157,7 @@ export function TransactionsPage() {
       {/* Search */}
       <div className="px-4 pb-2">
         <div className="relative">
-          <MagnifyingGlass
+          <Search
             size={18}
             className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
           />

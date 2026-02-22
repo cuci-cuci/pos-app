@@ -1,6 +1,6 @@
 import type { CartItem } from '@/stores/cart-store'
 import { formatCurrency } from '@/lib/format'
-import { Trash } from '@phosphor-icons/react'
+import { Trash } from 'lucide-react'
 
 interface CartItemRowProps {
   item: CartItem

@@ -19,7 +19,7 @@ import {
   Wallet,
   CheckCircle,
   ArrowLeft,
-} from '@phosphor-icons/react'
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface PaymentDialogProps {
@@ -347,7 +347,7 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
               <CheckCircle
                 size={80}
                 className="text-green-500 mx-auto mb-4"
-                weight="fill"
+               
               />
               <h2 className="text-xl font-bold mb-1">Pembayaran Berhasil!</h2>
               <p className="text-sm text-muted-foreground">

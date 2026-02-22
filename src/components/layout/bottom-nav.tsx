@@ -1,28 +1,28 @@
 import { useRouter, useMatches } from '@tanstack/react-router'
-import { Storefront, Receipt, GearSix, ChartBar, DotsThree, Wrench, Package } from '@phosphor-icons/react'
+import { Store, Receipt, Settings, BarChart3, MoreHorizontal, Wrench, Package } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
 import { cn } from '@/lib/utils'
-import type { Icon } from '@phosphor-icons/react'
+import type { LucideIcon } from 'lucide-react'
 
 interface NavItem {
   label: string
-  icon: Icon
+  icon: LucideIcon
   path: string
 }
 
 const cashierNavItems: NavItem[] = [
-  { label: 'Kasir', icon: Storefront, path: '/' },
+  { label: 'Kasir', icon: Store, path: '/' },
   { label: 'Pesanan', icon: Package, path: '/orders' },
   { label: 'Riwayat', icon: Receipt, path: '/transactions' },
-  { label: 'Pengaturan', icon: GearSix, path: '/settings' },
+  { label: 'Pengaturan', icon: Settings, path: '/settings' },
 ]
 
 const ownerNavItems: NavItem[] = [
-  { label: 'Dashboard', icon: ChartBar, path: '/dashboard' },
-  { label: 'Kasir', icon: Storefront, path: '/' },
+  { label: 'Dashboard', icon: BarChart3, path: '/dashboard' },
+  { label: 'Kasir', icon: Store, path: '/' },
   { label: 'Pesanan', icon: Package, path: '/orders' },
   { label: 'Kelola', icon: Wrench, path: '/manage' },
-  { label: 'Lainnya', icon: DotsThree, path: '/settings' },
+  { label: 'Lainnya', icon: MoreHorizontal, path: '/settings' },
 ]
 
 export function BottomNav() {

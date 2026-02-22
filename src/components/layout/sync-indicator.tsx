@@ -1,5 +1,5 @@
 import { useSyncStore } from '@/stores/sync-store'
-import { ArrowsClockwise, WifiHigh, WifiSlash, Warning } from '@phosphor-icons/react'
+import { RefreshCw, Wifi, WifiOff, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function SyncIndicator() {
@@ -8,13 +8,13 @@ export function SyncIndicator() {
   return (
     <div className="flex items-center gap-2">
       {isOnline ? (
-        <WifiHigh size={18} className="text-success" weight="bold" />
+        <Wifi size={18} className="text-success" />
       ) : (
-        <WifiSlash size={18} className="text-destructive" weight="bold" />
+        <WifiOff size={18} className="text-destructive" />
       )}
 
       {isSyncing && (
-        <ArrowsClockwise size={18} className="text-primary animate-spin" />
+        <RefreshCw size={18} className="text-primary animate-spin" />
       )}
 
       {pendingCount > 0 && (
@@ -31,7 +31,7 @@ export function SyncIndicator() {
       )}
 
       {!isOnline && (
-        <Warning size={16} className="text-amber-500" weight="fill" />
+        <AlertTriangle size={16} className="text-amber-500" />
       )}
     </div>
   )

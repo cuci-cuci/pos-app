@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { LoadingSpinner } from '@/components/shared/loading-spinner'
 import { EmptyState } from '@/components/shared/empty-state'
-import { ClockCounterClockwise, CaretLeft, CaretRight } from '@phosphor-icons/react'
+import { History, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { Shift } from '@/services/shift-api'
 
 export function ShiftsPage() {
@@ -44,7 +44,7 @@ export function ShiftsPage() {
       <div className="flex-1 overflow-y-auto px-4 pb-4">
         {shifts.length === 0 ? (
           <EmptyState
-            icon={<ClockCounterClockwise size={48} />}
+            icon={<History size={48} />}
             title="Belum ada shift"
             description="Shift akan muncul di sini setelah Anda membuka shift pertama."
           />
@@ -117,7 +117,7 @@ export function ShiftsPage() {
             disabled={page <= 1}
             onClick={() => setPage((p) => p - 1)}
           >
-            <CaretLeft size={16} />
+            <ChevronLeft size={16} />
           </Button>
           <span className="text-sm text-muted-foreground">
             {page} / {totalPages}
@@ -128,7 +128,7 @@ export function ShiftsPage() {
             disabled={page >= totalPages}
             onClick={() => setPage((p) => p + 1)}
           >
-            <CaretRight size={16} />
+            <ChevronRight size={16} />
           </Button>
         </div>
       )}

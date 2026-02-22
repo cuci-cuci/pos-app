@@ -10,7 +10,7 @@ import { QuantityInput } from '@/components/order/quantity-input'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Input } from '@/components/ui/input'
 import { EmptyState } from '@/components/shared/empty-state'
-import { ShoppingCart, MagnifyingGlass } from '@phosphor-icons/react'
+import { ShoppingCart, Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { formatCurrency } from '@/lib/format'
 import { getCategoryIcon } from '@/lib/category-icons'
@@ -97,7 +97,7 @@ export function PosPage() {
         {/* Search bar */}
         <div className="p-4 pb-2">
           <div className="relative">
-            <MagnifyingGlass size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Cari layanan..."
               value={searchQuery}
@@ -188,7 +188,7 @@ export function PosPage() {
             <div className="flex-1 overflow-y-auto">
               {filteredServices.length === 0 ? (
                 <EmptyState
-                  icon={<MagnifyingGlass size={48} />}
+                  icon={<Search size={48} />}
                   title="Tidak ada layanan"
                   description={searchQuery ? 'Coba kata kunci lain' : 'Belum ada layanan untuk kategori ini.'}
                 />
@@ -213,7 +213,7 @@ export function PosPage() {
         {itemCount > 0 && (
           <div className="hidden md:flex items-center justify-between px-4 py-3 border-t border-border bg-card">
             <div className="flex items-center gap-2">
-              <ShoppingCart size={20} className="text-primary" weight="fill" />
+              <ShoppingCart size={20} className="text-primary" />
               <span className="text-sm font-medium">{itemCount} item</span>
             </div>
             <span className="text-base font-bold">{formatCurrency(total)}</span>
@@ -240,7 +240,7 @@ export function PosPage() {
         >
           <div className="flex items-center gap-3">
             <div className="relative">
-              <ShoppingCart size={24} weight="fill" />
+              <ShoppingCart size={24} />
               <span className="absolute -top-2 -right-2 bg-white text-primary text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
                 {itemCount}
               </span>

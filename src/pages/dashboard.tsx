@@ -10,18 +10,18 @@ import { Button } from '@/components/ui/button'
 import { LoadingSpinner } from '@/components/shared/loading-spinner'
 import { EmptyState } from '@/components/shared/empty-state'
 import {
-  CurrencyDollar,
+  DollarSign,
   Receipt,
   CloudArrowUp,
   TrendUp,
   Plus,
-  ClockCounterClockwise,
-  ArrowsClockwise,
+  History,
+  RefreshCw,
   ShieldCheck,
   CheckCircle,
-  Warning,
+  AlertTriangle,
   Clock,
-} from '@phosphor-icons/react'
+} from 'lucide-react'
 import type { ReactNode } from 'react'
 import type { SyncStatus } from '@/db/schema'
 
@@ -61,13 +61,13 @@ function SummaryCard({ icon, label, value, subValue, iconBg, iconColor }: Summar
 function getSyncIcon(syncStatus: SyncStatus) {
   switch (syncStatus) {
     case 'synced':
-      return <CheckCircle size={14} className="text-success" weight="fill" />
+      return <CheckCircle size={14} className="text-success" />
     case 'pending':
-      return <Clock size={14} className="text-muted-foreground" weight="fill" />
+      return <Clock size={14} className="text-muted-foreground" />
     case 'failed':
-      return <Warning size={14} className="text-destructive" weight="fill" />
+      return <AlertTriangle size={14} className="text-destructive" />
     default:
-      return <ArrowsClockwise size={14} className="text-primary animate-spin" />
+      return <RefreshCw size={14} className="text-primary animate-spin" />
   }
 }
 
@@ -136,14 +136,14 @@ export function DashboardPage() {
       {/* Summary cards */}
       <div className="px-4 grid grid-cols-2 gap-3">
         <SummaryCard
-          icon={<CurrencyDollar size={22} weight="bold" />}
+          icon={<DollarSign size={22} />}
           label="Revenue Hari Ini"
           value={formatCurrency(todayRevenue)}
           iconBg="bg-emerald-100 dark:bg-emerald-900/30"
           iconColor="text-emerald-600 dark:text-emerald-400"
         />
         <SummaryCard
-          icon={<Receipt size={22} weight="bold" />}
+          icon={<Receipt size={22} />}
           label="Total Transaksi"
           value={todayCount.toString()}
           subValue="hari ini"
@@ -151,7 +151,7 @@ export function DashboardPage() {
           iconColor="text-blue-600 dark:text-blue-400"
         />
         <SummaryCard
-          icon={<CloudArrowUp size={22} weight="bold" />}
+          icon={<CloudArrowUp size={22} />}
           label="Pending Sync"
           value={pendingCount.toString()}
           subValue={pendingCount === 0 ? 'Semua tersinkron' : 'menunggu'}
@@ -159,7 +159,7 @@ export function DashboardPage() {
           iconColor="text-amber-600 dark:text-amber-400"
         />
         <SummaryCard
-          icon={<TrendUp size={22} weight="bold" />}
+          icon={<TrendUp size={22} />}
           label="Rata-rata Transaksi"
           value={formatCurrency(avgTransaction)}
           subValue="per transaksi"
@@ -187,7 +187,7 @@ export function DashboardPage() {
             className="h-auto py-3 flex-col gap-1.5"
             onClick={() => router.navigate({ to: '/transactions' })}
           >
-            <ClockCounterClockwise size={20} />
+            <History size={20} />
             <span className="text-xs">Lihat Riwayat</span>
           </Button>
           <Button
@@ -195,7 +195,7 @@ export function DashboardPage() {
             className="h-auto py-3 flex-col gap-1.5"
             onClick={() => router.navigate({ to: '/settings' })}
           >
-            <ArrowsClockwise size={20} />
+            <RefreshCw size={20} />
             <span className="text-xs">Sinkronisasi</span>
           </Button>
         </div>

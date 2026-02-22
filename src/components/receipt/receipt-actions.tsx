@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { useDeviceStore } from '@/stores/device-store'
 import { formatCurrency } from '@/lib/format'
-import { Printer, ShareNetwork, Check } from '@phosphor-icons/react'
+import { Printer, Share2, Check } from 'lucide-react'
 import type { OrderDetail } from '@/services/order-api'
 
 interface ReceiptActionsProps {
@@ -87,7 +87,7 @@ export function ReceiptActions({ order }: ReceiptActionsProps) {
         className="flex-1 gap-2"
         onClick={() => void handleShare()}
       >
-        {copied ? <Check size={18} /> : <ShareNetwork size={18} />}
+        {copied ? <Check size={18} /> : <Share2 size={18} />}
         {copied ? 'Tersalin!' : 'Bagikan'}
       </Button>
     </div>

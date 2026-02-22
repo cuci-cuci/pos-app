@@ -10,8 +10,8 @@ import { orderApi } from '@/services/order-api'
 import type { OrderDetail, OrderStatus } from '@/services/order-api'
 import {
   ArrowLeft,
-  Warning,
-} from '@phosphor-icons/react'
+  AlertTriangle,
+} from 'lucide-react'
 
 const statusColors: Record<OrderStatus, { bg: string; text: string }> = {
   received: {
@@ -175,7 +175,7 @@ export function OrderDetailPage() {
   if (!order) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-4">
-        <Warning size={48} className="text-muted-foreground mb-4" />
+        <AlertTriangle size={48} className="text-muted-foreground mb-4" />
         <p className="text-base font-semibold">Pesanan tidak ditemukan</p>
         <Button
           variant="outline"
