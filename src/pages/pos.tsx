@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/shared/empty-state'
 import { ShoppingCart, Search, Clock } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { formatCurrency } from '@/lib/format'
+import { formatCurrency, formatTime } from '@/lib/format'
 import { getCategoryIcon } from '@/lib/category-icons'
 
 export function PosPage() {
@@ -119,8 +119,8 @@ export function PosPage() {
     )
   }
 
-  const shiftOpenedTime = currentShift
-    ? new Date(currentShift.opened_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+  const shiftOpenedTime = currentShift?.opened_at
+    ? formatTime(currentShift.opened_at)
     : ''
 
   return (

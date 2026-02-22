@@ -88,6 +88,7 @@ function useShiftDuration(openedAt: string | undefined) {
 
     function computeDuration() {
       const start = new Date(openedAt!).getTime()
+      if (isNaN(start)) { setDuration('-'); return }
       const now = Date.now()
       const diffMs = now - start
       const hours = Math.floor(diffMs / (1000 * 60 * 60))
