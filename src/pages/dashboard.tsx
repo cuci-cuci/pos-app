@@ -29,33 +29,35 @@ import {
 import type { ReactNode } from 'react'
 import type { SyncStatus } from '@/db/schema'
 
+type CardVariant = 'primary' | 'success' | 'warning' | 'info'
+
+const variantStyles: Record<CardVariant, { bg: string; text: string }> = {
+  primary: { bg: 'bg-primary/10', text: 'text-primary' },
+  success: { bg: 'bg-success/15', text: 'text-success' },
+  warning: { bg: 'bg-warning/15', text: 'text-warning' },
+  info: { bg: 'bg-info/15', text: 'text-info' },
+}
+
 interface SummaryCardProps {
   icon: ReactNode
   label: string
   value: string
   subValue?: string
-  iconBg: string
-  iconColor: string
+  variant?: CardVariant
 }
 
-function SummaryCard({ icon, label, value, subValue, iconBg, iconColor }: SummaryCardProps) {
+function SummaryCard({ icon, label, value, subValue, variant = 'primary' }: SummaryCardProps) {
+  const style = variantStyles[variant]
   return (
     <div className="bg-card border rounded-[var(--radius)] p-4">
       <div className="flex items-start gap-3">
-        <div
-          className={cn(
-            'shrink-0 w-10 h-10 rounded-[var(--radius)] flex items-center justify-center',
-            iconBg
-          )}
-        >
-          <span className={iconColor}>{icon}</span>
+        <div className={cn('shrink-0 w-10 h-10 rounded-[var(--radius)] flex items-center justify-center', style.bg)}>
+          <span className={style.text}>{icon}</span>
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-xs text-muted-foreground font-medium">{label}</p>
           <p className="text-lg font-bold mt-0.5 truncate">{value}</p>
-          {subValue && (
-            <p className="text-xs text-muted-foreground mt-0.5">{subValue}</p>
-          )}
+          {subValue && <p className="text-xs text-muted-foreground mt-0.5">{subValue}</p>}
         </div>
       </div>
     </div>
@@ -116,17 +118,17 @@ function ShiftStatusCard({ onOpenShift, onCloseShift }: ShiftStatusCardProps) {
 
   if (currentShift) {
     return (
-      <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-[var(--radius)] p-4">
+      <div className="bg-success/10 border border-success/20 rounded-[var(--radius)] p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
-              <Play size={16} className="text-emerald-600 dark:text-emerald-400" />
+            <div className="w-8 h-8 rounded-full bg-success/15 flex items-center justify-center">
+              <Play size={16} className="text-success" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
+              <p className="text-sm font-semibold text-success">
                 Shift Aktif
               </p>
-              <p className="text-xs text-emerald-600 dark:text-emerald-400">
+              <p className="text-xs text-success/80">
                 Kas awal: {formatCurrency(currentShift.opening_cash)}
                 {duration && <> &middot; {duration}</>}
               </p>
@@ -135,7 +137,7 @@ function ShiftStatusCard({ onOpenShift, onCloseShift }: ShiftStatusCardProps) {
           <Button
             variant="outline"
             size="sm"
-            className="border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/40"
+            className="border-success/30 text-success hover:bg-success/10"
             onClick={onCloseShift}
           >
             <Square size={14} className="mr-1" />
@@ -147,17 +149,17 @@ function ShiftStatusCard({ onOpenShift, onCloseShift }: ShiftStatusCardProps) {
   }
 
   return (
-    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-[var(--radius)] p-4">
+    <div className="bg-warning/10 border border-warning/20 rounded-[var(--radius)] p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
-            <AlertTriangle size={16} className="text-amber-600 dark:text-amber-400" />
+          <div className="w-8 h-8 rounded-full bg-warning/15 flex items-center justify-center">
+            <AlertTriangle size={16} className="text-warning" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+            <p className="text-sm font-semibold text-warning">
               Tidak Ada Shift Aktif
             </p>
-            <p className="text-xs text-amber-600 dark:text-amber-400">
+            <p className="text-xs text-warning/80">
               Buka shift untuk mulai transaksi
             </p>
           </div>
@@ -165,7 +167,7 @@ function ShiftStatusCard({ onOpenShift, onCloseShift }: ShiftStatusCardProps) {
         <Button
           variant="outline"
           size="sm"
-          className="border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40"
+          className="border-warning/30 text-warning hover:bg-warning/10"
           onClick={onOpenShift}
         >
           <Play size={14} className="mr-1" />
@@ -245,31 +247,27 @@ export function DashboardPage() {
             icon={<Receipt size={22} />}
             label="Transaksi Hari Ini"
             value={todayCount.toString()}
-            iconBg="bg-blue-100 dark:bg-blue-900/30"
-            iconColor="text-blue-600 dark:text-blue-400"
+            variant="info"
           />
           <SummaryCard
             icon={<DollarSign size={22} />}
             label="Revenue Hari Ini"
             value={formatCurrency(todayRevenue)}
-            iconBg="bg-emerald-100 dark:bg-emerald-900/30"
-            iconColor="text-emerald-600 dark:text-emerald-400"
+            variant="success"
           />
           <SummaryCard
             icon={<CloudUpload size={22} />}
             label="Pending Sync"
             value={pendingCount.toString()}
             subValue={pendingCount === 0 ? 'Semua tersinkron' : 'menunggu'}
-            iconBg="bg-amber-100 dark:bg-amber-900/30"
-            iconColor="text-amber-600 dark:text-amber-400"
+            variant="warning"
           />
           <SummaryCard
             icon={<TrendingUp size={22} />}
             label="Rata-rata"
             value={formatCurrency(avgTransaction)}
             subValue="per transaksi"
-            iconBg="bg-purple-100 dark:bg-purple-900/30"
-            iconColor="text-purple-600 dark:text-purple-400"
+            variant="primary"
           />
         </div>
 
@@ -391,32 +389,28 @@ export function DashboardPage() {
           icon={<DollarSign size={22} />}
           label="Revenue Hari Ini"
           value={formatCurrency(todayRevenue)}
-          iconBg="bg-emerald-100 dark:bg-emerald-900/30"
-          iconColor="text-emerald-600 dark:text-emerald-400"
+          variant="success"
         />
         <SummaryCard
           icon={<Receipt size={22} />}
           label="Total Transaksi"
           value={todayCount.toString()}
           subValue="hari ini"
-          iconBg="bg-blue-100 dark:bg-blue-900/30"
-          iconColor="text-blue-600 dark:text-blue-400"
+          variant="info"
         />
         <SummaryCard
           icon={<CloudUpload size={22} />}
           label="Pending Sync"
           value={pendingCount.toString()}
           subValue={pendingCount === 0 ? 'Semua tersinkron' : 'menunggu'}
-          iconBg="bg-amber-100 dark:bg-amber-900/30"
-          iconColor="text-amber-600 dark:text-amber-400"
+          variant="warning"
         />
         <SummaryCard
           icon={<TrendingUp size={22} />}
           label="Rata-rata Transaksi"
           value={formatCurrency(avgTransaction)}
           subValue="per transaksi"
-          iconBg="bg-purple-100 dark:bg-purple-900/30"
-          iconColor="text-purple-600 dark:text-purple-400"
+          variant="primary"
         />
       </div>
 

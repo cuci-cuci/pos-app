@@ -127,10 +127,10 @@ export function PosPage() {
     <div className="flex flex-col h-[calc(100vh-3.5rem-4rem)] md:h-[calc(100vh-3.5rem)]">
       {/* Shift info bar */}
       {currentShift && (
-        <div className="flex items-center gap-2 px-4 py-1.5 bg-green-50 dark:bg-green-900/20 border-b border-green-200 dark:border-green-800 text-sm text-green-700 dark:text-green-400">
+        <div className="flex items-center gap-2 px-4 py-1.5 bg-success/10 border-b border-success/20 text-sm text-success">
           <Clock size={14} />
           <span>Shift aktif sejak {shiftOpenedTime}</span>
-          <span className="text-green-500 dark:text-green-600">|</span>
+          <span className="text-success/60">|</span>
           <span>Kas awal: {formatCurrency(currentShift.opening_cash)}</span>
         </div>
       )}
@@ -276,7 +276,7 @@ export function PosPage() {
           onClick={() => setCartSheetOpen(true)}
           className={cn(
             'md:hidden fixed bottom-20 left-4 right-4 z-30',
-            'bg-primary text-primary-foreground rounded-2xl',
+            'bg-primary text-primary-foreground rounded-[var(--radius)]',
             'flex items-center justify-between px-5 py-4 shadow-lg',
             'active:scale-[0.98] transition-transform touch-manipulation'
           )}
