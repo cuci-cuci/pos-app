@@ -44,7 +44,6 @@ export function SettingsPage() {
   const {
     deviceId,
     deviceName,
-    outletId,
     outletName,
     setupCompletedAt,
   } = useDeviceStore()

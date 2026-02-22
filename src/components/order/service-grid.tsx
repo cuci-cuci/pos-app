@@ -22,7 +22,7 @@ export function ServiceGrid({ services, onSelectService }: ServiceGridProps) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-3 p-4">
       {services.map((service) => (
-        <ServiceCard key={service.id} service={service} onSelect={onSelectService} />
+        <ServiceCard key={service.id} service={service} categoryName="" onSelect={onSelectService} />
       ))}
     </div>
   )

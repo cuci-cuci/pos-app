@@ -7,7 +7,6 @@ import { useSyncStore } from '@/stores/sync-store'
 import { formatCurrency, formatTime } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { LoadingSpinner } from '@/components/shared/loading-spinner'
 import { EmptyState } from '@/components/shared/empty-state'
 import {
