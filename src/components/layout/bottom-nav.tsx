@@ -1,5 +1,5 @@
 import { useRouter, useMatches } from '@tanstack/react-router'
-import { Storefront, Receipt, GearSix, ChartBar, DotsThree, Wrench } from '@phosphor-icons/react'
+import { Storefront, Receipt, GearSix, ChartBar, DotsThree, Wrench, Package } from '@phosphor-icons/react'
 import { useAuthStore } from '@/stores/auth-store'
 import { cn } from '@/lib/utils'
 import type { Icon } from '@phosphor-icons/react'
@@ -12,6 +12,7 @@ interface NavItem {
 
 const cashierNavItems: NavItem[] = [
   { label: 'Kasir', icon: Storefront, path: '/' },
+  { label: 'Pesanan', icon: Package, path: '/orders' },
   { label: 'Riwayat', icon: Receipt, path: '/transactions' },
   { label: 'Pengaturan', icon: GearSix, path: '/settings' },
 ]
@@ -19,8 +20,8 @@ const cashierNavItems: NavItem[] = [
 const ownerNavItems: NavItem[] = [
   { label: 'Dashboard', icon: ChartBar, path: '/dashboard' },
   { label: 'Kasir', icon: Storefront, path: '/' },
+  { label: 'Pesanan', icon: Package, path: '/orders' },
   { label: 'Kelola', icon: Wrench, path: '/manage' },
-  { label: 'Riwayat', icon: Receipt, path: '/transactions' },
   { label: 'Lainnya', icon: DotsThree, path: '/settings' },
 ]
 

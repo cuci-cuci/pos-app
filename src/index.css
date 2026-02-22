@@ -62,3 +62,19 @@ dialog::backdrop {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .receipt-printable,
+  .receipt-printable * {
+    visibility: visible;
+  }
+  .receipt-printable {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm;
+  }
+}

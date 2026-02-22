@@ -21,6 +21,10 @@ import { ManageCashiersPage } from '@/pages/manage/cashiers'
 import { ManagePaymentMethodsPage } from '@/pages/manage/payment-methods'
 import { ManageMembersPage } from '@/pages/manage/members'
 import { ManageAnalyticsPage } from '@/pages/manage/analytics'
+import { OrdersPage } from '@/pages/orders'
+import { OrderDetailPage } from '@/pages/orders/detail'
+import { ShiftsPage } from '@/pages/shifts/index'
+import { ShiftDetailPage } from '@/pages/shifts/detail'
 import { useAuthStore } from '@/stores/auth-store'
 import { useDeviceStore } from '@/stores/device-store'
 
@@ -195,6 +199,30 @@ const manageMembersRoute = createRoute({
   },
 })
 
+const ordersRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: '/orders',
+  component: OrdersPage,
+})
+
+const orderDetailRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: '/orders/$id',
+  component: OrderDetailPage,
+})
+
+const shiftsRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: '/shifts',
+  component: ShiftsPage,
+})
+
+const shiftDetailRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: '/shifts/$id',
+  component: ShiftDetailPage,
+})
+
 const manageAnalyticsRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/manage/analytics',
@@ -218,6 +246,8 @@ const routeTree = rootRoute.addChildren([
     transactionsRoute,
     transactionDetailRoute,
     settingsRoute,
+    ordersRoute,
+    orderDetailRoute,
     manageRoute,
     manageOutletsRoute,
     managePricingRoute,
@@ -225,6 +255,8 @@ const routeTree = rootRoute.addChildren([
     managePaymentMethodsRoute,
     manageMembersRoute,
     manageAnalyticsRoute,
+    shiftsRoute,
+    shiftDetailRoute,
   ]),
 ])
 
