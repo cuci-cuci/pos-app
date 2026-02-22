@@ -12,8 +12,8 @@ import { EmptyState } from '@/components/shared/empty-state'
 import {
   DollarSign,
   Receipt,
-  CloudArrowUp,
-  TrendUp,
+  CloudUpload,
+  TrendingUp,
   Plus,
   History,
   RefreshCw,
@@ -151,7 +151,7 @@ export function DashboardPage() {
           iconColor="text-blue-600 dark:text-blue-400"
         />
         <SummaryCard
-          icon={<CloudArrowUp size={22} />}
+          icon={<CloudUpload size={22} />}
           label="Pending Sync"
           value={pendingCount.toString()}
           subValue={pendingCount === 0 ? 'Semua tersinkron' : 'menunggu'}
@@ -159,7 +159,7 @@ export function DashboardPage() {
           iconColor="text-amber-600 dark:text-amber-400"
         />
         <SummaryCard
-          icon={<TrendUp size={22} />}
+          icon={<TrendingUp size={22} />}
           label="Rata-rata Transaksi"
           value={formatCurrency(avgTransaction)}
           subValue="per transaksi"

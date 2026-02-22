@@ -21,7 +21,7 @@ import {
   WifiOff,
   CloudCheck,
   AlertTriangle,
-  DeviceMobile,
+  Smartphone,
   Store,
   CircleUser,
   Wrench,
@@ -105,7 +105,7 @@ export function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2">
-              <DeviceMobile size={18} />
+              <Smartphone size={18} />
               Perangkat
             </CardTitle>
           </CardHeader>

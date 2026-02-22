@@ -4,7 +4,7 @@ import {
   ArrowLeft,
   DollarSign,
   Receipt,
-  TrendUp,
+  TrendingUp,
   BarChart3,
   Store,
 } from 'lucide-react'
@@ -165,7 +165,7 @@ export function ManageAnalyticsPage() {
                 iconColor="text-blue-600 dark:text-blue-400"
               />
               <SummaryCard
-                icon={<TrendUp size={22} />}
+                icon={<TrendingUp size={22} />}
                 label="Rata-rata"
                 value={formatCurrency(summary.avg_transaction)}
                 subValue="per transaksi"

@@ -139,7 +139,7 @@ export function PosPage() {
                         : 'text-muted-foreground border-l-transparent hover:bg-accent'
                     )}
                   >
-                    <IconComp size={18} weight={selectedCategoryId === cat.id ? 'fill' : 'regular'} />
+                    <IconComp size={18} strokeWidth={selectedCategoryId === cat.id ? 2.5 : 1.5} />
                     <span className="truncate">{cat.name}</span>
                   </button>
                 )

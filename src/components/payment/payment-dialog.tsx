@@ -13,9 +13,9 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { showToast } from '@/components/ui/toast'
 import {
-  Money,
+  Banknote,
   QrCode,
-  Bank,
+  Landmark,
   Wallet,
   CheckCircle,
   ArrowLeft,
@@ -29,10 +29,10 @@ interface PaymentDialogProps {
 
 type Step = 'review' | 'method' | 'cash' | 'noncash' | 'success'
 
-const methodIcons: Record<string, typeof Money> = {
-  cash: Money,
+const methodIcons: Record<string, typeof Banknote> = {
+  cash: Banknote,
   qris: QrCode,
-  bank_transfer: Bank,
+  bank_transfer: Landmark,
   ewallet: Wallet,
   other: Wallet,
 }
@@ -226,7 +226,7 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
                     <IconComp
                       size={28}
                       className={method.type === 'cash' ? 'text-green-600' : 'text-primary'}
-                      weight="duotone"
+                      
                     />
                     <span className="text-base font-medium">{method.name}</span>
                   </button>

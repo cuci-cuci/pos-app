@@ -215,7 +215,7 @@ export function OnboardingPage() {
                     <Store
                       size={48}
                       className="text-primary"
-                      weight="duotone"
+                     
                     />
                   </div>
                 </div>

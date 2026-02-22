@@ -32,7 +32,7 @@ export function ServiceCard({ service, categoryName, cartQuantity, onSelect }: S
       )}
 
       {/* Category icon */}
-      <IconComp size={18} className="text-muted-foreground mb-2" weight="duotone" />
+      <IconComp size={18} className="text-muted-foreground mb-2" />
 
       {/* Service name */}
       <span className="text-sm font-bold leading-tight line-clamp-2 mb-1">{service.name}</span>
