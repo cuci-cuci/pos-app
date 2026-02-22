@@ -62,7 +62,7 @@ export function SettingsPage() {
   const handleSync = async () => {
     setSyncing(true)
     try {
-      await syncEngine.triggerSync()
+      await syncEngine.forceSync()
       showToast('Sinkronisasi berhasil', 'success')
     } catch {
       showToast('Sinkronisasi gagal', 'error')

@@ -6,6 +6,7 @@ import type { Outlet } from '@/db/schema'
 import { useDeviceStore } from '@/stores/device-store'
 import { useAuthStore } from '@/stores/auth-store'
 import { apiClient } from '@/services/api-client'
+import { syncEngine } from '@/sync/sync-engine'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -58,13 +59,15 @@ export function SetupPage() {
     }
   }, [outlets])
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     setDevice({
       deviceName,
       outletId: selectedOutletId,
       outletName: selectedOutletName,
     })
     completeSetup()
+    await syncEngine.init()
+    await syncEngine.forceSync()
     void router.navigate({ to: '/' })
   }
 

@@ -92,6 +92,42 @@ class SyncEngine {
     await this.syncCycle()
   }
 
+  async forceSync() {
+    const syncStore = useSyncStore.getState()
+    const user = useAuthStore.getState().user
+    if (!user) return
+
+    syncStore.setSyncing(true)
+    syncStore.setError(null)
+
+    try {
+      await pushPendingTransactions(user.tenantId)
+
+      // Force pull by passing version 0 to bypass version check
+      const newVersion = await pullConfig(user.tenantId, 0)
+
+      syncStore.setConfigVersions(newVersion, newVersion)
+      syncStore.setLastSync(new Date().toISOString())
+
+      const pendingCount = await db.transactions
+        .where('[tenantId+syncStatus]')
+        .equals([user.tenantId, 'pending'])
+        .count()
+
+      const failedCount = await db.transactions
+        .where('[tenantId+syncStatus]')
+        .equals([user.tenantId, 'failed'])
+        .count()
+
+      syncStore.setPendingCount(pendingCount)
+      syncStore.setFailedCount(failedCount)
+    } catch (error) {
+      syncStore.setError(error instanceof Error ? error.message : 'Sync failed')
+    } finally {
+      syncStore.setSyncing(false)
+    }
+  }
+
   destroy() {
     if (this.intervalId) {
       clearInterval(this.intervalId)
