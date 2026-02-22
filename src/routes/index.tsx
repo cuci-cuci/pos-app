@@ -6,6 +6,7 @@ import {
 } from '@tanstack/react-router'
 import { AppShell } from '@/components/layout/app-shell'
 import { LoginPage } from '@/pages/login'
+import { RegisterPage } from '@/pages/register'
 import { SetupPage } from '@/pages/setup'
 import { PosPage } from '@/pages/pos'
 import { DashboardPage } from '@/pages/dashboard'
@@ -21,6 +22,18 @@ const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/login',
   component: LoginPage,
+})
+
+const registerRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/register',
+  component: RegisterPage,
+  beforeLoad: () => {
+    const isAuthenticated = useAuthStore.getState().isAuthenticated()
+    if (isAuthenticated) {
+      throw redirect({ to: '/' })
+    }
+  },
 })
 
 const setupRoute = createRoute({
@@ -84,6 +97,7 @@ const settingsRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([
   loginRoute,
+  registerRoute,
   setupRoute,
   authenticatedRoute.addChildren([
     posRoute,
