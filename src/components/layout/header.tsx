@@ -18,12 +18,12 @@ export function Header() {
   const [closeShiftDialogOpen, setCloseShiftDialogOpen] = useState(false)
 
   const syncDotColor = isSyncing
-    ? 'bg-blue-500 animate-pulse'
+    ? 'bg-info animate-pulse'
     : pendingCount > 0
-      ? 'bg-amber-500'
+      ? 'bg-warning'
       : isOnline
-        ? 'bg-green-500'
-        : 'bg-red-500'
+        ? 'bg-success'
+        : 'bg-destructive'
 
   const firstName = user?.name?.split(' ')[0] ?? ''
   const avatarLetter = user?.name?.charAt(0).toUpperCase() ?? '?'
@@ -49,7 +49,7 @@ export function Header() {
             <button
               type="button"
               onClick={() => setCloseShiftDialogOpen(true)}
-              className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors"
+              className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-success/15 text-success text-xs font-medium hover:bg-success/20 transition-colors"
             >
               <Clock size={12} />
               Shift

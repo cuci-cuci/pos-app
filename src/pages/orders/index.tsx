@@ -29,35 +29,14 @@ const tabs: TabItem[] = [
   { id: 'picked_up', label: 'Diambil' },
 ]
 
-const statusColors: Record<OrderStatus, { bg: string; text: string }> = {
-  received: {
-    bg: 'bg-blue-100 dark:bg-blue-900/30',
-    text: 'text-blue-700 dark:text-blue-300',
-  },
-  washing: {
-    bg: 'bg-cyan-100 dark:bg-cyan-900/30',
-    text: 'text-cyan-700 dark:text-cyan-300',
-  },
-  drying: {
-    bg: 'bg-amber-100 dark:bg-amber-900/30',
-    text: 'text-amber-700 dark:text-amber-300',
-  },
-  ironing: {
-    bg: 'bg-purple-100 dark:bg-purple-900/30',
-    text: 'text-purple-700 dark:text-purple-300',
-  },
-  done: {
-    bg: 'bg-emerald-100 dark:bg-emerald-900/30',
-    text: 'text-emerald-700 dark:text-emerald-300',
-  },
-  picked_up: {
-    bg: 'bg-gray-100 dark:bg-gray-900/30',
-    text: 'text-gray-700 dark:text-gray-300',
-  },
-  cancelled: {
-    bg: 'bg-red-100 dark:bg-red-900/30',
-    text: 'text-red-700 dark:text-red-300',
-  },
+const statusStyles: Record<OrderStatus, { className: string }> = {
+  received: { className: 'bg-info/15 text-info' },
+  washing: { className: 'bg-info/15 text-info' },
+  drying: { className: 'bg-warning/15 text-warning' },
+  ironing: { className: 'bg-primary/10 text-primary' },
+  done: { className: 'bg-success/15 text-success' },
+  picked_up: { className: 'bg-muted text-muted-foreground' },
+  cancelled: { className: 'bg-destructive/15 text-destructive' },
 }
 
 const statusLabels: Record<OrderStatus, string> = {
@@ -71,15 +50,9 @@ const statusLabels: Record<OrderStatus, string> = {
 }
 
 function StatusBadge({ status }: { status: OrderStatus }) {
-  const colors = statusColors[status]
+  const style = statusStyles[status]
   return (
-    <span
-      className={cn(
-        'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold',
-        colors.bg,
-        colors.text
-      )}
-    >
+    <span className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold', style.className)}>
       {statusLabels[status]}
     </span>
   )
