@@ -2,15 +2,100 @@ import { db } from '@/db'
 import type { ServiceCategory, Service, PaymentMethod, TenantConfig, Customer, Outlet } from '@/db/schema'
 import { apiClient } from '@/services/api-client'
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 interface PullResponse {
-  configVersion: number
-  tenantConfig?: TenantConfig
-  serviceCategories?: ServiceCategory[]
-  services?: Service[]
-  paymentMethods?: PaymentMethod[]
-  customers?: Customer[]
-  outlets?: Outlet[]
-  payment_methods?: PaymentMethod[]
+  config_version: number
+  config?: any
+  categories?: any[]
+  services?: any[]
+  payment_methods?: any[]
+  members?: any[]
+  outlets?: any[]
+}
+
+function mapOutlet(o: any): Outlet {
+  return {
+    id: o.id,
+    tenantId: o.tenant_id ?? '',
+    name: o.name,
+    address: o.address ?? '',
+    phone: o.phone ?? '',
+    isActive: o.is_active ?? true,
+  }
+}
+
+function mapCategory(c: any): ServiceCategory {
+  return {
+    id: c.id,
+    tenantId: c.tenant_id ?? '',
+    name: c.name,
+    description: c.description ?? '',
+    sortOrder: c.sort_order ?? 0,
+    isActive: c.is_active ?? true,
+    createdAt: c.created_at ?? '',
+    updatedAt: c.updated_at ?? '',
+  }
+}
+
+function mapService(s: any): Service {
+  return {
+    id: s.id,
+    tenantId: s.tenant_id ?? '',
+    categoryId: s.category_id ?? '',
+    name: s.name,
+    description: s.description ?? '',
+    unit: s.pricing_unit ?? s.unit ?? '',
+    pricePerUnit: s.tenant_price ?? s.base_price ?? 0,
+    estimatedDuration: s.estimated_duration_hours ?? 0,
+    isActive: s.is_active ?? true,
+    sortOrder: s.sort_order ?? 0,
+    createdAt: s.created_at ?? '',
+    updatedAt: s.updated_at ?? '',
+  }
+}
+
+function mapPaymentMethod(pm: any): PaymentMethod {
+  return {
+    id: pm.id,
+    tenantId: pm.tenant_id ?? '',
+    name: pm.name,
+    type: pm.type ?? 'other',
+    isActive: pm.is_active ?? true,
+    createdAt: pm.created_at ?? '',
+    updatedAt: pm.updated_at ?? '',
+  }
+}
+
+function mapMember(m: any): Customer {
+  return {
+    id: m.id,
+    tenantId: m.tenant_id ?? '',
+    name: m.name,
+    phone: m.phone ?? '',
+    email: m.email ?? '',
+    address: m.address ?? '',
+    tier: m.tier,
+    totalSpending: m.total_spending ?? 0,
+    discountPercent: m.discount_percent ?? 0,
+    isMember: true,
+    createdAt: m.created_at ?? '',
+    updatedAt: m.updated_at ?? '',
+  }
+}
+
+function mapConfig(c: any): TenantConfig {
+  return {
+    id: c.id ?? 'main',
+    tenantId: c.tenant_id ?? '',
+    tenantName: c.data?.storeName ?? '',
+    address: c.data?.address ?? '',
+    phone: c.data?.phone ?? '',
+    taxRate: c.data?.taxRate ?? 0,
+    currency: c.data?.currency ?? 'IDR',
+    version: c.version ?? 1,
+    updatedAt: c.created_at ?? '',
+  }
 }
 
 export async function pullConfig(
@@ -25,7 +110,7 @@ export async function pullConfig(
     })
     .json<PullResponse>()
 
-  if (response.configVersion <= currentVersion) {
+  if (response.config_version <= currentVersion) {
     return currentVersion
   }
 
@@ -33,38 +118,33 @@ export async function pullConfig(
     'rw',
     [db.tenantConfig, db.serviceCategories, db.services, db.paymentMethods, db.customers, db.outlets],
     async () => {
-      if (response.tenantConfig) {
+      if (response.config) {
         await db.tenantConfig.clear()
-        await db.tenantConfig.put(response.tenantConfig)
+        await db.tenantConfig.put(mapConfig(response.config))
       }
 
-      if (response.serviceCategories) {
+      if (response.categories?.length) {
         await db.serviceCategories.clear()
-        await db.serviceCategories.bulkPut(response.serviceCategories)
+        await db.serviceCategories.bulkPut(response.categories.map(mapCategory))
       }
 
-      if (response.services) {
+      if (response.services?.length) {
         await db.services.clear()
-        await db.services.bulkPut(response.services)
+        await db.services.bulkPut(response.services.map(mapService))
       }
 
-      if (response.outlets) {
+      if (response.outlets?.length) {
         await db.outlets.clear()
-        await db.outlets.bulkPut(response.outlets)
+        await db.outlets.bulkPut(response.outlets.map(mapOutlet))
       }
 
-      if (response.payment_methods) {
+      if (response.payment_methods?.length) {
         await db.paymentMethods.clear()
-        await db.paymentMethods.bulkPut(response.payment_methods)
+        await db.paymentMethods.bulkPut(response.payment_methods.map(mapPaymentMethod))
       }
 
-      if (response.paymentMethods) {
-        await db.paymentMethods.clear()
-        await db.paymentMethods.bulkPut(response.paymentMethods)
-      }
-
-      if (response.customers) {
-        await db.customers.bulkPut(response.customers)
+      if (response.members?.length) {
+        await db.customers.bulkPut(response.members.map(mapMember))
       }
     }
   )
@@ -72,7 +152,7 @@ export async function pullConfig(
   await db.syncState.put({
     id: 'main',
     lastPullAt: new Date().toISOString(),
-    lastConfigVersion: response.configVersion,
+    lastConfigVersion: response.config_version,
   })
 
   await db.syncLogs.add({
@@ -83,5 +163,5 @@ export async function pullConfig(
     timestamp: new Date().toISOString(),
   })
 
-  return response.configVersion
+  return response.config_version
 }
