@@ -47,4 +47,6 @@ export const ownerApi = {
     apiClient.get('owner/analytics/summary', { searchParams: params }).json<any>(),
   analyticsOutlets: (params: Record<string, string>) =>
     apiClient.get('owner/analytics/outlets', { searchParams: params }).json<any>(),
+  dailyRevenue: (params: Record<string, string>) =>
+    apiClient.get('owner/analytics/daily-revenue', { searchParams: params }).json<any>(),
 }

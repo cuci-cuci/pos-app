@@ -24,6 +24,7 @@ export async function pushPendingTransactions(tenantId: string): Promise<number>
     ...t,
     outlet_id: deviceState.outletId,
     member_id: t.memberId ?? null,
+    shift_id: t.shiftId ?? null,
   }))
 
   try {

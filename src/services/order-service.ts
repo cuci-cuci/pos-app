@@ -4,6 +4,7 @@ import { useCartStore, type CartItem } from '@/stores/cart-store'
 import { useSyncStore } from '@/stores/sync-store'
 import { useAuthStore } from '@/stores/auth-store'
 import { useDeviceStore } from '@/stores/device-store'
+import { useShiftStore } from '@/stores/shift-store'
 import { generateId, generateOrderNumber } from '@/lib/id-generator'
 import { calculatePrice } from '@/lib/price-calculator'
 
@@ -84,6 +85,7 @@ export async function createTransaction(paymentInput: PaymentInput): Promise<Tra
     taxAmount: priceResult.taxAmount,
     totalAmount: priceResult.totalAmount,
     notes: cart.notes,
+    shiftId: useShiftStore.getState().currentShift?.id,
     status: 'completed',
     syncStatus: 'pending',
     syncRetryCount: 0,

@@ -117,6 +117,7 @@ export interface Transaction {
   syncStatus: SyncStatus
   syncRetryCount: number
   configVersion: number
+  shiftId?: string
   createdAt: string
   updatedAt: string
   syncedAt?: string

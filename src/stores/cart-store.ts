@@ -30,6 +30,7 @@ interface CartState {
   customerName: string | null
   memberInfo: MemberInfo | null
   discountPercent: number
+  taxRate: number
   notes: string
   addItem: (item: Omit<CartItem, 'id' | 'subtotal'>) => void
   removeItem: (id: string) => void
@@ -37,6 +38,7 @@ interface CartState {
   setCustomer: (id: string | null, name: string | null) => void
   setMember: (member: MemberInfo | null) => void
   setDiscount: (percent: number) => void
+  setTaxRate: (rate: number) => void
   setNotes: (notes: string) => void
   clear: () => void
   getSubtotal: () => number
@@ -51,6 +53,7 @@ export const useCartStore = create<CartState>()(
       customerName: null,
       memberInfo: null,
       discountPercent: 0,
+      taxRate: 0,
       notes: '',
 
       addItem: (item) => {
@@ -115,6 +118,10 @@ export const useCartStore = create<CartState>()(
         set({ discountPercent: percent })
       },
 
+      setTaxRate: (rate) => {
+        set({ taxRate: rate })
+      },
+
       setNotes: (notes) => {
         set({ notes })
       },
@@ -126,6 +133,7 @@ export const useCartStore = create<CartState>()(
           customerName: null,
           memberInfo: null,
           discountPercent: 0,
+          taxRate: 0,
           notes: '',
         })
       },
@@ -137,7 +145,9 @@ export const useCartStore = create<CartState>()(
       getTotal: () => {
         const subtotal = get().items.reduce((sum, item) => sum + item.subtotal, 0)
         const discount = Math.round(subtotal * (get().discountPercent / 100))
-        return subtotal - discount
+        const afterDiscount = subtotal - discount
+        const tax = Math.round(afterDiscount * (get().taxRate / 100))
+        return afterDiscount + tax
       },
     }),
     {

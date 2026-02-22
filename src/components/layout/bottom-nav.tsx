@@ -1,5 +1,5 @@
 import { useRouter, useMatches } from '@tanstack/react-router'
-import { Store, Receipt, Settings, BarChart3, MoreHorizontal, Wrench, Package } from 'lucide-react'
+import { Store, Receipt, BarChart3, MoreHorizontal, Wrench, Package, Clock } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
 import { cn } from '@/lib/utils'
 import type { LucideIcon } from 'lucide-react'
@@ -14,7 +14,8 @@ const cashierNavItems: NavItem[] = [
   { label: 'Kasir', icon: Store, path: '/' },
   { label: 'Pesanan', icon: Package, path: '/orders' },
   { label: 'Riwayat', icon: Receipt, path: '/transactions' },
-  { label: 'Pengaturan', icon: Settings, path: '/settings' },
+  { label: 'Shift', icon: Clock, path: '/shifts' },
+  { label: 'Lainnya', icon: MoreHorizontal, path: '/settings' },
 ]
 
 const ownerNavItems: NavItem[] = [
