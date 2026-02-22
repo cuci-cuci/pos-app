@@ -14,10 +14,10 @@ interface PullResponse {
   outlets?: any[]
 }
 
-function mapOutlet(o: any): Outlet {
+function mapOutlet(tenantId: string, o: any): Outlet {
   return {
     id: o.id,
-    tenantId: o.tenant_id ?? '',
+    tenantId: o.tenant_id ?? tenantId,
     name: o.name,
     address: o.address ?? '',
     phone: o.phone ?? '',
@@ -25,10 +25,10 @@ function mapOutlet(o: any): Outlet {
   }
 }
 
-function mapCategory(c: any): ServiceCategory {
+function mapCategory(tenantId: string, c: any): ServiceCategory {
   return {
     id: c.id,
-    tenantId: c.tenant_id ?? '',
+    tenantId: c.tenant_id ?? tenantId,
     name: c.name,
     description: c.description ?? '',
     sortOrder: c.sort_order ?? 0,
@@ -38,10 +38,10 @@ function mapCategory(c: any): ServiceCategory {
   }
 }
 
-function mapService(s: any): Service {
+function mapService(tenantId: string, s: any): Service {
   return {
     id: s.id,
-    tenantId: s.tenant_id ?? '',
+    tenantId: s.tenant_id ?? tenantId,
     categoryId: s.category_id ?? '',
     name: s.name,
     description: s.description ?? '',
@@ -55,10 +55,10 @@ function mapService(s: any): Service {
   }
 }
 
-function mapPaymentMethod(pm: any): PaymentMethod {
+function mapPaymentMethod(tenantId: string, pm: any): PaymentMethod {
   return {
     id: pm.id,
-    tenantId: pm.tenant_id ?? '',
+    tenantId: pm.tenant_id ?? tenantId,
     name: pm.name,
     type: pm.type ?? 'other',
     isActive: pm.is_active ?? true,
@@ -67,10 +67,10 @@ function mapPaymentMethod(pm: any): PaymentMethod {
   }
 }
 
-function mapMember(m: any): Customer {
+function mapMember(tenantId: string, m: any): Customer {
   return {
     id: m.id,
-    tenantId: m.tenant_id ?? '',
+    tenantId: m.tenant_id ?? tenantId,
     name: m.name,
     phone: m.phone ?? '',
     email: m.email ?? '',
@@ -84,10 +84,10 @@ function mapMember(m: any): Customer {
   }
 }
 
-function mapConfig(c: any): TenantConfig {
+function mapConfig(tenantId: string, c: any): TenantConfig {
   return {
     id: c.id ?? 'main',
-    tenantId: c.tenant_id ?? '',
+    tenantId: c.tenant_id ?? tenantId,
     tenantName: c.data?.storeName ?? '',
     address: c.data?.address ?? '',
     phone: c.data?.phone ?? '',
@@ -102,8 +102,6 @@ export async function pullConfig(
   tenantId: string,
   currentVersion: number
 ): Promise<number> {
-  void tenantId
-
   const raw = await apiClient
     .get('pos/sync/download', {
       searchParams: { current_config_version: currentVersion },
@@ -124,31 +122,31 @@ export async function pullConfig(
     async () => {
       if (response.config) {
         await db.tenantConfig.clear()
-        await db.tenantConfig.put(mapConfig(response.config))
+        await db.tenantConfig.put(mapConfig(tenantId, response.config))
       }
 
       if (response.categories?.length) {
         await db.serviceCategories.clear()
-        await db.serviceCategories.bulkPut(response.categories.map(mapCategory))
+        await db.serviceCategories.bulkPut(response.categories.map((c) => mapCategory(tenantId, c)))
       }
 
       if (response.services?.length) {
         await db.services.clear()
-        await db.services.bulkPut(response.services.map(mapService))
+        await db.services.bulkPut(response.services.map((s) => mapService(tenantId, s)))
       }
 
       if (response.outlets?.length) {
         await db.outlets.clear()
-        await db.outlets.bulkPut(response.outlets.map(mapOutlet))
+        await db.outlets.bulkPut(response.outlets.map((o) => mapOutlet(tenantId, o)))
       }
 
       if (response.payment_methods?.length) {
         await db.paymentMethods.clear()
-        await db.paymentMethods.bulkPut(response.payment_methods.map(mapPaymentMethod))
+        await db.paymentMethods.bulkPut(response.payment_methods.map((pm) => mapPaymentMethod(tenantId, pm)))
       }
 
       if (response.members?.length) {
-        await db.customers.bulkPut(response.members.map(mapMember))
+        await db.customers.bulkPut(response.members.map((m) => mapMember(tenantId, m)))
       }
     }
   )
