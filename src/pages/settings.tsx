@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { showToast } from '@/components/ui/toast'
-import { APP_NAME } from '@/lib/constants'
+import { APP_NAME, ROLE_TENANT_OWNER } from '@/lib/constants'
 import { formatDate, formatTime } from '@/lib/format'
 import {
   RefreshCw,
@@ -52,7 +52,7 @@ export function SettingsPage() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
   const [clearing, setClearing] = useState(false)
 
-  const isOwner = user?.role === 'owner'
+  const isOwner = user?.role === ROLE_TENANT_OWNER
 
   const tenantConfig = useLiveQuery(
     () => db.tenantConfig.toCollection().first(),

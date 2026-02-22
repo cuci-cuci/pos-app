@@ -65,12 +65,14 @@ export async function refresh(): Promise<void> {
 
 export async function logout(): Promise<void> {
   useAuthStore.getState().logout()
-  await db.serviceCategories.clear()
-  await db.services.clear()
-  await db.paymentMethods.clear()
-  await db.tenantConfig.clear()
-  await db.customers.clear()
-  await db.outlets.clear()
-  await db.syncState.clear()
-  await db.syncLogs.clear()
+  await Promise.all([
+    db.serviceCategories.clear(),
+    db.services.clear(),
+    db.paymentMethods.clear(),
+    db.tenantConfig.clear(),
+    db.customers.clear(),
+    db.outlets.clear(),
+    db.syncState.clear(),
+    db.syncLogs.clear(),
+  ])
 }

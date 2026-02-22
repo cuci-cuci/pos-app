@@ -10,16 +10,15 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/shared/empty-state'
 import { LoadingSpinner } from '@/components/shared/loading-spinner'
+import { SyncStatusIcon } from '@/components/shared/sync-status-icon'
 import {
   Search,
   Receipt,
   CheckCircle,
   XCircle,
   RefreshCw,
-  AlertTriangle,
-  Clock,
 } from 'lucide-react'
-import type { SyncStatus, TransactionStatus } from '@/db/schema'
+import type { TransactionStatus } from '@/db/schema'
 
 type FilterTab = 'today' | 'all' | 'failed'
 
@@ -52,19 +51,6 @@ function getStatusBadge(status: TransactionStatus) {
           Refund
         </Badge>
       )
-  }
-}
-
-function getSyncIcon(syncStatus: SyncStatus) {
-  switch (syncStatus) {
-    case 'synced':
-      return <CheckCircle size={14} className="text-success" />
-    case 'pending':
-      return <Clock size={14} className="text-muted-foreground" />
-    case 'syncing':
-      return <RefreshCw size={14} className="text-primary animate-spin" />
-    case 'failed':
-      return <AlertTriangle size={14} className="text-destructive" />
   }
 }
 
@@ -199,7 +185,7 @@ export function TransactionsPage() {
                       <span className="text-sm font-semibold text-foreground">
                         #{tx.orderNumber}
                       </span>
-                      {getSyncIcon(tx.syncStatus)}
+                      <SyncStatusIcon status={tx.syncStatus} />
                     </div>
                     {tx.customerName && (
                       <p className="text-xs text-muted-foreground mt-0.5 truncate">

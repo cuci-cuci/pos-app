@@ -8,7 +8,6 @@ interface SyncState {
   failedCount: number
   lastError: string | null
   configVersion: number
-  serverConfigVersion: number
   hasConfigUpdate: boolean
   setOnline: (online: boolean) => void
   setSyncing: (syncing: boolean) => void
@@ -27,7 +26,6 @@ export const useSyncStore = create<SyncState>()((set) => ({
   failedCount: 0,
   lastError: null,
   configVersion: 0,
-  serverConfigVersion: 0,
   hasConfigUpdate: false,
 
   setOnline: (online) => set({ isOnline: online }),
@@ -39,7 +37,6 @@ export const useSyncStore = create<SyncState>()((set) => ({
   setConfigVersions: (local, server) =>
     set({
       configVersion: local,
-      serverConfigVersion: server,
       hasConfigUpdate: server > local,
     }),
 }))
