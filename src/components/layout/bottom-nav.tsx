@@ -1,27 +1,39 @@
 import { useRouter, useMatches } from '@tanstack/react-router'
-import { Storefront, Receipt, GearSix } from '@phosphor-icons/react'
+import { Storefront, Receipt, GearSix, ChartBar, DotsThree } from '@phosphor-icons/react'
+import { useAuthStore } from '@/stores/auth-store'
 import { cn } from '@/lib/utils'
+import type { Icon } from '@phosphor-icons/react'
 
 interface NavItem {
   label: string
-  icon: typeof Storefront
+  icon: Icon
   path: string
 }
 
-const navItems: NavItem[] = [
-  { label: 'POS', icon: Storefront, path: '/' },
-  { label: 'Transaksi', icon: Receipt, path: '/transactions' },
+const cashierNavItems: NavItem[] = [
+  { label: 'Kasir', icon: Storefront, path: '/' },
+  { label: 'Riwayat', icon: Receipt, path: '/transactions' },
   { label: 'Pengaturan', icon: GearSix, path: '/settings' },
+]
+
+const ownerNavItems: NavItem[] = [
+  { label: 'Dashboard', icon: ChartBar, path: '/dashboard' },
+  { label: 'Kasir', icon: Storefront, path: '/' },
+  { label: 'Riwayat', icon: Receipt, path: '/transactions' },
+  { label: 'Lainnya', icon: DotsThree, path: '/settings' },
 ]
 
 export function BottomNav() {
   const router = useRouter()
   const matches = useMatches()
   const currentPath = matches[matches.length - 1]?.fullPath ?? '/'
+  const role = useAuthStore((s) => s.user?.role)
+
+  const navItems = role === 'tenant_owner' ? ownerNavItems : cashierNavItems
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[var(--card)] border-t border-[var(--border)] md:hidden">
-      <div className="flex items-center justify-around h-16">
+      <div className="flex items-stretch justify-around">
         {navItems.map((item) => {
           const isActive =
             item.path === '/'
@@ -33,13 +45,16 @@ export function BottomNav() {
               key={item.path}
               onClick={() => router.navigate({ to: item.path })}
               className={cn(
-                'flex flex-col items-center justify-center gap-1 min-w-[64px] min-h-[48px] px-3 py-2 rounded-lg transition-colors',
+                'flex flex-col items-center justify-center gap-0.5 flex-1 min-h-[56px] px-2 py-1.5 transition-colors relative',
                 isActive
                   ? 'text-[var(--primary)]'
                   : 'text-[var(--muted-foreground)]'
               )}
             >
-              <item.icon size={24} weight={isActive ? 'fill' : 'regular'} />
+              {isActive && (
+                <div className="absolute top-0 left-2 right-2 h-0.5 bg-[var(--primary)] rounded-b" />
+              )}
+              <item.icon size={22} weight={isActive ? 'fill' : 'regular'} />
               <span className="text-xs font-medium">{item.label}</span>
             </button>
           )

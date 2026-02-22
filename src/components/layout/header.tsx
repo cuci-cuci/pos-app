@@ -1,21 +1,63 @@
-import { APP_NAME } from '@/lib/constants'
+import { useState } from 'react'
+import { useDeviceStore } from '@/stores/device-store'
 import { useAuthStore } from '@/stores/auth-store'
-import { SyncIndicator } from './sync-indicator'
-import { UserCircle } from '@phosphor-icons/react'
+import { useSyncStore } from '@/stores/sync-store'
+import { Storefront } from '@phosphor-icons/react'
+import { cn } from '@/lib/utils'
+import { UserMenu } from './user-menu'
 
 export function Header() {
   const user = useAuthStore((s) => s.user)
+  const outletName = useDeviceStore((s) => s.outletName)
+  const deviceName = useDeviceStore((s) => s.deviceName)
+  const { isOnline, isSyncing, pendingCount } = useSyncStore()
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+
+  const syncDotColor = isSyncing
+    ? 'bg-blue-500 animate-pulse'
+    : pendingCount > 0
+      ? 'bg-amber-500'
+      : isOnline
+        ? 'bg-green-500'
+        : 'bg-red-500'
+
+  const firstName = user?.name?.split(' ')[0] ?? ''
+  const avatarLetter = user?.name?.charAt(0).toUpperCase() ?? '?'
 
   return (
-    <header className="sticky top-0 z-40 bg-[var(--card)] border-b border-[var(--border)] px-4 h-14 flex items-center justify-between">
-      <div className="font-bold text-[var(--primary)] text-lg">{APP_NAME}</div>
-      <SyncIndicator />
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-[var(--muted-foreground)] hidden sm:block">
-          {user?.name}
-        </span>
-        <UserCircle size={28} weight="fill" className="text-[var(--muted-foreground)]" />
-      </div>
-    </header>
+    <>
+      <header className="sticky top-0 z-40 bg-[var(--card)] border-b border-[var(--border)] px-4 h-14 flex items-center justify-between">
+        {/* Left: outlet + device */}
+        <div className="flex items-center gap-2 min-w-0">
+          <Storefront size={22} className="text-[var(--primary)] shrink-0" weight="fill" />
+          <div className="min-w-0">
+            <p className="text-sm font-semibold leading-tight truncate">{outletName || 'LaundryPOS'}</p>
+            {deviceName && (
+              <p className="text-[10px] text-[var(--muted-foreground)] leading-tight truncate">{deviceName}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Center: sync dot */}
+        <div className="flex items-center justify-center">
+          <span className={cn('inline-block w-2.5 h-2.5 rounded-full', syncDotColor)} />
+        </div>
+
+        {/* Right: user */}
+        <button
+          onClick={() => setUserMenuOpen(true)}
+          className="flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity"
+        >
+          <span className="text-sm text-[var(--muted-foreground)] hidden sm:block truncate max-w-[120px]">
+            {firstName}
+          </span>
+          <div className="w-8 h-8 rounded-full bg-[var(--primary)] text-[var(--primary-foreground)] flex items-center justify-center text-sm font-bold shrink-0">
+            {avatarLetter}
+          </div>
+        </button>
+      </header>
+
+      <UserMenu open={userMenuOpen} onOpenChange={setUserMenuOpen} />
+    </>
   )
 }

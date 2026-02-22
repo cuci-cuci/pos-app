@@ -1,5 +1,5 @@
 import { db } from '@/db'
-import type { ServiceCategory, Service, PaymentMethod, TenantConfig, Customer } from '@/db/schema'
+import type { ServiceCategory, Service, PaymentMethod, TenantConfig, Customer, Outlet } from '@/db/schema'
 import { apiClient } from '@/services/api-client'
 
 interface PullResponse {
@@ -9,6 +9,8 @@ interface PullResponse {
   services?: Service[]
   paymentMethods?: PaymentMethod[]
   customers?: Customer[]
+  outlets?: Outlet[]
+  payment_methods?: PaymentMethod[]
 }
 
 export async function pullConfig(
@@ -29,7 +31,7 @@ export async function pullConfig(
 
   await db.transaction(
     'rw',
-    [db.tenantConfig, db.serviceCategories, db.services, db.paymentMethods, db.customers],
+    [db.tenantConfig, db.serviceCategories, db.services, db.paymentMethods, db.customers, db.outlets],
     async () => {
       if (response.tenantConfig) {
         await db.tenantConfig.clear()
@@ -44,6 +46,16 @@ export async function pullConfig(
       if (response.services) {
         await db.services.clear()
         await db.services.bulkPut(response.services)
+      }
+
+      if (response.outlets) {
+        await db.outlets.clear()
+        await db.outlets.bulkPut(response.outlets)
+      }
+
+      if (response.payment_methods) {
+        await db.paymentMethods.clear()
+        await db.paymentMethods.bulkPut(response.payment_methods)
       }
 
       if (response.paymentMethods) {

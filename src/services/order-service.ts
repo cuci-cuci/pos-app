@@ -3,6 +3,7 @@ import type { Transaction, TransactionItem, Payment } from '@/db/schema'
 import { useCartStore, type CartItem } from '@/stores/cart-store'
 import { useSyncStore } from '@/stores/sync-store'
 import { useAuthStore } from '@/stores/auth-store'
+import { useDeviceStore } from '@/stores/device-store'
 import { generateId, generateOrderNumber } from '@/lib/id-generator'
 import { calculatePrice } from '@/lib/price-calculator'
 
@@ -69,6 +70,7 @@ export async function createTransaction(paymentInput: PaymentInput): Promise<Tra
   const transaction: Transaction = {
     id: generateId(),
     tenantId: auth.user.tenantId,
+    outletId: useDeviceStore.getState().outletId,
     orderNumber: generateOrderNumber(),
     customerId: cart.customerId ?? undefined,
     customerName: cart.customerName ?? undefined,

@@ -1,3 +1,12 @@
+export interface Outlet {
+  id: string
+  tenantId: string
+  name: string
+  address: string
+  phone: string
+  isActive: boolean
+}
+
 export interface ServiceCategory {
   id: string
   tenantId: string
@@ -84,6 +93,7 @@ export interface Payment {
 export interface Transaction {
   id: string
   tenantId: string
+  outletId: string
   orderNumber: string
   customerId?: string
   customerName?: string

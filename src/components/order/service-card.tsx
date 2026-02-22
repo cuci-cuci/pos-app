@@ -1,28 +1,49 @@
 import type { Service } from '@/db/schema'
 import { formatCurrency } from '@/lib/format'
-import { TShirt } from '@phosphor-icons/react'
+import { getCategoryIcon } from '@/lib/category-icons'
 import { cn } from '@/lib/utils'
 
 interface ServiceCardProps {
   service: Service
+  categoryName: string
+  cartQuantity?: number
   onSelect: (service: Service) => void
 }
 
-export function ServiceCard({ service, onSelect }: ServiceCardProps) {
+export function ServiceCard({ service, categoryName, cartQuantity, onSelect }: ServiceCardProps) {
+  const IconComp = getCategoryIcon(categoryName)
+
   return (
     <button
       onClick={() => onSelect(service)}
       className={cn(
-        'flex flex-col items-center justify-center gap-2 p-4 rounded-[var(--radius)] border border-[var(--border)]',
+        'relative flex flex-col p-4 rounded-xl shadow-sm border border-[var(--border)]',
         'bg-[var(--card)] hover:bg-[var(--accent)] active:bg-[var(--accent)]',
-        'min-h-[100px] transition-colors text-center no-select',
+        'min-h-[100px] transition-colors text-left no-select',
         'touch-manipulation'
       )}
     >
-      <TShirt size={28} className="text-[var(--primary)]" weight="duotone" />
-      <span className="text-sm font-medium leading-tight line-clamp-2">{service.name}</span>
-      <span className="text-xs text-[var(--muted-foreground)]">
-        {formatCurrency(service.pricePerUnit)} / {service.unit}
+      {/* Cart badge */}
+      {cartQuantity && cartQuantity > 0 && (
+        <span className="absolute -top-2 -right-2 bg-[var(--primary)] text-[var(--primary-foreground)] text-[10px] font-bold rounded-full w-6 h-6 flex items-center justify-center z-10">
+          x{cartQuantity}
+        </span>
+      )}
+
+      {/* Category icon */}
+      <IconComp size={18} className="text-[var(--muted-foreground)] mb-2" weight="duotone" />
+
+      {/* Service name */}
+      <span className="text-sm font-bold leading-tight line-clamp-2 mb-1">{service.name}</span>
+
+      {/* Unit label */}
+      <span className="text-xs text-[var(--muted-foreground)] mb-2">
+        per {service.unit}
+      </span>
+
+      {/* Price */}
+      <span className="text-[var(--primary)] font-semibold text-base mt-auto">
+        {formatCurrency(service.pricePerUnit)}
       </span>
     </button>
   )

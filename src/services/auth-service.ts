@@ -70,6 +70,7 @@ export async function logout(): Promise<void> {
   await db.paymentMethods.clear()
   await db.tenantConfig.clear()
   await db.customers.clear()
+  await db.outlets.clear()
   await db.syncState.clear()
   await db.syncLogs.clear()
 }
