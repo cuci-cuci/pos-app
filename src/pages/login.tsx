@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useRouter } from '@tanstack/react-router'
+import { useRouter, Link } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -167,7 +167,10 @@ export function LoginPage() {
         </Card>
 
         <p className="text-center text-xs text-[var(--muted-foreground)] mt-4">
-          {APP_NAME} v1.0.0
+          Belum punya akun bisnis?{' '}
+          <Link to="/register" className="font-medium underline">
+            Daftarkan bisnis Anda
+          </Link>
         </p>
       </div>
     </div>
