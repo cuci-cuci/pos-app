@@ -52,6 +52,7 @@ export function CustomerSearch() {
         <UserCircle size={20} className="text-[var(--primary)]" weight="fill" />
         <span className="text-sm font-medium flex-1">{customerName}</span>
         <button
+          type="button"
           onClick={handleClear}
           className="p-1 rounded hover:bg-[var(--background)]"
         >
@@ -79,6 +80,7 @@ export function CustomerSearch() {
         <div className="absolute top-full left-0 right-0 mt-1 bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] shadow-lg z-20 max-h-48 overflow-y-auto">
           {customers.map((customer) => (
             <button
+              type="button"
               key={customer.id}
               onClick={() => handleSelect(customer.id, customer.name)}
               className={cn(

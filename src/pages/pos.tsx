@@ -112,6 +112,7 @@ export function PosPage() {
           {categories && categories.length > 0 && (
             <div className="hidden md:flex flex-col w-48 border-r border-[var(--border)] overflow-y-auto shrink-0">
               <button
+                type="button"
                 onClick={() => setSelectedCategoryId(null)}
                 className={cn(
                   'flex items-center gap-2 px-4 py-3 text-sm font-medium text-left transition-colors',
@@ -127,6 +128,7 @@ export function PosPage() {
                 const IconComp = getCategoryIcon(cat.name)
                 return (
                   <button
+                    type="button"
                     key={cat.id}
                     onClick={() => setSelectedCategoryId(cat.id)}
                     className={cn(
@@ -151,6 +153,7 @@ export function PosPage() {
             {categories && categories.length > 0 && (
               <div className="flex gap-2 px-4 py-2 overflow-x-auto scrollbar-hide md:hidden">
                 <button
+                  type="button"
                   onClick={() => setSelectedCategoryId(null)}
                   className={cn(
                     'px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors',
@@ -164,6 +167,7 @@ export function PosPage() {
                 </button>
                 {categories.map((cat) => (
                   <button
+                    type="button"
                     key={cat.id}
                     onClick={() => setSelectedCategoryId(cat.id)}
                     className={cn(
@@ -225,6 +229,7 @@ export function PosPage() {
       {/* Mobile: floating cart bar */}
       {itemCount > 0 && (
         <button
+          type="button"
           onClick={() => setCartSheetOpen(true)}
           className={cn(
             'md:hidden fixed bottom-20 left-4 right-4 z-30',

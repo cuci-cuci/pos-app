@@ -115,7 +115,7 @@ export function TransactionsPage() {
     return transactions.filter(
       (t) =>
         t.orderNumber.toLowerCase().includes(q) ||
-        (t.customerName && t.customerName.toLowerCase().includes(q))
+        t.customerName?.toLowerCase().includes(q)
     )
   }, [transactions, search])
 
@@ -133,6 +133,7 @@ export function TransactionsPage() {
       <div className="flex gap-1 px-4 pt-4 pb-2">
         {tabs.map((tab) => (
           <button
+            type="button"
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={cn(
@@ -187,6 +188,7 @@ export function TransactionsPage() {
           <div className="space-y-2">
             {filtered.map((tx) => (
               <button
+                type="button"
                 key={tx.id}
                 onClick={() => handleSelect(tx.id)}
                 className="w-full text-left bg-[var(--card)] rounded-[var(--radius)] border border-[var(--border)] p-3 active:bg-[var(--muted)] transition-colors touch-manipulation"

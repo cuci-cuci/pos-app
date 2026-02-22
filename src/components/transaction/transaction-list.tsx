@@ -80,6 +80,7 @@ export function TransactionList({ filter, onSelect }: TransactionListProps) {
     <div className="divide-y divide-[var(--border)]">
       {transactions.map((tx: Transaction) => (
         <button
+          type="button"
           key={tx.id}
           onClick={() => onSelect(tx.id)}
           className={cn(

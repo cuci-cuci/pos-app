@@ -42,6 +42,7 @@ export function BottomNav() {
 
           return (
             <button
+              type="button"
               key={item.path}
               onClick={() => router.navigate({ to: item.path })}
               className={cn(

@@ -195,6 +195,7 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={() => setStep('review')}
                 className="p-1 rounded hover:bg-[var(--accent)]"
               >
@@ -213,6 +214,7 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
                 const IconComp = methodIcons[method.type] ?? Wallet
                 return (
                   <button
+                    type="button"
                     key={method.id}
                     onClick={() => handleSelectMethod(method)}
                     className={cn(
@@ -239,6 +241,7 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={() => setStep('method')}
                 className="p-1 rounded hover:bg-[var(--accent)]"
               >
@@ -255,6 +258,7 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
             <div className="grid grid-cols-2 gap-2">
               {quickAmounts.map((qa) => (
                 <button
+                  type="button"
                   key={qa.label}
                   onClick={() => setCashTendered(String(qa.value))}
                   className={cn(
@@ -271,8 +275,9 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-1 block">Jumlah Lainnya</label>
+              <label htmlFor="cash-amount-input" className="text-sm font-medium mb-1 block">Jumlah Lainnya</label>
               <Input
+                id="cash-amount-input"
                 type="number"
                 inputMode="numeric"
                 placeholder="Masukkan nominal..."
@@ -307,6 +312,7 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={() => setStep('method')}
                 className="p-1 rounded hover:bg-[var(--accent)]"
               >

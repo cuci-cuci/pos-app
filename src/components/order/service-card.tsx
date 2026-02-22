@@ -15,6 +15,7 @@ export function ServiceCard({ service, categoryName, cartQuantity, onSelect }: S
 
   return (
     <button
+      type="button"
       onClick={() => onSelect(service)}
       className={cn(
         'relative flex flex-col p-4 rounded-xl shadow-sm border border-[var(--border)]',

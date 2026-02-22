@@ -130,6 +130,7 @@ export function SetupPage() {
                 <div className="space-y-3 mb-6">
                   {outlets.map((outlet) => (
                     <button
+                      type="button"
                       key={outlet.id}
                       onClick={() => {
                         setSelectedOutletId(outlet.id)
