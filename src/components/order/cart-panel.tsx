@@ -7,13 +7,14 @@ import { PaymentDialog } from '@/components/payment/payment-dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
-import { ShoppingCart, Trash, CaretDown, CaretUp } from '@phosphor-icons/react'
+import { ShoppingCart, Trash, CaretDown, CaretUp, Crown } from '@phosphor-icons/react'
 import { EmptyState } from '@/components/shared/empty-state'
 
 export function CartPanel() {
   const {
     items,
     discountPercent,
+    memberInfo,
     notes,
     removeItem,
     updateQuantity,
