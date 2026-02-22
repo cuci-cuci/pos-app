@@ -76,7 +76,7 @@ function DialogContent({ className, children, ...props }: HTMLAttributes<HTMLDiv
   return (
     <div
       className={cn(
-        'bg-[var(--card)] rounded-[var(--radius)] border border-[var(--border)] shadow-lg p-6',
+        'bg-card rounded-[var(--radius)] border shadow-lg p-6',
         className
       )}
       {...props}
@@ -95,7 +95,7 @@ function DialogTitle({ className, ...props }: HTMLAttributes<HTMLHeadingElement>
 }
 
 function DialogDescription({ className, ...props }: HTMLAttributes<HTMLParagraphElement>) {
-  return <p className={cn('text-sm text-[var(--muted-foreground)]', className)} {...props} />
+  return <p className={cn('text-sm text-muted-foreground', className)} {...props} />
 }
 
 function DialogFooter({ className, ...props }: HTMLAttributes<HTMLDivElement>) {

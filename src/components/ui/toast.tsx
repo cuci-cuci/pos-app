@@ -41,9 +41,9 @@ function ToastItem({ toast }: { toast: Toast }) {
     <div
       className={cn(
         'flex items-center gap-2 rounded-[var(--radius)] px-4 py-3 text-sm font-medium shadow-lg',
-        toast.type === 'success' && 'bg-[var(--success)] text-white',
-        toast.type === 'error' && 'bg-[var(--destructive)] text-white',
-        toast.type === 'info' && 'bg-[var(--foreground)] text-[var(--background)]'
+        toast.type === 'success' && 'bg-success text-primary-foreground',
+        toast.type === 'error' && 'bg-destructive text-destructive-foreground',
+        toast.type === 'info' && 'bg-foreground text-background'
       )}
     >
       <span className="flex-1">{toast.message}</span>
