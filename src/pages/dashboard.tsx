@@ -24,7 +24,6 @@ import {
   Clock,
   Play,
   Square,
-  ShoppingCart,
   ClipboardList,
 } from 'lucide-react'
 import type { ReactNode } from 'react'

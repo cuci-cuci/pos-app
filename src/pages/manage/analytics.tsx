@@ -234,7 +234,7 @@ export function ManageAnalyticsPage() {
                       }
                     />
                     <Tooltip
-                      formatter={(v: number) => formatCurrency(v)}
+                      formatter={(v: number | undefined) => formatCurrency(v ?? 0)}
                     />
                     <Bar
                       dataKey="revenue"
