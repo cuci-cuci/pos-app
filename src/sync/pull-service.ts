@@ -104,11 +104,15 @@ export async function pullConfig(
 ): Promise<number> {
   void tenantId
 
-  const response = await apiClient
+  const raw = await apiClient
     .get('pos/sync/download', {
       searchParams: { current_config_version: currentVersion },
     })
-    .json<PullResponse>()
+    .json<{ data: PullResponse } | PullResponse>()
+
+  const response: PullResponse = 'data' in raw && raw.data && typeof raw.data === 'object' && 'config_version' in raw.data
+    ? raw.data as PullResponse
+    : raw as PullResponse
 
   if (response.config_version <= currentVersion) {
     return currentVersion
