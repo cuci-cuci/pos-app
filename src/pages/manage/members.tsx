@@ -19,6 +19,7 @@ import {
 import { LoadingSpinner } from '@/components/shared/loading-spinner'
 import { EmptyState } from '@/components/shared/empty-state'
 import { ownerApi } from '@/services/owner-api'
+import { showToast } from '@/components/ui/toast'
 
 interface Member {
   id: string
@@ -47,7 +48,7 @@ export function ManageMembersPage() {
       const res = await ownerApi.listMembers()
       setMembers(res.data ?? [])
     } catch {
-      alert('Gagal memuat data member')
+      showToast('Gagal memuat data member', 'error')
     } finally {
       setLoading(false)
     }
@@ -100,7 +101,7 @@ export function ManageMembersPage() {
       setDialogOpen(false)
       fetchMembers()
     } catch {
-      alert('Gagal menyimpan data member')
+      showToast('Gagal menyimpan data member', 'error')
     } finally {
       setSubmitting(false)
     }
