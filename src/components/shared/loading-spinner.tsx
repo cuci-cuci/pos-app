@@ -9,7 +9,7 @@ interface LoadingSpinnerProps {
 export function LoadingSpinner({ className, size = 32 }: LoadingSpinnerProps) {
   return (
     <div className={cn('flex items-center justify-center py-12', className)}>
-      <SpinnerGap size={size} className="animate-spin text-[var(--primary)]" />
+      <SpinnerGap size={size} className="animate-spin text-primary" />
     </div>
   )
 }

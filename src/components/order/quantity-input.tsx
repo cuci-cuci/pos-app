@@ -73,12 +73,12 @@ export function QuantityInput({
         </DialogHeader>
 
         {/* Price per unit */}
-        <p className="text-sm text-[var(--muted-foreground)]">
+        <p className="text-sm text-muted-foreground">
           {formatCurrency(pricePerUnit)} / {unit}
         </p>
 
         {currentCartQuantity && currentCartQuantity > 0 && (
-          <p className="text-xs text-[var(--primary)]">
+          <p className="text-xs text-primary">
             Sudah di keranjang: {currentCartQuantity} {unit}
           </p>
         )}
@@ -94,8 +94,8 @@ export function QuantityInput({
                 'px-4 py-2 rounded-[var(--radius)] border text-sm font-medium',
                 'min-h-[40px] touch-manipulation transition-colors',
                 quantity === value && !customInput
-                  ? 'border-[var(--primary)] bg-[var(--primary)]/5 text-[var(--primary)]'
-                  : 'border-[var(--border)] hover:bg-[var(--accent)]'
+                  ? 'border-primary bg-primary/5 text-primary'
+                  : 'border-border hover:bg-accent'
               )}
             >
               {value} {unit}
@@ -120,20 +120,20 @@ export function QuantityInput({
           <button
             type="button"
             onClick={handleDecrement}
-            className="w-12 h-12 rounded-full border-2 border-[var(--border)] flex items-center justify-center active:bg-[var(--accent)] touch-manipulation"
+            className="w-12 h-12 rounded-full border-2 border-border flex items-center justify-center active:bg-accent touch-manipulation"
           >
             <Minus size={22} weight="bold" />
           </button>
 
           <div className="text-center">
             <span className="text-3xl font-bold">{quantity}</span>
-            <p className="text-xs text-[var(--muted-foreground)] mt-0.5">{unit}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{unit}</p>
           </div>
 
           <button
             type="button"
             onClick={handleIncrement}
-            className="w-12 h-12 rounded-full border-2 border-[var(--primary)] text-[var(--primary)] flex items-center justify-center active:bg-[var(--primary)]/10 touch-manipulation"
+            className="w-12 h-12 rounded-full border-2 border-primary text-primary flex items-center justify-center active:bg-primary/10 touch-manipulation"
           >
             <Plus size={22} weight="bold" />
           </button>
@@ -141,8 +141,8 @@ export function QuantityInput({
 
         {/* Subtotal */}
         <div className="text-center mb-2">
-          <p className="text-sm text-[var(--muted-foreground)]">Subtotal</p>
-          <p className="text-xl font-bold text-[var(--primary)]">{formatCurrency(subtotal)}</p>
+          <p className="text-sm text-muted-foreground">Subtotal</p>
+          <p className="text-xl font-bold text-primary">{formatCurrency(subtotal)}</p>
         </div>
 
         {/* Confirm button */}

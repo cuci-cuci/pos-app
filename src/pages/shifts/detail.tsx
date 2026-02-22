@@ -55,7 +55,7 @@ export function ShiftDetailPage() {
         <button
           type="button"
           onClick={() => router.navigate({ to: '/shifts' })}
-          className="flex items-center gap-1 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors mb-2"
+          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-2"
         >
           <CaretLeft size={16} />
           Kembali

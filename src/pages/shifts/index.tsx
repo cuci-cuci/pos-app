@@ -36,7 +36,7 @@ export function ShiftsPage() {
     <div className="flex flex-col h-full">
       <div className="px-4 pt-4 pb-2">
         <h1 className="text-xl font-bold">Riwayat Shift</h1>
-        <p className="text-sm text-[var(--muted-foreground)]">
+        <p className="text-sm text-muted-foreground">
           Lihat semua shift yang pernah dibuka.
         </p>
       </div>
@@ -60,7 +60,7 @@ export function ShiftsPage() {
                     params: { id: shift.id },
                   })
                 }
-                className="w-full text-left bg-[var(--card)] rounded-[var(--radius)] border border-[var(--border)] p-3 active:bg-[var(--muted)] transition-colors touch-manipulation"
+                className="w-full text-left bg-card rounded-[var(--radius)] border p-3 active:bg-muted transition-colors touch-manipulation"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
@@ -74,7 +74,7 @@ export function ShiftsPage() {
                         {shift.status === 'open' ? 'Aktif' : 'Ditutup'}
                       </Badge>
                     </div>
-                    <p className="text-xs text-[var(--muted-foreground)] mt-0.5">
+                    <p className="text-xs text-muted-foreground mt-0.5">
                       {formatTime(shift.opened_at)}
                       {shift.closed_at ? ` - ${formatTime(shift.closed_at)}` : ' - sekarang'}
                     </p>
@@ -83,12 +83,12 @@ export function ShiftsPage() {
                     <p className="text-sm font-semibold">
                       {formatCurrency(shift.opening_cash)}
                     </p>
-                    <p className="text-xs text-[var(--muted-foreground)]">kas awal</p>
+                    <p className="text-xs text-muted-foreground">kas awal</p>
                   </div>
                 </div>
                 {shift.status === 'closed' && shift.cash_difference != null && (
                   <div className="mt-2 flex items-center justify-between text-xs">
-                    <span className="text-[var(--muted-foreground)]">Selisih kas</span>
+                    <span className="text-muted-foreground">Selisih kas</span>
                     <span
                       className={`font-medium ${
                         shift.cash_difference < 0
@@ -110,7 +110,7 @@ export function ShiftsPage() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-4 py-3 border-t border-[var(--border)]">
+        <div className="flex items-center justify-center gap-4 py-3 border-t border-border">
           <Button
             variant="outline"
             size="sm"
@@ -119,7 +119,7 @@ export function ShiftsPage() {
           >
             <CaretLeft size={16} />
           </Button>
-          <span className="text-sm text-[var(--muted-foreground)]">
+          <span className="text-sm text-muted-foreground">
             {page} / {totalPages}
           </span>
           <Button

@@ -36,7 +36,7 @@ interface SummaryCardProps {
 
 function SummaryCard({ icon, label, value, subValue, iconBg, iconColor }: SummaryCardProps) {
   return (
-    <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] p-4">
+    <div className="bg-card border rounded-[var(--radius)] p-4">
       <div className="flex items-start gap-3">
         <div
           className={cn(
@@ -47,10 +47,10 @@ function SummaryCard({ icon, label, value, subValue, iconBg, iconColor }: Summar
           <span className={iconColor}>{icon}</span>
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-xs text-[var(--muted-foreground)] font-medium">{label}</p>
+          <p className="text-xs text-muted-foreground font-medium">{label}</p>
           <p className="text-lg font-bold mt-0.5 truncate">{value}</p>
           {subValue && (
-            <p className="text-xs text-[var(--muted-foreground)] mt-0.5">{subValue}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{subValue}</p>
           )}
         </div>
       </div>
@@ -61,13 +61,13 @@ function SummaryCard({ icon, label, value, subValue, iconBg, iconColor }: Summar
 function getSyncIcon(syncStatus: SyncStatus) {
   switch (syncStatus) {
     case 'synced':
-      return <CheckCircle size={14} className="text-[var(--success)]" weight="fill" />
+      return <CheckCircle size={14} className="text-success" weight="fill" />
     case 'pending':
-      return <Clock size={14} className="text-[var(--muted-foreground)]" weight="fill" />
+      return <Clock size={14} className="text-muted-foreground" weight="fill" />
     case 'failed':
-      return <Warning size={14} className="text-[var(--destructive)]" weight="fill" />
+      return <Warning size={14} className="text-destructive" weight="fill" />
     default:
-      return <ArrowsClockwise size={14} className="text-[var(--primary)] animate-spin" />
+      return <ArrowsClockwise size={14} className="text-primary animate-spin" />
   }
 }
 
@@ -128,7 +128,7 @@ export function DashboardPage() {
     <div className="flex flex-col h-full overflow-y-auto">
       <div className="px-4 pt-4 pb-2">
         <h1 className="text-xl font-bold">Dashboard</h1>
-        <p className="text-sm text-[var(--muted-foreground)]">
+        <p className="text-sm text-muted-foreground">
           Selamat datang, {user?.name}
         </p>
       </div>
@@ -170,7 +170,7 @@ export function DashboardPage() {
 
       {/* Quick actions */}
       <div className="px-4 mt-4">
-        <h2 className="text-sm font-semibold text-[var(--muted-foreground)] uppercase mb-2">
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase mb-2">
           Aksi Cepat
         </h2>
         <div className="grid grid-cols-3 gap-2">
@@ -204,7 +204,7 @@ export function DashboardPage() {
       {/* Recent transactions */}
       <div className="px-4 mt-4 pb-6">
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-sm font-semibold text-[var(--muted-foreground)] uppercase">
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase">
             Transaksi Terbaru
           </h2>
           <Button
@@ -217,8 +217,8 @@ export function DashboardPage() {
           </Button>
         </div>
         {recentTransactions.length === 0 ? (
-          <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] p-6 text-center">
-            <p className="text-sm text-[var(--muted-foreground)]">Belum ada transaksi</p>
+          <div className="bg-card border rounded-[var(--radius)] p-6 text-center">
+            <p className="text-sm text-muted-foreground">Belum ada transaksi</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -229,7 +229,7 @@ export function DashboardPage() {
                 onClick={() =>
                   router.navigate({ to: '/transactions/$id', params: { id: tx.id } })
                 }
-                className="w-full text-left bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] p-3 active:bg-[var(--muted)] transition-colors touch-manipulation"
+                className="w-full text-left bg-card border rounded-[var(--radius)] p-3 active:bg-muted transition-colors touch-manipulation"
               >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
@@ -237,7 +237,7 @@ export function DashboardPage() {
                     <div className="min-w-0">
                       <span className="text-sm font-semibold">#{tx.orderNumber}</span>
                       {tx.customerName && (
-                        <p className="text-xs text-[var(--muted-foreground)] truncate">
+                        <p className="text-xs text-muted-foreground truncate">
                           {tx.customerName}
                         </p>
                       )}
@@ -245,7 +245,7 @@ export function DashboardPage() {
                   </div>
                   <div className="text-right shrink-0">
                     <p className="text-sm font-semibold">{formatCurrency(tx.totalAmount)}</p>
-                    <p className="text-xs text-[var(--muted-foreground)]">
+                    <p className="text-xs text-muted-foreground">
                       {formatTime(tx.createdAt)}
                     </p>
                   </div>

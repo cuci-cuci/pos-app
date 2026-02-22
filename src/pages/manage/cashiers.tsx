@@ -119,7 +119,7 @@ export function ManageCashiersPage() {
         </Button>
         <div className="flex-1">
           <h1 className="text-xl font-bold">Kasir</h1>
-          <p className="text-sm text-[var(--muted-foreground)]">
+          <p className="text-sm text-muted-foreground">
             Kelola akun kasir
           </p>
         </div>
@@ -143,7 +143,7 @@ export function ManageCashiersPage() {
             {cashiers.map((cashier) => (
               <div
                 key={cashier.id}
-                className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] p-4"
+                className="bg-card border rounded-[var(--radius)] p-4"
               >
                 <div className="flex items-start justify-between gap-2">
                   <button
@@ -152,11 +152,11 @@ export function ManageCashiersPage() {
                     className="text-left min-w-0 flex-1"
                   >
                     <p className="text-sm font-semibold">{cashier.name}</p>
-                    <p className="text-xs text-[var(--muted-foreground)]">
+                    <p className="text-xs text-muted-foreground">
                       {cashier.email}
                     </p>
                     {cashier.outlet_name && (
-                      <p className="text-xs text-[var(--muted-foreground)] mt-0.5">
+                      <p className="text-xs text-muted-foreground mt-0.5">
                         {cashier.outlet_name}
                       </p>
                     )}

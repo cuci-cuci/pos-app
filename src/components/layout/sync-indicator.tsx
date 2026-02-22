@@ -8,13 +8,13 @@ export function SyncIndicator() {
   return (
     <div className="flex items-center gap-2">
       {isOnline ? (
-        <WifiHigh size={18} className="text-[var(--success)]" weight="bold" />
+        <WifiHigh size={18} className="text-success" weight="bold" />
       ) : (
-        <WifiSlash size={18} className="text-[var(--destructive)]" weight="bold" />
+        <WifiSlash size={18} className="text-destructive" weight="bold" />
       )}
 
       {isSyncing && (
-        <ArrowsClockwise size={18} className="text-[var(--primary)] animate-spin" />
+        <ArrowsClockwise size={18} className="text-primary animate-spin" />
       )}
 
       {pendingCount > 0 && (
@@ -25,8 +25,8 @@ export function SyncIndicator() {
 
       {hasConfigUpdate && (
         <span className={cn('relative flex h-2 w-2')}>
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--primary)] opacity-75" />
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--primary)]" />
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
         </span>
       )}
 

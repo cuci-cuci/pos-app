@@ -34,7 +34,7 @@ export function BottomNav() {
   const navItems = role === 'tenant_owner' ? ownerNavItems : cashierNavItems
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[var(--card)] border-t border-[var(--border)] md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-card border-t border-border md:hidden">
       <div className="flex items-stretch justify-around">
         {navItems.map((item) => {
           const isActive =
@@ -50,12 +50,12 @@ export function BottomNav() {
               className={cn(
                 'flex flex-col items-center justify-center gap-0.5 flex-1 min-h-[56px] px-2 py-1.5 transition-colors relative',
                 isActive
-                  ? 'text-[var(--primary)]'
-                  : 'text-[var(--muted-foreground)]'
+                  ? 'text-primary'
+                  : 'text-muted-foreground'
               )}
             >
               {isActive && (
-                <div className="absolute top-0 left-2 right-2 h-0.5 bg-[var(--primary)] rounded-b" />
+                <div className="absolute top-0 left-2 right-2 h-0.5 bg-primary rounded-b" />
               )}
               <item.icon size={22} weight={isActive ? 'fill' : 'regular'} />
               <span className="text-xs font-medium">{item.label}</span>

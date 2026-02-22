@@ -133,7 +133,7 @@ export function OrdersPage() {
       <div className="px-4 pt-4 pb-2 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold">Pesanan</h1>
-          <p className="text-sm text-[var(--muted-foreground)]">
+          <p className="text-sm text-muted-foreground">
             Kelola pesanan laundry
           </p>
         </div>
@@ -141,12 +141,12 @@ export function OrdersPage() {
           type="button"
           onClick={handleRefresh}
           disabled={refreshing}
-          className="p-2 rounded-[var(--radius)] hover:bg-[var(--muted)] transition-colors touch-manipulation"
+          className="p-2 rounded-[var(--radius)] hover:bg-muted transition-colors touch-manipulation"
         >
           <ArrowsClockwise
             size={22}
             className={cn(
-              'text-[var(--muted-foreground)]',
+              'text-muted-foreground',
               refreshing && 'animate-spin'
             )}
           />
@@ -165,8 +165,8 @@ export function OrdersPage() {
                 'px-3 py-2 text-sm font-medium rounded-full transition-colors',
                 'min-h-[36px] touch-manipulation whitespace-nowrap',
                 activeTab === tab.id
-                  ? 'bg-[var(--primary)] text-[var(--primary-foreground)]'
-                  : 'bg-[var(--muted)] text-[var(--muted-foreground)]'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground'
               )}
             >
               {tab.label}
@@ -192,18 +192,18 @@ export function OrdersPage() {
                 type="button"
                 key={order.id}
                 onClick={() => handleSelect(order.id)}
-                className="w-full text-left bg-[var(--card)] rounded-[var(--radius)] border border-[var(--border)] p-3 active:bg-[var(--muted)] transition-colors touch-manipulation"
+                className="w-full text-left bg-card rounded-[var(--radius)] border p-3 active:bg-muted transition-colors touch-manipulation"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-[var(--foreground)]">
+                      <span className="text-sm font-semibold text-foreground">
                         #{order.order_number}
                       </span>
                       <StatusBadge status={order.status} />
                     </div>
                     {order.customer_name && (
-                      <p className="text-xs text-[var(--muted-foreground)] mt-0.5 truncate">
+                      <p className="text-xs text-muted-foreground mt-0.5 truncate">
                         {order.customer_name}
                       </p>
                     )}
@@ -212,7 +212,7 @@ export function OrdersPage() {
                     <p className="text-sm font-semibold">
                       {formatCurrency(order.total_amount)}
                     </p>
-                    <p className="text-xs text-[var(--muted-foreground)]">
+                    <p className="text-xs text-muted-foreground">
                       {formatTime(order.created_at)}
                     </p>
                   </div>

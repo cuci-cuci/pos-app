@@ -147,7 +147,7 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
           <div className="space-y-4">
             <h2 className="text-lg font-bold">Ringkasan Pesanan</h2>
 
-            <div className="space-y-2 bg-[var(--muted)] rounded-xl p-4">
+            <div className="space-y-2 bg-muted rounded-xl p-4">
               {items.map((item) => (
                 <div key={item.id} className="flex justify-between text-sm">
                   <span className="truncate mr-2">
@@ -160,17 +160,17 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
 
             <div className="space-y-1">
               <div className="flex justify-between text-sm">
-                <span className="text-[var(--muted-foreground)]">Subtotal</span>
+                <span className="text-muted-foreground">Subtotal</span>
                 <span>{formatCurrency(subtotal)}</span>
               </div>
               {discountPercent > 0 && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-[var(--muted-foreground)]">Diskon ({discountPercent}%)</span>
-                  <span className="text-[var(--destructive)]">-{formatCurrency(discountAmount)}</span>
+                  <span className="text-muted-foreground">Diskon ({discountPercent}%)</span>
+                  <span className="text-destructive">-{formatCurrency(discountAmount)}</span>
                 </div>
               )}
               <div className="flex justify-between text-sm">
-                <span className="text-[var(--muted-foreground)]">Pajak</span>
+                <span className="text-muted-foreground">Pajak</span>
                 <span>Rp 0</span>
               </div>
               <Separator className="my-2" />
@@ -197,7 +197,7 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
               <button
                 type="button"
                 onClick={() => setStep('review')}
-                className="p-1 rounded hover:bg-[var(--accent)]"
+                className="p-1 rounded hover:bg-accent"
               >
                 <ArrowLeft size={20} />
               </button>
@@ -205,7 +205,7 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
             </div>
 
             <div className="text-center py-2">
-              <p className="text-sm text-[var(--muted-foreground)]">Total Pembayaran</p>
+              <p className="text-sm text-muted-foreground">Total Pembayaran</p>
               <p className="text-2xl font-bold">{formatCurrency(total)}</p>
             </div>
 
@@ -218,14 +218,14 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
                     key={method.id}
                     onClick={() => handleSelectMethod(method)}
                     className={cn(
-                      'w-full flex items-center gap-4 p-4 rounded-xl border border-[var(--border)]',
-                      'hover:bg-[var(--accent)] active:bg-[var(--accent)] transition-colors',
+                      'w-full flex items-center gap-4 p-4 rounded-xl border',
+                      'hover:bg-accent active:bg-accent transition-colors',
                       'min-h-[60px] touch-manipulation'
                     )}
                   >
                     <IconComp
                       size={28}
-                      className={method.type === 'cash' ? 'text-green-600' : 'text-[var(--primary)]'}
+                      className={method.type === 'cash' ? 'text-green-600' : 'text-primary'}
                       weight="duotone"
                     />
                     <span className="text-base font-medium">{method.name}</span>
@@ -243,7 +243,7 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
               <button
                 type="button"
                 onClick={() => setStep('method')}
-                className="p-1 rounded hover:bg-[var(--accent)]"
+                className="p-1 rounded hover:bg-accent"
               >
                 <ArrowLeft size={20} />
               </button>
@@ -251,7 +251,7 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
             </div>
 
             <div className="text-center py-2">
-              <p className="text-sm text-[var(--muted-foreground)]">Total</p>
+              <p className="text-sm text-muted-foreground">Total</p>
               <p className="text-2xl font-bold">{formatCurrency(total)}</p>
             </div>
 
@@ -265,8 +265,8 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
                     'px-3 py-3 rounded-xl border text-sm font-medium text-center',
                     'min-h-[48px] touch-manipulation transition-colors',
                     cashAmount === qa.value
-                      ? 'border-[var(--primary)] bg-[var(--primary)]/5 text-[var(--primary)]'
-                      : 'border-[var(--border)] hover:bg-[var(--accent)]'
+                      ? 'border-primary bg-primary/5 text-primary'
+                      : 'border-border hover:bg-accent'
                   )}
                 >
                   {qa.label}
@@ -289,7 +289,7 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
 
             {cashAmount > 0 && cashAmount >= total && (
               <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center">
-                <p className="text-sm text-[var(--muted-foreground)]">Kembalian</p>
+                <p className="text-sm text-muted-foreground">Kembalian</p>
                 <p className="text-2xl font-bold text-green-600">
                   {formatCurrency(changeAmount)}
                 </p>
@@ -314,7 +314,7 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
               <button
                 type="button"
                 onClick={() => setStep('method')}
-                className="p-1 rounded hover:bg-[var(--accent)]"
+                className="p-1 rounded hover:bg-accent"
               >
                 <ArrowLeft size={20} />
               </button>
@@ -322,9 +322,9 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
             </div>
 
             <div className="text-center py-8">
-              <p className="text-sm text-[var(--muted-foreground)]">Total Pembayaran</p>
+              <p className="text-sm text-muted-foreground">Total Pembayaran</p>
               <p className="text-3xl font-bold mt-1">{formatCurrency(total)}</p>
-              <p className="text-sm text-[var(--muted-foreground)] mt-4">
+              <p className="text-sm text-muted-foreground mt-4">
                 Menunggu pembayaran...
               </p>
             </div>
@@ -350,12 +350,12 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
                 weight="fill"
               />
               <h2 className="text-xl font-bold mb-1">Pembayaran Berhasil!</h2>
-              <p className="text-sm text-[var(--muted-foreground)]">
+              <p className="text-sm text-muted-foreground">
                 {completedTx.orderNumber}
               </p>
             </div>
 
-            <div className="space-y-2 bg-[var(--muted)] rounded-xl p-4">
+            <div className="space-y-2 bg-muted rounded-xl p-4">
               {completedTx.items.map((item) => (
                 <div key={item.id} className="flex justify-between text-sm">
                   <span>

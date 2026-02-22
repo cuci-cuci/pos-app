@@ -49,7 +49,7 @@ export function UserMenu({ open, onOpenChange }: UserMenuProps) {
 
         {/* User info */}
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-full bg-[var(--primary)] text-[var(--primary-foreground)] flex items-center justify-center text-lg font-bold shrink-0">
+          <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-lg font-bold shrink-0">
             {avatarLetter}
           </div>
           <div className="min-w-0 flex-1">
@@ -67,16 +67,16 @@ export function UserMenu({ open, onOpenChange }: UserMenuProps) {
         {/* Device info */}
         <div className="space-y-3 mb-4">
           <div className="flex items-center gap-3 text-sm">
-            <Storefront size={18} className="text-[var(--muted-foreground)] shrink-0" />
+            <Storefront size={18} className="text-muted-foreground shrink-0" />
             <div className="min-w-0">
-              <p className="text-[var(--muted-foreground)] text-xs">Outlet</p>
+              <p className="text-muted-foreground text-xs">Outlet</p>
               <p className="font-medium truncate">{outletName || '-'}</p>
             </div>
           </div>
           <div className="flex items-center gap-3 text-sm">
-            <Desktop size={18} className="text-[var(--muted-foreground)] shrink-0" />
+            <Desktop size={18} className="text-muted-foreground shrink-0" />
             <div className="min-w-0">
-              <p className="text-[var(--muted-foreground)] text-xs">Perangkat</p>
+              <p className="text-muted-foreground text-xs">Perangkat</p>
               <p className="font-medium truncate">{deviceName || '-'}</p>
             </div>
           </div>
@@ -95,7 +95,7 @@ export function UserMenu({ open, onOpenChange }: UserMenuProps) {
           </Button>
           <Button
             variant="ghost"
-            className="w-full justify-start gap-3 h-11 text-[var(--destructive)] hover:text-[var(--destructive)]"
+            className="w-full justify-start gap-3 h-11 text-destructive hover:text-destructive"
             onClick={() => void handleLogout()}
           >
             <SignOut size={20} />

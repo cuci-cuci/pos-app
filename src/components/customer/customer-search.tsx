@@ -221,8 +221,8 @@ export function CustomerSearch() {
     const tierConfig = TIER_CONFIG[memberInfo.tier]
     return (
       <div className="space-y-2">
-        <div className="flex items-start gap-3 bg-[var(--accent)] rounded-[var(--radius)] px-3 py-3">
-          <UserCircle size={28} className="text-[var(--primary)] shrink-0 mt-0.5" weight="fill" />
+        <div className="flex items-start gap-3 bg-accent rounded-[var(--radius)] px-3 py-3">
+          <UserCircle size={28} className="text-primary shrink-0 mt-0.5" weight="fill" />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm font-semibold">{memberInfo.name}</span>
@@ -237,15 +237,15 @@ export function CustomerSearch() {
                 {tierConfig.label}
               </Badge>
             </div>
-            <p className="text-xs text-[var(--muted-foreground)] mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5">
               {memberInfo.phone}
             </p>
             <div className="flex items-center gap-3 mt-1.5 flex-wrap">
-              <span className="flex items-center gap-1 text-xs text-[var(--muted-foreground)]">
+              <span className="flex items-center gap-1 text-xs text-muted-foreground">
                 <CurrencyCircleDollar size={12} />
                 {formatCurrency(memberInfo.totalSpending)}
               </span>
-              <span className="flex items-center gap-1 text-xs text-[var(--primary)] font-medium">
+              <span className="flex items-center gap-1 text-xs text-primary font-medium">
                 <Tag size={12} weight="fill" />
                 Diskon {memberInfo.discountPercent}%
               </span>
@@ -254,7 +254,7 @@ export function CustomerSearch() {
           <button
             type="button"
             onClick={handleClear}
-            className="p-1 rounded hover:bg-[var(--background)] shrink-0"
+            className="p-1 rounded hover:bg-background shrink-0"
           >
             <X size={16} />
           </button>
@@ -266,13 +266,13 @@ export function CustomerSearch() {
   // Show selected non-member customer
   if (customerId) {
     return (
-      <div className="flex items-center gap-2 bg-[var(--accent)] rounded-[var(--radius)] px-3 py-2">
-        <UserCircle size={20} className="text-[var(--primary)]" weight="fill" />
+      <div className="flex items-center gap-2 bg-accent rounded-[var(--radius)] px-3 py-2">
+        <UserCircle size={20} className="text-primary" weight="fill" />
         <span className="text-sm font-medium flex-1">{customerName}</span>
         <button
           type="button"
           onClick={handleClear}
-          className="p-1 rounded hover:bg-[var(--background)]"
+          className="p-1 rounded hover:bg-background"
         >
           <X size={16} />
         </button>
@@ -331,7 +331,7 @@ export function CustomerSearch() {
           <div className="relative flex-1">
             <MagnifyingGlass
               size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
             />
             <Input
               placeholder="Cari member (nama/telepon)..."
@@ -344,7 +344,7 @@ export function CustomerSearch() {
             {isSearchingApi && (
               <SpinnerGap
                 size={16}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] animate-spin"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground animate-spin"
               />
             )}
           </div>
@@ -360,7 +360,7 @@ export function CustomerSearch() {
         </div>
 
         {showResults && mergedResults.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] shadow-lg z-20 max-h-64 overflow-y-auto">
+          <div className="absolute top-full left-0 right-0 mt-1 bg-card border rounded-[var(--radius)] shadow-lg z-20 max-h-64 overflow-y-auto">
             {mergedResults.map((result) => {
               const tierConfig = result.tier
                 ? TIER_CONFIG[result.tier]
@@ -395,7 +395,7 @@ export function CustomerSearch() {
                   }}
                   className={cn(
                     'w-full flex items-center gap-3 px-3 py-2.5 text-left',
-                    'hover:bg-[var(--accent)] active:bg-[var(--accent)] transition-colors',
+                    'hover:bg-accent active:bg-accent transition-colors',
                     'min-h-[44px]'
                   )}
                 >
@@ -404,8 +404,8 @@ export function CustomerSearch() {
                     className={cn(
                       'shrink-0',
                       result.isMember
-                        ? 'text-[var(--primary)]'
-                        : 'text-[var(--muted-foreground)]'
+                        ? 'text-primary'
+                        : 'text-muted-foreground'
                     )}
                     weight={result.isMember ? 'fill' : 'regular'}
                   />
@@ -426,11 +426,11 @@ export function CustomerSearch() {
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-[var(--muted-foreground)]">
+                    <p className="text-xs text-muted-foreground">
                       {result.phone}
                     </p>
                     {result.isMember && result.discountPercent !== undefined && result.discountPercent > 0 && (
-                      <p className="text-xs text-[var(--primary)] font-medium mt-0.5">
+                      <p className="text-xs text-primary font-medium mt-0.5">
                         Diskon {result.discountPercent}%
                       </p>
                     )}
@@ -445,8 +445,8 @@ export function CustomerSearch() {
           mergedResults.length === 0 &&
           query.length >= 2 &&
           !isSearchingApi && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] shadow-lg z-20 p-4 text-center">
-              <p className="text-sm text-[var(--muted-foreground)] mb-2">
+            <div className="absolute top-full left-0 right-0 mt-1 bg-card border rounded-[var(--radius)] shadow-lg z-20 p-4 text-center">
+              <p className="text-sm text-muted-foreground mb-2">
                 Tidak ditemukan
               </p>
               <Button
@@ -499,7 +499,7 @@ export function CustomerSearch() {
             <div>
               <label htmlFor="reg-email" className="text-sm font-medium mb-1 block">
                 Email{' '}
-                <span className="text-[var(--muted-foreground)] font-normal">
+                <span className="text-muted-foreground font-normal">
                   (opsional)
                 </span>
               </label>

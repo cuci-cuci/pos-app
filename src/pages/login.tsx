@@ -87,15 +87,15 @@ export function LoginPage() {
   const isLoading = loginState !== 'idle'
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--muted)] p-4">
+    <div className="min-h-screen flex items-center justify-center bg-muted p-4">
       <div className="w-full max-w-sm">
         {/* Logo and app name */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[var(--primary)] mb-3">
-            <Drop size={36} className="text-[var(--primary-foreground)]" weight="duotone" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-3">
+            <Drop size={36} className="text-primary-foreground" weight="duotone" />
           </div>
           <h1 className="text-2xl font-bold">{APP_NAME}</h1>
-          <p className="text-sm text-[var(--muted-foreground)] mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             Sistem POS Laundry
           </p>
         </div>
@@ -107,7 +107,7 @@ export function LoginPage() {
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {error && (
-                <div className="flex items-start gap-2 bg-[var(--destructive)]/10 border border-[var(--destructive)]/20 text-[var(--destructive)] text-sm rounded-[var(--radius)] p-3">
+                <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/20 text-destructive text-sm rounded-[var(--radius)] p-3">
                   <WarningCircle size={18} className="shrink-0 mt-0.5" weight="bold" />
                   <span>{error}</span>
                 </div>
@@ -126,7 +126,7 @@ export function LoginPage() {
                   {...register('email')}
                 />
                 {errors.email && (
-                  <p className="text-xs text-[var(--destructive)]">{errors.email.message}</p>
+                  <p className="text-xs text-destructive">{errors.email.message}</p>
                 )}
               </div>
 
@@ -143,7 +143,7 @@ export function LoginPage() {
                   {...register('password')}
                 />
                 {errors.password && (
-                  <p className="text-xs text-[var(--destructive)]">{errors.password.message}</p>
+                  <p className="text-xs text-destructive">{errors.password.message}</p>
                 )}
               </div>
 
@@ -166,7 +166,7 @@ export function LoginPage() {
           </CardContent>
         </Card>
 
-        <p className="text-center text-xs text-[var(--muted-foreground)] mt-4">
+        <p className="text-center text-xs text-muted-foreground mt-4">
           Belum punya akun bisnis?{' '}
           <Link to="/register" className="font-medium underline">
             Daftarkan bisnis Anda

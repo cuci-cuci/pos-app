@@ -82,7 +82,7 @@ function MenuCard({
     <button
       type="button"
       onClick={onClick}
-      className="w-full text-left bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] p-4 active:bg-[var(--muted)] transition-colors touch-manipulation"
+      className="w-full text-left bg-card border rounded-[var(--radius)] p-4 active:bg-muted transition-colors touch-manipulation"
     >
       <div className="flex items-center gap-3">
         <div
@@ -92,13 +92,13 @@ function MenuCard({
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold">{item.label}</p>
-          <p className="text-xs text-[var(--muted-foreground)]">
+          <p className="text-xs text-muted-foreground">
             {item.description}
           </p>
         </div>
         <CaretRight
           size={18}
-          className="shrink-0 text-[var(--muted-foreground)]"
+          className="shrink-0 text-muted-foreground"
         />
       </div>
     </button>
@@ -112,7 +112,7 @@ export function ManagePage() {
     <div className="flex flex-col h-full overflow-y-auto">
       <div className="px-4 pt-4 pb-2">
         <h1 className="text-xl font-bold">Kelola</h1>
-        <p className="text-sm text-[var(--muted-foreground)]">
+        <p className="text-sm text-muted-foreground">
           Manajemen outlet, layanan, dan tim
         </p>
       </div>

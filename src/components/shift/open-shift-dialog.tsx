@@ -72,7 +72,7 @@ export function OpenShiftDialog({ open, onOpenChange }: OpenShiftDialogProps) {
             <div className="relative">
               <CurrencyDollar
                 size={18}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
               />
               <Input
                 id="opening-cash"
@@ -86,7 +86,7 @@ export function OpenShiftDialog({ open, onOpenChange }: OpenShiftDialogProps) {
               />
             </div>
             {cashValue > 0 && (
-              <p className="text-xs text-[var(--muted-foreground)] mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 {formatCurrency(cashValue)}
               </p>
             )}
@@ -98,7 +98,7 @@ export function OpenShiftDialog({ open, onOpenChange }: OpenShiftDialogProps) {
                 type="button"
                 key={amount}
                 onClick={() => setOpeningCash(amount.toString())}
-                className="px-3 py-1.5 text-xs font-medium rounded-[var(--radius)] border border-[var(--border)] bg-[var(--muted)] hover:bg-[var(--accent)] transition-colors"
+                className="px-3 py-1.5 text-xs font-medium rounded-[var(--radius)] border bg-muted hover:bg-accent transition-colors"
               >
                 {amount === 0 ? 'Rp 0' : formatCurrency(amount)}
               </button>

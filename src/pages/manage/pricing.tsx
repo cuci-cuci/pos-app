@@ -86,7 +86,7 @@ export function ManagePricingPage() {
         </Button>
         <div className="flex-1">
           <h1 className="text-xl font-bold">Harga Layanan</h1>
-          <p className="text-sm text-[var(--muted-foreground)]">
+          <p className="text-sm text-muted-foreground">
             Atur harga layanan laundry
           </p>
         </div>
@@ -108,21 +108,21 @@ export function ManagePricingPage() {
             description="Belum ada template layanan yang tersedia."
           />
         ) : (
-          <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] overflow-hidden">
+          <div className="bg-card border rounded-[var(--radius)] overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-[var(--border)]">
-                    <th className="text-left p-3 font-semibold text-xs text-[var(--muted-foreground)] uppercase">
+                  <tr className="border-b border-border">
+                    <th className="text-left p-3 font-semibold text-xs text-muted-foreground uppercase">
                       Layanan
                     </th>
-                    <th className="text-left p-3 font-semibold text-xs text-[var(--muted-foreground)] uppercase">
+                    <th className="text-left p-3 font-semibold text-xs text-muted-foreground uppercase">
                       Kategori
                     </th>
-                    <th className="text-right p-3 font-semibold text-xs text-[var(--muted-foreground)] uppercase">
+                    <th className="text-right p-3 font-semibold text-xs text-muted-foreground uppercase">
                       Harga Dasar
                     </th>
-                    <th className="text-right p-3 font-semibold text-xs text-[var(--muted-foreground)] uppercase">
+                    <th className="text-right p-3 font-semibold text-xs text-muted-foreground uppercase">
                       Harga Anda
                     </th>
                   </tr>
@@ -131,13 +131,13 @@ export function ManagePricingPage() {
                   {services.map((service) => (
                     <tr
                       key={service.template_id}
-                      className="border-b border-[var(--border)] last:border-b-0"
+                      className="border-b border-border last:border-b-0"
                     >
                       <td className="p-3 font-medium">{service.name}</td>
-                      <td className="p-3 text-[var(--muted-foreground)]">
+                      <td className="p-3 text-muted-foreground">
                         {service.category}
                       </td>
-                      <td className="p-3 text-right text-[var(--muted-foreground)]">
+                      <td className="p-3 text-right text-muted-foreground">
                         {formatCurrency(service.base_price)}
                       </td>
                       <td className="p-3 text-right">
