@@ -13,6 +13,7 @@ import {
 import { LoadingSpinner } from '@/components/shared/loading-spinner'
 import { EmptyState } from '@/components/shared/empty-state'
 import { ownerApi } from '@/services/owner-api'
+import { showToast } from '@/components/ui/toast'
 
 interface PaymentMethod {
   id: string
@@ -32,6 +33,7 @@ export function ManagePaymentMethodsPage() {
   const [formType, setFormType] = useState('')
   const [formDescription, setFormDescription] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [deletingMethod, setDeletingMethod] = useState<PaymentMethod | null>(null)
 
   const fetchMethods = useCallback(async () => {
     try {
@@ -39,7 +41,7 @@ export function ManagePaymentMethodsPage() {
       const res = await ownerApi.listPaymentMethods()
       setMethods(res.data ?? [])
     } catch {
-      alert('Gagal memuat data metode pembayaran')
+      showToast('Gagal memuat data metode pembayaran', 'error')
     } finally {
       setLoading(false)
     }
@@ -82,7 +84,7 @@ export function ManagePaymentMethodsPage() {
       setDialogOpen(false)
       fetchMethods()
     } catch {
-      alert('Gagal menyimpan metode pembayaran')
+      showToast('Gagal menyimpan metode pembayaran', 'error')
     } finally {
       setSubmitting(false)
     }
@@ -95,17 +97,18 @@ export function ManagePaymentMethodsPage() {
       })
       fetchMethods()
     } catch {
-      alert('Gagal mengubah status')
+      showToast('Gagal mengubah status', 'error')
     }
   }
 
-  async function handleDelete(method: PaymentMethod) {
-    if (!confirm(`Hapus metode pembayaran "${method.name}"?`)) return
+  async function handleDelete() {
+    if (!deletingMethod) return
     try {
-      await ownerApi.deletePaymentMethod(method.id)
+      await ownerApi.deletePaymentMethod(deletingMethod.id)
+      setDeletingMethod(null)
       fetchMethods()
     } catch {
-      alert('Gagal menghapus metode pembayaran')
+      showToast('Gagal menghapus metode pembayaran', 'error')
     }
   }
 
@@ -179,7 +182,7 @@ export function ManagePaymentMethodsPage() {
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 text-destructive"
-                      onClick={() => handleDelete(method)}
+                      onClick={() => setDeletingMethod(method)}
                     >
                       <Trash size={16} />
                     </Button>
@@ -244,6 +247,25 @@ export function ManagePaymentMethodsPage() {
             </Button>
             <Button onClick={handleSubmit} disabled={submitting}>
               {submitting ? 'Menyimpan...' : 'Simpan'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!deletingMethod} onOpenChange={() => setDeletingMethod(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Hapus Metode Pembayaran</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Hapus metode pembayaran &ldquo;{deletingMethod?.name}&rdquo;?
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeletingMethod(null)}>
+              Batal
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Hapus
             </Button>
           </DialogFooter>
         </DialogContent>

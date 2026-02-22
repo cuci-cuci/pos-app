@@ -19,6 +19,7 @@ import {
 import { LoadingSpinner } from '@/components/shared/loading-spinner'
 import { EmptyState } from '@/components/shared/empty-state'
 import { ownerApi } from '@/services/owner-api'
+import { showToast } from '@/components/ui/toast'
 
 interface Outlet {
   id: string
@@ -45,7 +46,7 @@ export function ManageOutletsPage() {
       const res = await ownerApi.listOutlets()
       setOutlets(res.data ?? [])
     } catch {
-      alert('Gagal memuat data outlet')
+      showToast('Gagal memuat data outlet', 'error')
     } finally {
       setLoading(false)
     }
@@ -88,7 +89,7 @@ export function ManageOutletsPage() {
       setDialogOpen(false)
       fetchOutlets()
     } catch {
-      alert('Gagal menyimpan outlet')
+      showToast('Gagal menyimpan outlet', 'error')
     } finally {
       setSubmitting(false)
     }

@@ -14,6 +14,7 @@ import { EmptyState } from '@/components/shared/empty-state'
 import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { ownerApi } from '@/services/owner-api'
+import { showToast } from '@/components/ui/toast'
 import type { ReactNode } from 'react'
 
 interface SummaryData {
@@ -91,7 +92,7 @@ export function ManageAnalyticsPage() {
       setSummary(summaryRes.data ?? null)
       setOutlets(outletsRes.data ?? [])
     } catch {
-      alert('Gagal memuat data analitik')
+      showToast('Gagal memuat data analitik', 'error')
     } finally {
       setLoading(false)
     }

@@ -15,6 +15,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/shared/loading-spinner'
 import { useAuthStore } from '@/stores/auth-store'
 import { ownerApi } from '@/services/owner-api'
+import { showToast } from '@/components/ui/toast'
 import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
@@ -123,7 +124,7 @@ export function OnboardingPage() {
       setEditingPrices({})
       setStep(2)
     } catch {
-      alert('Gagal menyimpan harga')
+      showToast('Gagal menyimpan harga', 'error')
     } finally {
       setSavingPrices(false)
     }
@@ -140,7 +141,7 @@ export function OnboardingPage() {
       })
       setCashierAdded(true)
     } catch {
-      alert('Gagal menambahkan kasir')
+      showToast('Gagal menambahkan kasir', 'error')
     } finally {
       setAddingCashier(false)
     }
@@ -158,7 +159,7 @@ export function OnboardingPage() {
         ),
       )
     } catch {
-      alert('Gagal mengubah status')
+      showToast('Gagal mengubah status', 'error')
     } finally {
       setTogglingId(null)
     }

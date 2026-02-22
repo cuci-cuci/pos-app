@@ -13,6 +13,7 @@ import {
 import { LoadingSpinner } from '@/components/shared/loading-spinner'
 import { EmptyState } from '@/components/shared/empty-state'
 import { ownerApi } from '@/services/owner-api'
+import { showToast } from '@/components/ui/toast'
 
 interface Cashier {
   id: string
@@ -41,7 +42,7 @@ export function ManageCashiersPage() {
       const res = await ownerApi.listCashiers()
       setCashiers(res.data ?? [])
     } catch {
-      alert('Gagal memuat data kasir')
+      showToast('Gagal memuat data kasir', 'error')
     } finally {
       setLoading(false)
     }
@@ -90,7 +91,7 @@ export function ManageCashiersPage() {
       setDialogOpen(false)
       fetchCashiers()
     } catch {
-      alert('Gagal menyimpan data kasir')
+      showToast('Gagal menyimpan data kasir', 'error')
     } finally {
       setSubmitting(false)
     }
@@ -103,7 +104,7 @@ export function ManageCashiersPage() {
       })
       fetchCashiers()
     } catch {
-      alert('Gagal mengubah status kasir')
+      showToast('Gagal mengubah status kasir', 'error')
     }
   }
 
