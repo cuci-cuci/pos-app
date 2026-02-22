@@ -57,7 +57,7 @@ export function BottomNav() {
               {isActive && (
                 <div className="absolute top-0 left-2 right-2 h-0.5 bg-primary rounded-b" />
               )}
-              <item.icon size={22} weight={isActive ? 'fill' : 'regular'} />
+              <item.icon size={22} strokeWidth={isActive ? 2.5 : 1.5} />
               <span className="text-xs font-medium">{item.label}</span>
             </button>
           )

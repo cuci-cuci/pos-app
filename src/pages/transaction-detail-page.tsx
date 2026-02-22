@@ -16,7 +16,7 @@ import {
   Clock,
   Receipt,
   CloudCheck,
-  CloudSlash,
+  CloudOff,
 } from 'lucide-react'
 import type { SyncStatus, TransactionStatus } from '@/db/schema'
 
@@ -40,7 +40,7 @@ function syncStatusInfo(syncStatus: SyncStatus) {
     case 'syncing':
       return { label: 'Sedang sinkronisasi...', color: 'text-primary', icon: RefreshCw }
     case 'failed':
-      return { label: 'Gagal sinkron', color: 'text-destructive', icon: CloudSlash }
+      return { label: 'Gagal sinkron', color: 'text-destructive', icon: CloudOff }
   }
 }
 

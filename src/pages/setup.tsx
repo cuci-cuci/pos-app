@@ -92,7 +92,7 @@ export function SetupPage() {
             <CardContent className="p-8 text-center">
               <div className="flex justify-center mb-6">
                 <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Store size={48} className="text-primary" weight="duotone" />
+                  <Store size={48} className="text-primary" />
                 </div>
               </div>
               <h1 className="text-2xl font-bold mb-2">Selamat datang di LaundryPOS</h1>

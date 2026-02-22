@@ -92,7 +92,7 @@ export function LoginPage() {
         {/* Logo and app name */}
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-3">
-            <Droplet size={36} className="text-primary-foreground" weight="duotone" />
+            <Droplet size={36} className="text-primary-foreground" />
           </div>
           <h1 className="text-2xl font-bold">{APP_NAME}</h1>
           <p className="text-sm text-muted-foreground mt-1">

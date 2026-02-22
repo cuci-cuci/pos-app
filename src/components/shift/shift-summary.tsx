@@ -7,7 +7,7 @@ import {
   Store,
   Receipt,
   DollarSign,
-  ArrowsLeftRight,
+  ArrowLeftRight,
 } from 'lucide-react'
 import type { ShiftSummary as ShiftSummaryType } from '@/services/shift-api'
 
@@ -120,7 +120,7 @@ export function ShiftSummary({ summary }: ShiftSummaryProps) {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2">
-              <ArrowsLeftRight size={18} />
+              <ArrowLeftRight size={18} />
               Rekonsiliasi Kas
             </CardTitle>
           </CardHeader>
