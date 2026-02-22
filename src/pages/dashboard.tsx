@@ -6,9 +6,11 @@ import { useAuthStore } from '@/stores/auth-store'
 import { useSyncStore } from '@/stores/sync-store'
 import { useShiftStore } from '@/stores/shift-store'
 import { formatCurrency, formatTime } from '@/lib/format'
+import { ROLE_TENANT_OWNER } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { LoadingSpinner } from '@/components/shared/loading-spinner'
+import { SyncStatusIcon } from '@/components/shared/sync-status-icon'
 import { OpenShiftDialog } from '@/components/shift/open-shift-dialog'
 import { CloseShiftDialog } from '@/components/shift/close-shift-dialog'
 import {
@@ -19,15 +21,12 @@ import {
   Plus,
   History,
   RefreshCw,
-  CheckCircle,
   AlertTriangle,
-  Clock,
   Play,
   Square,
   ClipboardList,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
-import type { SyncStatus } from '@/db/schema'
 
 type CardVariant = 'primary' | 'success' | 'warning' | 'info'
 
@@ -62,19 +61,6 @@ function SummaryCard({ icon, label, value, subValue, variant = 'primary' }: Summ
       </div>
     </div>
   )
-}
-
-function getSyncIcon(syncStatus: SyncStatus) {
-  switch (syncStatus) {
-    case 'synced':
-      return <CheckCircle size={14} className="text-success" />
-    case 'pending':
-      return <Clock size={14} className="text-muted-foreground" />
-    case 'failed':
-      return <AlertTriangle size={14} className="text-destructive" />
-    default:
-      return <RefreshCw size={14} className="text-primary animate-spin" />
-  }
 }
 
 function useShiftDuration(openedAt: string | undefined) {
@@ -187,7 +173,7 @@ export function DashboardPage() {
   const [openShiftDialog, setOpenShiftDialog] = useState(false)
   const [closeShiftDialog, setCloseShiftDialog] = useState(false)
 
-  const isOwner = user?.role === 'tenant_owner'
+  const isOwner = user?.role === ROLE_TENANT_OWNER
 
   const todayStart = useMemo(() => {
     const d = new Date()
@@ -337,7 +323,7 @@ export function DashboardPage() {
                 >
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 min-w-0">
-                      {getSyncIcon(tx.syncStatus)}
+                      <SyncStatusIcon status={tx.syncStatus} />
                       <div className="min-w-0">
                         <span className="text-sm font-semibold">#{tx.orderNumber}</span>
                         {tx.customerName && (
@@ -480,7 +466,7 @@ export function DashboardPage() {
               >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
-                    {getSyncIcon(tx.syncStatus)}
+                    <SyncStatusIcon status={tx.syncStatus} />
                     <div className="min-w-0">
                       <span className="text-sm font-semibold">#{tx.orderNumber}</span>
                       {tx.customerName && (

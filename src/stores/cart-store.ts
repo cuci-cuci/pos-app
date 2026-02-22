@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import type { MemberTier } from '@/db/schema'
 
 export interface CartItem {
   id: string
@@ -11,8 +12,6 @@ export interface CartItem {
   pricePerUnit: number
   subtotal: number
 }
-
-export type MemberTier = 'bronze' | 'silver' | 'gold' | 'platinum'
 
 export interface MemberInfo {
   id: string

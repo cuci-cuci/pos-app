@@ -1,6 +1,7 @@
 import { useRouter, useMatches } from '@tanstack/react-router'
 import { Store, Receipt, BarChart3, MoreHorizontal, Wrench, Package, Clock } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
+import { ROLE_TENANT_OWNER } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import type { LucideIcon } from 'lucide-react'
 
@@ -32,7 +33,7 @@ export function BottomNav() {
   const currentPath = matches[matches.length - 1]?.fullPath ?? '/'
   const role = useAuthStore((s) => s.user?.role)
 
-  const navItems = role === 'tenant_owner' ? ownerNavItems : cashierNavItems
+  const navItems = role === ROLE_TENANT_OWNER ? ownerNavItems : cashierNavItems
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-card border-t border-border md:hidden">
