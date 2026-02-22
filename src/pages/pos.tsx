@@ -1,16 +1,19 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '@/db'
 import type { Service, ServiceCategory } from '@/db/schema'
 import { useAuthStore } from '@/stores/auth-store'
 import { useCartStore } from '@/stores/cart-store'
+import { useShiftStore } from '@/stores/shift-store'
 import { ServiceCard } from '@/components/order/service-card'
 import { CartPanel } from '@/components/order/cart-panel'
 import { QuantityInput } from '@/components/order/quantity-input'
+import { OpenShiftDialog } from '@/components/shift/open-shift-dialog'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/shared/empty-state'
-import { ShoppingCart, Search } from 'lucide-react'
+import { ShoppingCart, Search, Clock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { formatCurrency } from '@/lib/format'
 import { getCategoryIcon } from '@/lib/category-icons'
@@ -20,6 +23,12 @@ export function PosPage() {
   const cartItems = useCartStore((s) => s.items)
   const addItem = useCartStore((s) => s.addItem)
   const getTotal = useCartStore((s) => s.getTotal)
+  const { currentShift, fetchCurrentShift, loading: shiftLoading } = useShiftStore()
+  const [openShiftDialogOpen, setOpenShiftDialogOpen] = useState(false)
+
+  useEffect(() => {
+    fetchCurrentShift()
+  }, [fetchCurrentShift])
 
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
   const [quantityService, setQuantityService] = useState<Service | null>(null)
@@ -90,8 +99,42 @@ export function PosPage() {
   const itemCount = cartItems.length
   const total = getTotal()
 
+  if (!shiftLoading && !currentShift) {
+    return (
+      <div className="flex h-[calc(100vh-3.5rem-4rem)] md:h-[calc(100vh-3.5rem)] items-center justify-center">
+        <div className="flex flex-col items-center gap-4 p-8 max-w-sm text-center">
+          <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+            <Clock size={32} className="text-muted-foreground" />
+          </div>
+          <h2 className="text-lg font-semibold">Buka Shift Terlebih Dahulu</h2>
+          <p className="text-sm text-muted-foreground">
+            Anda harus membuka shift sebelum bisa melakukan transaksi.
+          </p>
+          <Button onClick={() => setOpenShiftDialogOpen(true)} className="mt-2">
+            Buka Shift
+          </Button>
+        </div>
+        <OpenShiftDialog open={openShiftDialogOpen} onOpenChange={setOpenShiftDialogOpen} />
+      </div>
+    )
+  }
+
+  const shiftOpenedTime = currentShift
+    ? new Date(currentShift.opened_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+    : ''
+
   return (
-    <div className="flex h-[calc(100vh-3.5rem-4rem)] md:h-[calc(100vh-3.5rem)]">
+    <div className="flex flex-col h-[calc(100vh-3.5rem-4rem)] md:h-[calc(100vh-3.5rem)]">
+      {/* Shift info bar */}
+      {currentShift && (
+        <div className="flex items-center gap-2 px-4 py-1.5 bg-green-50 dark:bg-green-900/20 border-b border-green-200 dark:border-green-800 text-sm text-green-700 dark:text-green-400">
+          <Clock size={14} />
+          <span>Shift aktif sejak {shiftOpenedTime}</span>
+          <span className="text-green-500 dark:text-green-600">|</span>
+          <span>Kas awal: {formatCurrency(currentShift.opening_cash)}</span>
+        </div>
+      )}
+      <div className="flex flex-1 min-h-0">
       {/* Left: Services */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Search bar */}
@@ -275,6 +318,7 @@ export function PosPage() {
           onConfirm={handleConfirmQuantity}
         />
       )}
+      </div>
     </div>
   )
 }

@@ -8,6 +8,15 @@ import {
   BarChart3,
   Store,
 } from 'lucide-react'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts'
 import { Button } from '@/components/ui/button'
 import { LoadingSpinner } from '@/components/shared/loading-spinner'
 import { EmptyState } from '@/components/shared/empty-state'
@@ -27,6 +36,12 @@ interface SummaryData {
 interface OutletAnalytics {
   outlet_id: string
   outlet_name: string
+  revenue: number
+  transactions: number
+}
+
+interface DailyRevenuePoint {
+  date: string
   revenue: number
   transactions: number
 }
@@ -80,21 +95,28 @@ export function ManageAnalyticsPage() {
   const [period, setPeriod] = useState<Period>('30d')
   const [summary, setSummary] = useState<SummaryData | null>(null)
   const [outlets, setOutlets] = useState<OutletAnalytics[]>([])
+  const [dailyData, setDailyData] = useState<DailyRevenuePoint[]>([])
+  const [dailyLoading, setDailyLoading] = useState(true)
   const [loading, setLoading] = useState(true)
 
   const fetchAnalytics = useCallback(async () => {
     try {
       setLoading(true)
-      const [summaryRes, outletsRes] = await Promise.all([
+      setDailyLoading(true)
+      const days = period.replace('d', '')
+      const [summaryRes, outletsRes, dailyRes] = await Promise.all([
         ownerApi.analyticsSummary({ period }),
         ownerApi.analyticsOutlets({ period }),
+        ownerApi.dailyRevenue({ period: days }),
       ])
       setSummary(summaryRes.data ?? null)
       setOutlets(outletsRes.data ?? [])
+      setDailyData(dailyRes.data ?? [])
     } catch {
       showToast('Gagal memuat data analitik', 'error')
     } finally {
       setLoading(false)
+      setDailyLoading(false)
     }
   }, [period])
 
@@ -181,6 +203,47 @@ export function ManageAnalyticsPage() {
                 iconBg="bg-amber-100 dark:bg-amber-900/30"
                 iconColor="text-amber-600 dark:text-amber-400"
               />
+            </div>
+
+            <div className="bg-card border rounded-[var(--radius)] p-4 mb-4">
+              <h3 className="text-sm font-semibold mb-3">
+                Tren Revenue Harian
+              </h3>
+              {dailyLoading ? (
+                <div className="h-[250px] bg-muted/50 rounded animate-pulse" />
+              ) : dailyData.length === 0 ? (
+                <div className="h-[250px] flex items-center justify-center text-sm text-muted-foreground">
+                  Belum ada data revenue harian
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height={250}>
+                  <BarChart data={dailyData}>
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="var(--color-border)"
+                    />
+                    <XAxis
+                      dataKey="date"
+                      tick={{ fontSize: 10 }}
+                      tickFormatter={(d: string) => d.slice(5)}
+                    />
+                    <YAxis
+                      tick={{ fontSize: 10 }}
+                      tickFormatter={(v: number) =>
+                        `${(v / 1000).toFixed(0)}k`
+                      }
+                    />
+                    <Tooltip
+                      formatter={(v: number) => formatCurrency(v)}
+                    />
+                    <Bar
+                      dataKey="revenue"
+                      fill="var(--color-primary)"
+                      radius={[4, 4, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
             </div>
 
             <h2 className="text-sm font-semibold text-muted-foreground uppercase mb-2">

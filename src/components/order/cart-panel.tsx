@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useLiveQuery } from 'dexie-react-hooks'
+import { db } from '@/db'
 import { useCartStore } from '@/stores/cart-store'
 import { formatCurrency } from '@/lib/format'
 import { CartItemRow } from './cart-item-row'
@@ -22,14 +24,17 @@ export function CartPanel() {
     setNotes,
     clear,
     getSubtotal,
-    getTotal,
   } = useCartStore()
   const [paymentOpen, setPaymentOpen] = useState(false)
   const [notesExpanded, setNotesExpanded] = useState(false)
 
+  const tenantConfig = useLiveQuery(() => db.tenantConfig.toCollection().first())
+
   const subtotal = getSubtotal()
-  const total = getTotal()
   const discountAmount = Math.round(subtotal * (discountPercent / 100))
+  const taxRate = tenantConfig?.taxRate ?? 0
+  const taxAmount = Math.round((subtotal - discountAmount) * taxRate / 100)
+  const total = subtotal - discountAmount + taxAmount
 
   if (items.length === 0) {
     return (
@@ -149,8 +154,8 @@ export function CartPanel() {
         )}
 
         <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Pajak</span>
-          <span>Rp 0</span>
+          <span className="text-muted-foreground">Pajak{taxRate > 0 ? ` (${taxRate}%)` : ''}</span>
+          <span>{formatCurrency(taxAmount)}</span>
         </div>
 
         <Separator />

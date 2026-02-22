@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { useDeviceStore } from '@/stores/device-store'
 import { useAuthStore } from '@/stores/auth-store'
 import { useSyncStore } from '@/stores/sync-store'
-import { Store } from 'lucide-react'
+import { useShiftStore } from '@/stores/shift-store'
+import { CloseShiftDialog } from '@/components/shift/close-shift-dialog'
+import { Store, Clock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { UserMenu } from './user-menu'
 
@@ -11,7 +13,9 @@ export function Header() {
   const outletName = useDeviceStore((s) => s.outletName)
   const deviceName = useDeviceStore((s) => s.deviceName)
   const { isOnline, isSyncing, pendingCount } = useSyncStore()
+  const currentShift = useShiftStore((s) => s.currentShift)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [closeShiftDialogOpen, setCloseShiftDialogOpen] = useState(false)
 
   const syncDotColor = isSyncing
     ? 'bg-blue-500 animate-pulse'
@@ -38,9 +42,19 @@ export function Header() {
           </div>
         </div>
 
-        {/* Center: sync dot */}
-        <div className="flex items-center justify-center">
+        {/* Center: sync dot + shift badge */}
+        <div className="flex items-center justify-center gap-2">
           <span className={cn('inline-block w-2.5 h-2.5 rounded-full', syncDotColor)} />
+          {currentShift && (
+            <button
+              type="button"
+              onClick={() => setCloseShiftDialogOpen(true)}
+              className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors"
+            >
+              <Clock size={12} />
+              Shift
+            </button>
+          )}
         </div>
 
         {/* Right: user */}
@@ -59,6 +73,7 @@ export function Header() {
       </header>
 
       <UserMenu open={userMenuOpen} onOpenChange={setUserMenuOpen} />
+      <CloseShiftDialog open={closeShiftDialogOpen} onOpenChange={setCloseShiftDialogOpen} />
     </>
   )
 }

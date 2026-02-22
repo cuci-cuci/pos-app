@@ -18,7 +18,9 @@ import {
   CloudCheck,
   CloudOff,
 } from 'lucide-react'
+import { ReceiptActions } from '@/components/receipt/receipt-actions'
 import type { SyncStatus, TransactionStatus } from '@/db/schema'
+import type { OrderDetail } from '@/services/order-api'
 
 function statusLabel(status: TransactionStatus) {
   switch (status) {
@@ -88,6 +90,34 @@ export function TransactionDetailPage() {
   const StatusIcon = status.icon
   const SyncIcon = sync.icon
   const payment = transaction.payments[0]
+
+  const orderDetail: OrderDetail = {
+    id: transaction.id,
+    order_number: transaction.orderNumber,
+    customer_name: transaction.customerName ?? '',
+    status: 'done',
+    total_amount: transaction.totalAmount,
+    created_at: transaction.createdAt,
+    updated_at: transaction.updatedAt,
+    status_logs: [],
+    transaction: {
+      id: transaction.id,
+      order_number: transaction.orderNumber,
+      items: transaction.items.map((item) => ({
+        id: item.id,
+        service_name: item.serviceName,
+        quantity: item.quantity,
+        unit: item.unit,
+        price: item.pricePerUnit,
+        subtotal: item.subtotal,
+      })),
+      subtotal: transaction.subtotal,
+      discount: transaction.discountAmount,
+      tax: transaction.taxAmount,
+      total_amount: transaction.totalAmount,
+      payment_method: payment?.methodName ?? '',
+    },
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -273,6 +303,11 @@ export function TransactionDetailPage() {
               </p>
             )}
           </div>
+        </div>
+
+        {/* Receipt actions */}
+        <div className="max-w-md mx-auto mt-4">
+          <ReceiptActions order={orderDetail} />
         </div>
       </div>
     </div>
