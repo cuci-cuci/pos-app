@@ -1,66 +1,53 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #09090b;
-  --card: #ffffff;
-  --card-foreground: #09090b;
-  --primary: #18181b;
-  --primary-foreground: #fafafa;
-  --secondary: #f4f4f5;
-  --secondary-foreground: #18181b;
-  --muted: #f4f4f5;
-  --muted-foreground: #71717a;
-  --accent: #f4f4f5;
-  --accent-foreground: #18181b;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --success: #22c55e;
-  --success-foreground: #ffffff;
-  --border: #e4e4e7;
-  --input: #e4e4e7;
-  --ring: #18181b;
-  --radius: 0.5rem;
+@theme {
+  --font-sans: "Figtree", system-ui, -apple-system, sans-serif;
+  --color-background: oklch(1 0 0);
+  --color-foreground: oklch(0.13 0.028 261.692);
+  --color-card: oklch(1 0 0);
+  --color-card-foreground: oklch(0.13 0.028 261.692);
+  --color-popover: oklch(1 0 0);
+  --color-popover-foreground: oklch(0.13 0.028 261.692);
+  --color-primary: oklch(0.488 0.243 264.376);
+  --color-primary-foreground: oklch(0.97 0.014 254.604);
+  --color-secondary: oklch(0.967 0.001 286.375);
+  --color-secondary-foreground: oklch(0.21 0.006 285.885);
+  --color-muted: oklch(0.967 0.003 264.542);
+  --color-muted-foreground: oklch(0.551 0.027 264.364);
+  --color-accent: oklch(0.488 0.243 264.376);
+  --color-accent-foreground: oklch(0.97 0.014 254.604);
+  --color-destructive: oklch(0.577 0.245 27.325);
+  --color-destructive-foreground: oklch(0.97 0.014 254.604);
+  --color-border: oklch(0.928 0.006 264.531);
+  --color-input: oklch(0.928 0.006 264.531);
+  --color-ring: oklch(0.707 0.022 261.325);
+  --color-success: oklch(0.627 0.194 149.214);
+  --color-warning: oklch(0.75 0.183 55.934);
+  --color-info: oklch(0.623 0.214 259.815);
+  --color-chart-1: oklch(0.809 0.105 251.813);
+  --color-chart-2: oklch(0.623 0.214 259.815);
+  --color-chart-3: oklch(0.546 0.245 262.881);
+  --color-chart-4: oklch(0.488 0.243 264.376);
+  --color-chart-5: oklch(0.424 0.199 265.638);
+  --color-sidebar: oklch(0.985 0.002 247.839);
+  --color-sidebar-foreground: oklch(0.13 0.028 261.692);
+  --color-sidebar-primary: oklch(0.546 0.245 262.881);
+  --color-sidebar-primary-foreground: oklch(0.97 0.014 254.604);
+  --color-sidebar-accent: oklch(0.488 0.243 264.376);
+  --color-sidebar-accent-foreground: oklch(0.97 0.014 254.604);
+  --color-sidebar-border: oklch(0.928 0.006 264.531);
+  --color-sidebar-ring: oklch(0.707 0.022 261.325);
+  --radius: 0.875rem;
 }
 
-* {
-  border-color: var(--border);
-}
-
-body {
-  margin: 0;
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overscroll-behavior: none;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: "JetBrains Mono", ui-monospace, monospace;
-}
-
-button, a, input, select, textarea {
-  -webkit-tap-highlight-color: transparent;
-}
-
-.no-select {
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-dialog::backdrop {
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
 
 @media print {

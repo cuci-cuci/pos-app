@@ -11,14 +11,14 @@ import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/shared/empty-state'
 import { LoadingSpinner } from '@/components/shared/loading-spinner'
 import {
-  MagnifyingGlass,
+  Search,
   Receipt,
   CheckCircle,
   XCircle,
-  ArrowsClockwise,
-  Warning,
+  RefreshCw,
+  AlertTriangle,
   Clock,
-} from '@phosphor-icons/react'
+} from 'lucide-react'
 import type { SyncStatus, TransactionStatus } from '@/db/schema'
 
 type FilterTab = 'today' | 'all' | 'failed'
@@ -34,21 +34,21 @@ function getStatusBadge(status: TransactionStatus) {
     case 'completed':
       return (
         <Badge variant="success" className="gap-1">
-          <CheckCircle size={12} weight="bold" />
+          <CheckCircle size={12} />
           Selesai
         </Badge>
       )
     case 'cancelled':
       return (
         <Badge variant="destructive" className="gap-1">
-          <XCircle size={12} weight="bold" />
+          <XCircle size={12} />
           Batal
         </Badge>
       )
     case 'refunded':
       return (
         <Badge variant="secondary" className="gap-1">
-          <ArrowsClockwise size={12} weight="bold" />
+          <RefreshCw size={12} />
           Refund
         </Badge>
       )
@@ -58,13 +58,13 @@ function getStatusBadge(status: TransactionStatus) {
 function getSyncIcon(syncStatus: SyncStatus) {
   switch (syncStatus) {
     case 'synced':
-      return <CheckCircle size={14} className="text-[var(--success)]" weight="fill" />
+      return <CheckCircle size={14} className="text-success" />
     case 'pending':
-      return <Clock size={14} className="text-[var(--muted-foreground)]" weight="fill" />
+      return <Clock size={14} className="text-muted-foreground" />
     case 'syncing':
-      return <ArrowsClockwise size={14} className="text-[var(--primary)] animate-spin" />
+      return <RefreshCw size={14} className="text-primary animate-spin" />
     case 'failed':
-      return <Warning size={14} className="text-[var(--destructive)]" weight="fill" />
+      return <AlertTriangle size={14} className="text-destructive" />
   }
 }
 
@@ -140,13 +140,13 @@ export function TransactionsPage() {
               'flex-1 py-2.5 text-sm font-medium rounded-[var(--radius)] transition-colors relative',
               'min-h-[44px] touch-manipulation',
               activeTab === tab.id
-                ? 'bg-[var(--primary)] text-[var(--primary-foreground)]'
-                : 'bg-[var(--muted)] text-[var(--muted-foreground)]'
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-muted text-muted-foreground'
             )}
           >
             {tab.label}
             {tab.id === 'failed' && failedCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-[var(--destructive)] text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+              <span className="absolute -top-1.5 -right-1.5 bg-destructive text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
                 {failedCount}
               </span>
             )}
@@ -157,9 +157,9 @@ export function TransactionsPage() {
       {/* Search */}
       <div className="px-4 pb-2">
         <div className="relative">
-          <MagnifyingGlass
+          <Search
             size={18}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
           />
           <Input
             placeholder="Cari no. order atau nama pelanggan..."
@@ -191,32 +191,32 @@ export function TransactionsPage() {
                 type="button"
                 key={tx.id}
                 onClick={() => handleSelect(tx.id)}
-                className="w-full text-left bg-[var(--card)] rounded-[var(--radius)] border border-[var(--border)] p-3 active:bg-[var(--muted)] transition-colors touch-manipulation"
+                className="w-full text-left bg-card rounded-[var(--radius)] border p-3 active:bg-muted transition-colors touch-manipulation"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-[var(--foreground)]">
+                      <span className="text-sm font-semibold text-foreground">
                         #{tx.orderNumber}
                       </span>
                       {getSyncIcon(tx.syncStatus)}
                     </div>
                     {tx.customerName && (
-                      <p className="text-xs text-[var(--muted-foreground)] mt-0.5 truncate">
+                      <p className="text-xs text-muted-foreground mt-0.5 truncate">
                         {tx.customerName}
                       </p>
                     )}
                   </div>
                   <div className="text-right shrink-0">
                     <p className="text-sm font-semibold">{formatCurrency(tx.totalAmount)}</p>
-                    <p className="text-xs text-[var(--muted-foreground)]">
+                    <p className="text-xs text-muted-foreground">
                       {formatTime(tx.createdAt)}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center justify-between mt-2">
                   {getStatusBadge(tx.status)}
-                  <span className="text-xs text-[var(--muted-foreground)]">
+                  <span className="text-xs text-muted-foreground">
                     {tx.items.length} item
                   </span>
                 </div>

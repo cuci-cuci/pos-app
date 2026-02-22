@@ -13,7 +13,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { showToast } from '@/components/ui/toast'
-import { LockSimple, CurrencyDollar, Receipt, Warning } from '@phosphor-icons/react'
+import { Lock, DollarSign, Receipt, AlertTriangle } from 'lucide-react'
 import type { ShiftSummary } from '@/services/shift-api'
 
 interface CloseShiftDialogProps {
@@ -72,7 +72,7 @@ export function CloseShiftDialog({ open, onOpenChange }: CloseShiftDialogProps) 
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <LockSimple size={20} />
+            <Lock size={20} />
             Tutup Shift
           </DialogTitle>
           <DialogDescription>
@@ -81,33 +81,33 @@ export function CloseShiftDialog({ open, onOpenChange }: CloseShiftDialogProps) 
         </DialogHeader>
 
         {loadingSummary ? (
-          <div className="py-6 text-center text-sm text-[var(--muted-foreground)]">
+          <div className="py-6 text-center text-sm text-muted-foreground">
             Memuat ringkasan...
           </div>
         ) : (
           <div className="space-y-4">
             {/* Shift summary */}
             {summary && (
-              <div className="bg-[var(--muted)] rounded-[var(--radius)] p-3 space-y-2 text-sm">
+              <div className="bg-muted rounded-[var(--radius)] p-3 space-y-2 text-sm">
                 <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-[var(--muted-foreground)]">
+                  <span className="flex items-center gap-1.5 text-muted-foreground">
                     <Receipt size={14} />
                     Total Transaksi
                   </span>
                   <span className="font-semibold">{summary.transaction_count}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[var(--muted-foreground)]">Total Pendapatan</span>
+                  <span className="text-muted-foreground">Total Pendapatan</span>
                   <span className="font-semibold">{formatCurrency(summary.total_revenue)}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[var(--muted-foreground)]">Kas Awal</span>
+                  <span className="text-muted-foreground">Kas Awal</span>
                   <span className="font-semibold">
                     {formatCurrency(currentShift?.opening_cash ?? 0)}
                   </span>
                 </div>
-                <div className="flex items-center justify-between border-t border-[var(--border)] pt-2">
-                  <span className="text-[var(--muted-foreground)]">Kas yang Diharapkan</span>
+                <div className="flex items-center justify-between border-t border-border pt-2">
+                  <span className="text-muted-foreground">Kas yang Diharapkan</span>
                   <span className="font-bold">{formatCurrency(expectedCash)}</span>
                 </div>
               </div>
@@ -119,9 +119,9 @@ export function CloseShiftDialog({ open, onOpenChange }: CloseShiftDialogProps) 
                 Kas Akhir (Aktual)
               </label>
               <div className="relative">
-                <CurrencyDollar
+                <DollarSign
                   size={18}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                 />
                 <Input
                   id="closing-cash"
@@ -135,7 +135,7 @@ export function CloseShiftDialog({ open, onOpenChange }: CloseShiftDialogProps) 
                 />
               </div>
               {cashValue > 0 && (
-                <p className="text-xs text-[var(--muted-foreground)] mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   {formatCurrency(cashValue)}
                 </p>
               )}
@@ -153,7 +153,7 @@ export function CloseShiftDialog({ open, onOpenChange }: CloseShiftDialogProps) 
                 }`}
               >
                 <span className="flex items-center gap-1.5">
-                  {difference !== 0 && <Warning size={16} />}
+                  {difference !== 0 && <AlertTriangle size={16} />}
                   Selisih
                 </span>
                 <span className="font-bold">{formatCurrency(difference)}</span>

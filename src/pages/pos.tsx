@@ -10,7 +10,7 @@ import { QuantityInput } from '@/components/order/quantity-input'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Input } from '@/components/ui/input'
 import { EmptyState } from '@/components/shared/empty-state'
-import { ShoppingCart, MagnifyingGlass } from '@phosphor-icons/react'
+import { ShoppingCart, Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { formatCurrency } from '@/lib/format'
 import { getCategoryIcon } from '@/lib/category-icons'
@@ -97,7 +97,7 @@ export function PosPage() {
         {/* Search bar */}
         <div className="p-4 pb-2">
           <div className="relative">
-            <MagnifyingGlass size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]" />
+            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Cari layanan..."
               value={searchQuery}
@@ -110,7 +110,7 @@ export function PosPage() {
         <div className="flex flex-1 min-h-0">
           {/* Category sidebar (desktop) */}
           {categories && categories.length > 0 && (
-            <div className="hidden md:flex flex-col w-48 border-r border-[var(--border)] overflow-y-auto shrink-0">
+            <div className="hidden md:flex flex-col w-48 border-r border-border overflow-y-auto shrink-0">
               <button
                 type="button"
                 onClick={() => setSelectedCategoryId(null)}
@@ -118,8 +118,8 @@ export function PosPage() {
                   'flex items-center gap-2 px-4 py-3 text-sm font-medium text-left transition-colors',
                   'min-h-[44px] border-l-2',
                   selectedCategoryId === null
-                    ? 'bg-[var(--primary)]/10 text-[var(--primary)] border-l-[var(--primary)]'
-                    : 'text-[var(--muted-foreground)] border-l-transparent hover:bg-[var(--accent)]'
+                    ? 'bg-primary/10 text-primary border-l-primary'
+                    : 'text-muted-foreground border-l-transparent hover:bg-accent'
                 )}
               >
                 Semua
@@ -135,8 +135,8 @@ export function PosPage() {
                       'flex items-center gap-2 px-4 py-3 text-sm font-medium text-left transition-colors',
                       'min-h-[44px] border-l-2',
                       selectedCategoryId === cat.id
-                        ? 'bg-[var(--primary)]/10 text-[var(--primary)] border-l-[var(--primary)]'
-                        : 'text-[var(--muted-foreground)] border-l-transparent hover:bg-[var(--accent)]'
+                        ? 'bg-primary/10 text-primary border-l-primary'
+                        : 'text-muted-foreground border-l-transparent hover:bg-accent'
                     )}
                   >
                     <IconComp size={18} weight={selectedCategoryId === cat.id ? 'fill' : 'regular'} />
@@ -159,8 +159,8 @@ export function PosPage() {
                     'px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors',
                     'min-h-[36px] touch-manipulation',
                     selectedCategoryId === null
-                      ? 'bg-[var(--primary)] text-[var(--primary-foreground)]'
-                      : 'bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--accent)]'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted text-muted-foreground hover:bg-accent'
                   )}
                 >
                   Semua
@@ -174,8 +174,8 @@ export function PosPage() {
                       'px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors',
                       'min-h-[36px] touch-manipulation',
                       selectedCategoryId === cat.id
-                        ? 'bg-[var(--primary)] text-[var(--primary-foreground)]'
-                        : 'bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--accent)]'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground hover:bg-accent'
                     )}
                   >
                     {cat.name}
@@ -188,7 +188,7 @@ export function PosPage() {
             <div className="flex-1 overflow-y-auto">
               {filteredServices.length === 0 ? (
                 <EmptyState
-                  icon={<MagnifyingGlass size={48} />}
+                  icon={<Search size={48} />}
                   title="Tidak ada layanan"
                   description={searchQuery ? 'Coba kata kunci lain' : 'Belum ada layanan untuk kategori ini.'}
                 />
@@ -211,9 +211,9 @@ export function PosPage() {
 
         {/* Sticky cart bar (desktop) */}
         {itemCount > 0 && (
-          <div className="hidden md:flex items-center justify-between px-4 py-3 border-t border-[var(--border)] bg-[var(--card)]">
+          <div className="hidden md:flex items-center justify-between px-4 py-3 border-t border-border bg-card">
             <div className="flex items-center gap-2">
-              <ShoppingCart size={20} className="text-[var(--primary)]" weight="fill" />
+              <ShoppingCart size={20} className="text-primary" />
               <span className="text-sm font-medium">{itemCount} item</span>
             </div>
             <span className="text-base font-bold">{formatCurrency(total)}</span>
@@ -222,7 +222,7 @@ export function PosPage() {
       </div>
 
       {/* Right: Cart (tablet+) */}
-      <div className="hidden md:flex md:w-[360px] lg:w-[400px] border-l border-[var(--border)] bg-[var(--card)] flex-col">
+      <div className="hidden md:flex md:w-[360px] lg:w-[400px] border-l border-border bg-card flex-col">
         <CartPanel />
       </div>
 
@@ -233,15 +233,15 @@ export function PosPage() {
           onClick={() => setCartSheetOpen(true)}
           className={cn(
             'md:hidden fixed bottom-20 left-4 right-4 z-30',
-            'bg-[var(--primary)] text-[var(--primary-foreground)] rounded-2xl',
+            'bg-primary text-primary-foreground rounded-2xl',
             'flex items-center justify-between px-5 py-4 shadow-lg',
             'active:scale-[0.98] transition-transform touch-manipulation'
           )}
         >
           <div className="flex items-center gap-3">
             <div className="relative">
-              <ShoppingCart size={24} weight="fill" />
-              <span className="absolute -top-2 -right-2 bg-white text-[var(--primary)] text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              <ShoppingCart size={24} />
+              <span className="absolute -top-2 -right-2 bg-white text-primary text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
                 {itemCount}
               </span>
             </div>

@@ -4,9 +4,9 @@ import {
   ArrowLeft,
   Plus,
   Users,
-  MagnifyingGlass,
+  Search,
   Phone,
-} from '@phosphor-icons/react'
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -118,7 +118,7 @@ export function ManageMembersPage() {
         </Button>
         <div className="flex-1">
           <h1 className="text-xl font-bold">Member</h1>
-          <p className="text-sm text-[var(--muted-foreground)]">
+          <p className="text-sm text-muted-foreground">
             Kelola data pelanggan member
           </p>
         </div>
@@ -130,9 +130,9 @@ export function ManageMembersPage() {
 
       <div className="px-4 pb-3">
         <div className="relative">
-          <MagnifyingGlass
+          <Search
             size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
           />
           <Input
             className="pl-9"
@@ -163,25 +163,25 @@ export function ManageMembersPage() {
                 key={member.id}
                 type="button"
                 onClick={() => openEdit(member)}
-                className="w-full text-left bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] p-4 active:bg-[var(--muted)] transition-colors touch-manipulation"
+                className="w-full text-left bg-card border rounded-[var(--radius)] p-4 active:bg-muted transition-colors touch-manipulation"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="text-sm font-semibold">{member.name}</p>
                     {member.phone && (
-                      <p className="text-xs text-[var(--muted-foreground)] flex items-center gap-1 mt-1">
+                      <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
                         <Phone size={12} />
                         {member.phone}
                       </p>
                     )}
                     {member.email && (
-                      <p className="text-xs text-[var(--muted-foreground)] mt-0.5">
+                      <p className="text-xs text-muted-foreground mt-0.5">
                         {member.email}
                       </p>
                     )}
                   </div>
                   <div className="text-right shrink-0">
-                    <span className="text-xs font-semibold text-[var(--primary)]">
+                    <span className="text-xs font-semibold text-primary">
                       {member.points} poin
                     </span>
                   </div>

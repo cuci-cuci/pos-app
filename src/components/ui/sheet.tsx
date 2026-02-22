@@ -71,7 +71,7 @@ function SheetContent({ className, children, ...props }: HTMLAttributes<HTMLDivE
   return (
     <div
       className={cn(
-        'bg-[var(--card)] rounded-t-2xl w-full max-h-[85vh] overflow-y-auto p-6 shadow-lg border-t border-[var(--border)] animate-slide-up',
+        'bg-card rounded-t-[var(--radius)] w-full max-h-[85vh] overflow-y-auto p-6 shadow-lg border-t animate-slide-up',
         className
       )}
       style={{
@@ -79,7 +79,7 @@ function SheetContent({ className, children, ...props }: HTMLAttributes<HTMLDivE
       }}
       {...props}
     >
-      <div className="mx-auto w-12 h-1.5 rounded-full bg-[var(--muted)] mb-4" />
+      <div className="mx-auto w-12 h-1.5 rounded-full bg-muted mb-4" />
       {children}
     </div>
   )

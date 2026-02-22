@@ -7,7 +7,7 @@ import { PaymentDialog } from '@/components/payment/payment-dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
-import { ShoppingCart, Trash, CaretDown, CaretUp, Crown } from '@phosphor-icons/react'
+import { ShoppingCart, Trash, ChevronDown, ChevronUp, Crown } from 'lucide-react'
 import { EmptyState } from '@/components/shared/empty-state'
 
 export function CartPanel() {
@@ -53,7 +53,7 @@ export function CartPanel() {
         <button
           type="button"
           onClick={clear}
-          className="text-[var(--muted-foreground)] hover:text-[var(--destructive)] p-2 rounded-lg"
+          className="text-muted-foreground hover:text-destructive p-2 rounded-lg"
           aria-label="Kosongkan keranjang"
         >
           <Trash size={20} />
@@ -70,7 +70,7 @@ export function CartPanel() {
       <Separator />
 
       {/* Item list */}
-      <div className="flex-1 overflow-y-auto px-4 divide-y divide-[var(--border)]">
+      <div className="flex-1 overflow-y-auto px-4 divide-y divide-border">
         {items.map((item) => (
           <CartItemRow
             key={item.id}
@@ -82,16 +82,16 @@ export function CartPanel() {
       </div>
 
       {/* Notes (collapsible) */}
-      <div className="px-4 py-2 border-t border-[var(--border)]">
+      <div className="px-4 py-2 border-t border-border">
         <button
           type="button"
           onClick={() => setNotesExpanded(!notesExpanded)}
-          className="flex items-center gap-1 text-sm text-[var(--muted-foreground)] w-full"
+          className="flex items-center gap-1 text-sm text-muted-foreground w-full"
         >
-          {notesExpanded ? <CaretUp size={14} /> : <CaretDown size={14} />}
+          {notesExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           <span>Catatan pesanan</span>
           {notes && !notesExpanded && (
-            <span className="text-xs text-[var(--primary)] ml-auto truncate max-w-[120px]">{notes}</span>
+            <span className="text-xs text-primary ml-auto truncate max-w-[120px]">{notes}</span>
           )}
         </button>
         {notesExpanded && (
@@ -99,27 +99,27 @@ export function CartPanel() {
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Catatan pesanan..."
-            className="mt-2 w-full rounded-[var(--radius)] border border-[var(--input)] bg-[var(--background)] px-3 py-2 text-sm resize-none h-20 focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
+            className="mt-2 w-full rounded-[var(--radius)] border border-input bg-background px-3 py-2 text-sm resize-none h-20 focus:outline-none focus:ring-2 focus:ring-ring"
           />
         )}
       </div>
 
       {/* Price breakdown */}
-      <div className="border-t border-[var(--border)] p-4 space-y-2">
+      <div className="border-t border-border p-4 space-y-2">
         {/* Discount input */}
         {memberInfo ? (
           <div className="flex items-center gap-2 text-sm">
-            <Crown size={14} className="text-[var(--primary)]" weight="fill" />
-            <span className="text-[var(--primary)] font-medium">
+            <Crown size={14} className="text-primary" />
+            <span className="text-primary font-medium">
               Diskon Member ({memberInfo.tier.charAt(0).toUpperCase() + memberInfo.tier.slice(1)})
             </span>
-            <span className="ml-auto font-semibold text-[var(--primary)]">
+            <span className="ml-auto font-semibold text-primary">
               {discountPercent}%
             </span>
           </div>
         ) : (
           <div className="flex items-center gap-2">
-            <span className="text-sm text-[var(--muted-foreground)] whitespace-nowrap">Diskon</span>
+            <span className="text-sm text-muted-foreground whitespace-nowrap">Diskon</span>
             <Input
               type="number"
               inputMode="numeric"
@@ -130,26 +130,26 @@ export function CartPanel() {
               placeholder="0"
               className="h-8 w-16 text-center text-sm"
             />
-            <span className="text-sm text-[var(--muted-foreground)]">%</span>
+            <span className="text-sm text-muted-foreground">%</span>
           </div>
         )}
 
         <div className="flex justify-between text-sm">
-          <span className="text-[var(--muted-foreground)]">Subtotal</span>
+          <span className="text-muted-foreground">Subtotal</span>
           <span>{formatCurrency(subtotal)}</span>
         </div>
 
         {discountPercent > 0 && (
           <div className="flex justify-between text-sm">
-            <span className="text-[var(--muted-foreground)]">
+            <span className="text-muted-foreground">
               {memberInfo ? `Diskon Member (${discountPercent}%)` : `Diskon (${discountPercent}%)`}
             </span>
-            <span className="text-[var(--destructive)]">-{formatCurrency(discountAmount)}</span>
+            <span className="text-destructive">-{formatCurrency(discountAmount)}</span>
           </div>
         )}
 
         <div className="flex justify-between text-sm">
-          <span className="text-[var(--muted-foreground)]">Pajak</span>
+          <span className="text-muted-foreground">Pajak</span>
           <span>Rp 0</span>
         </div>
 

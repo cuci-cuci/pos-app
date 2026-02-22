@@ -43,7 +43,7 @@ export function TransactionDetail({ transactionId }: TransactionDetailProps) {
 
   if (transaction === null) {
     return (
-      <div className="p-4 text-center text-[var(--muted-foreground)]">
+      <div className="p-4 text-center text-muted-foreground">
         Transaksi tidak ditemukan
       </div>
     )
@@ -54,7 +54,7 @@ export function TransactionDetail({ transactionId }: TransactionDetailProps) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-lg font-bold">{transaction.orderNumber}</h1>
-          <p className="text-sm text-[var(--muted-foreground)]">
+          <p className="text-sm text-muted-foreground">
             {formatDate(transaction.createdAt)} &middot; {formatTime(transaction.createdAt)}
           </p>
         </div>
@@ -83,7 +83,7 @@ export function TransactionDetail({ transactionId }: TransactionDetailProps) {
             <div key={item.id} className="flex justify-between text-sm">
               <div>
                 <span className="font-medium">{item.serviceName}</span>
-                <span className="text-[var(--muted-foreground)] ml-2">
+                <span className="text-muted-foreground ml-2">
                   {item.quantity} {item.unit} x {formatCurrency(item.pricePerUnit)}
                 </span>
               </div>
@@ -94,16 +94,16 @@ export function TransactionDetail({ transactionId }: TransactionDetailProps) {
           <Separator />
 
           <div className="flex justify-between text-sm">
-            <span className="text-[var(--muted-foreground)]">Subtotal</span>
+            <span className="text-muted-foreground">Subtotal</span>
             <span>{formatCurrency(transaction.subtotal)}</span>
           </div>
 
           {transaction.discountAmount > 0 && (
             <div className="flex justify-between text-sm">
-              <span className="text-[var(--muted-foreground)]">
+              <span className="text-muted-foreground">
                 Diskon ({transaction.discountPercent}%)
               </span>
-              <span className="text-[var(--destructive)]">
+              <span className="text-destructive">
                 -{formatCurrency(transaction.discountAmount)}
               </span>
             </div>
@@ -111,7 +111,7 @@ export function TransactionDetail({ transactionId }: TransactionDetailProps) {
 
           {transaction.taxAmount > 0 && (
             <div className="flex justify-between text-sm">
-              <span className="text-[var(--muted-foreground)]">
+              <span className="text-muted-foreground">
                 Pajak ({transaction.taxRate}%)
               </span>
               <span>{formatCurrency(transaction.taxAmount)}</span>
@@ -140,11 +140,11 @@ export function TransactionDetail({ transactionId }: TransactionDetailProps) {
               </div>
               {payment.cashTendered !== undefined && (
                 <>
-                  <div className="flex justify-between text-xs text-[var(--muted-foreground)]">
+                  <div className="flex justify-between text-xs text-muted-foreground">
                     <span>Tunai diterima</span>
                     <span>{formatCurrency(payment.cashTendered)}</span>
                   </div>
-                  <div className="flex justify-between text-xs text-[var(--muted-foreground)]">
+                  <div className="flex justify-between text-xs text-muted-foreground">
                     <span>Kembalian</span>
                     <span>{formatCurrency(payment.changeAmount ?? 0)}</span>
                   </div>
@@ -159,7 +159,7 @@ export function TransactionDetail({ transactionId }: TransactionDetailProps) {
         <CardHeader>
           <CardTitle className="text-sm">Info Sistem</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-1 text-xs text-[var(--muted-foreground)]">
+        <CardContent className="space-y-1 text-xs text-muted-foreground">
           <div className="flex justify-between">
             <span>Config Version</span>
             <span>v{transaction.configVersion}</span>

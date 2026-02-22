@@ -1,7 +1,7 @@
 import type { Service } from '@/db/schema'
 import { ServiceCard } from './service-card'
 import { EmptyState } from '@/components/shared/empty-state'
-import { MagnifyingGlass } from '@phosphor-icons/react'
+import { Search } from 'lucide-react'
 
 interface ServiceGridProps {
   services: Service[]
@@ -12,7 +12,7 @@ export function ServiceGrid({ services, onSelectService }: ServiceGridProps) {
   if (services.length === 0) {
     return (
       <EmptyState
-        icon={<MagnifyingGlass size={48} />}
+        icon={<Search size={48} />}
         title="Tidak ada layanan"
         description="Belum ada layanan untuk kategori ini. Lakukan sinkronisasi untuk mengunduh data."
       />

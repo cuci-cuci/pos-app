@@ -15,19 +15,19 @@ import { showToast } from '@/components/ui/toast'
 import { APP_NAME } from '@/lib/constants'
 import { formatDate, formatTime } from '@/lib/format'
 import {
-  ArrowsClockwise,
-  SignOut,
-  WifiHigh,
-  WifiSlash,
+  RefreshCw,
+  LogOut,
+  Wifi,
+  WifiOff,
   CloudCheck,
-  Warning,
+  AlertTriangle,
   DeviceMobile,
-  Storefront,
-  UserCircle,
+  Store,
+  CircleUser,
   Wrench,
   Trash,
   Info,
-} from '@phosphor-icons/react'
+} from 'lucide-react'
 
 export function SettingsPage() {
   const router = useRouter()
@@ -111,23 +111,23 @@ export function SettingsPage() {
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-[var(--muted-foreground)]">Nama Perangkat</span>
+              <span className="text-muted-foreground">Nama Perangkat</span>
               <span className="font-medium">{deviceName || '-'}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[var(--muted-foreground)]">ID Perangkat</span>
-              <span className="font-mono text-xs text-[var(--muted-foreground)]">
+              <span className="text-muted-foreground">ID Perangkat</span>
+              <span className="font-mono text-xs text-muted-foreground">
                 {deviceId.slice(0, 8)}...
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[var(--muted-foreground)]">Outlet</span>
+              <span className="text-muted-foreground">Outlet</span>
               <span className="font-medium">{outletName || '-'}</span>
             </div>
             {setupCompletedAt && (
               <div className="flex justify-between">
-                <span className="text-[var(--muted-foreground)]">Setup Selesai</span>
-                <span className="text-[var(--muted-foreground)]">
+                <span className="text-muted-foreground">Setup Selesai</span>
+                <span className="text-muted-foreground">
                   {formatDate(setupCompletedAt)}
                 </span>
               </div>
@@ -139,7 +139,7 @@ export function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2">
-              <ArrowsClockwise size={18} />
+              <RefreshCw size={18} />
               Sinkronisasi
             </CardTitle>
           </CardHeader>
@@ -149,13 +149,13 @@ export function SettingsPage() {
               <div className="flex items-center gap-1.5">
                 {isOnline ? (
                   <>
-                    <WifiHigh size={16} className="text-[var(--success)]" weight="bold" />
-                    <span className="text-sm text-[var(--success)]">Online</span>
+                    <Wifi size={16} className="text-success" />
+                    <span className="text-sm text-success">Online</span>
                   </>
                 ) : (
                   <>
-                    <WifiSlash size={16} className="text-[var(--destructive)]" weight="bold" />
-                    <span className="text-sm text-[var(--destructive)]">Offline</span>
+                    <WifiOff size={16} className="text-destructive" />
+                    <span className="text-sm text-destructive">Offline</span>
                   </>
                 )}
               </div>
@@ -163,7 +163,7 @@ export function SettingsPage() {
 
             <div className="flex items-center justify-between">
               <span className="text-sm">Sinkronisasi Terakhir</span>
-              <span className="text-sm text-[var(--muted-foreground)]">
+              <span className="text-sm text-muted-foreground">
                 {lastSyncAt
                   ? `${formatDate(lastSyncAt)} ${formatTime(lastSyncAt)}`
                   : 'Belum pernah'}
@@ -188,7 +188,7 @@ export function SettingsPage() {
                 <span className="text-sm">Transaksi Gagal</span>
                 <Badge variant="destructive">
                   <span className="flex items-center gap-1">
-                    <Warning size={12} /> {failedCount}
+                    <AlertTriangle size={12} /> {failedCount}
                   </span>
                 </Badge>
               </div>
@@ -196,7 +196,7 @@ export function SettingsPage() {
 
             <div className="flex items-center justify-between">
               <span className="text-sm">Versi Konfigurasi</span>
-              <span className="text-sm text-[var(--muted-foreground)]">v{configVersion}</span>
+              <span className="text-sm text-muted-foreground">v{configVersion}</span>
             </div>
 
             <Button
@@ -205,7 +205,7 @@ export function SettingsPage() {
               onClick={handleSync}
               disabled={syncing || isSyncing || !isOnline}
             >
-              <ArrowsClockwise
+              <RefreshCw
                 size={18}
                 className={syncing || isSyncing ? 'animate-spin mr-2' : 'mr-2'}
               />
@@ -219,27 +219,27 @@ export function SettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-sm flex items-center gap-2">
-                <Storefront size={18} />
+                <Store size={18} />
                 Toko
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-[var(--muted-foreground)]">Nama</span>
+                <span className="text-muted-foreground">Nama</span>
                 <span className="font-medium">{tenantConfig.tenantName}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--muted-foreground)]">Alamat</span>
+                <span className="text-muted-foreground">Alamat</span>
                 <span className="font-medium text-right max-w-[200px]">
                   {tenantConfig.address}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--muted-foreground)]">Telepon</span>
+                <span className="text-muted-foreground">Telepon</span>
                 <span className="font-medium">{tenantConfig.phone}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--muted-foreground)]">Pajak</span>
+                <span className="text-muted-foreground">Pajak</span>
                 <span className="font-medium">{tenantConfig.taxRate}%</span>
               </div>
             </CardContent>
@@ -250,21 +250,21 @@ export function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2">
-              <UserCircle size={18} />
+              <CircleUser size={18} />
               Akun
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-[var(--muted-foreground)]">Nama</span>
+              <span className="text-muted-foreground">Nama</span>
               <span className="font-medium">{user?.name}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[var(--muted-foreground)]">Email</span>
+              <span className="text-muted-foreground">Email</span>
               <span className="font-medium">{user?.email}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[var(--muted-foreground)]">Role</span>
+              <span className="text-muted-foreground">Role</span>
               <Badge variant="secondary">{user?.role}</Badge>
             </div>
           </CardContent>
@@ -282,10 +282,10 @@ export function SettingsPage() {
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Info size={16} className="text-[var(--muted-foreground)]" />
+                  <Info size={16} className="text-muted-foreground" />
                   <span className="text-sm">Versi Aplikasi</span>
                 </div>
-                <span className="text-sm text-[var(--muted-foreground)]">
+                <span className="text-sm text-muted-foreground">
                   {APP_NAME} v1.0.0
                 </span>
               </div>
@@ -307,7 +307,7 @@ export function SettingsPage() {
 
         {/* Logout */}
         {showLogoutConfirm ? (
-          <Card className="border-[var(--destructive)]">
+          <Card className="border-destructive">
             <CardContent className="pt-4 space-y-3">
               <p className="text-sm text-center">
                 Yakin ingin keluar? Transaksi yang belum tersinkron tetap tersimpan di perangkat.
@@ -325,7 +325,7 @@ export function SettingsPage() {
                   className="flex-1 h-11"
                   onClick={handleLogout}
                 >
-                  <SignOut size={18} className="mr-2" />
+                  <LogOut size={18} className="mr-2" />
                   Keluar
                 </Button>
               </div>
@@ -337,7 +337,7 @@ export function SettingsPage() {
             className="w-full h-12"
             onClick={() => setShowLogoutConfirm(true)}
           >
-            <SignOut size={20} className="mr-2" />
+            <LogOut size={20} className="mr-2" />
             Keluar
           </Button>
         )}

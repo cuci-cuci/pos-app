@@ -5,10 +5,10 @@ import {
   ArrowRight,
   CheckCircle,
   CreditCard,
-  CurrencyDollar,
-  Storefront,
+  DollarSign,
+  Store,
   UserPlus,
-} from '@phosphor-icons/react'
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
@@ -181,7 +181,7 @@ export function OnboardingPage() {
   )
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--muted)]">
+    <div className="min-h-screen flex flex-col bg-muted">
       {/* Progress bar */}
       <div className="px-4 pt-6 pb-2">
         <div className="flex items-center justify-center gap-2 mb-2">
@@ -191,15 +191,15 @@ export function OnboardingPage() {
               className={cn(
                 'h-2 rounded-full transition-all duration-300',
                 i === step
-                  ? 'w-8 bg-[var(--primary)]'
+                  ? 'w-8 bg-primary'
                   : i < step
-                    ? 'w-2 bg-[var(--primary)]'
-                    : 'w-2 bg-[var(--border)]',
+                    ? 'w-2 bg-primary'
+                    : 'w-2 bg-border',
               )}
             />
           ))}
         </div>
-        <p className="text-center text-xs text-[var(--muted-foreground)]">
+        <p className="text-center text-xs text-muted-foreground">
           Step {step + 1} dari {TOTAL_STEPS}
         </p>
       </div>
@@ -211,10 +211,10 @@ export function OnboardingPage() {
             <Card>
               <CardContent className="p-8 text-center">
                 <div className="flex justify-center mb-6">
-                  <div className="w-20 h-20 rounded-full bg-[var(--primary)]/10 flex items-center justify-center">
-                    <Storefront
+                  <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Store
                       size={48}
-                      className="text-[var(--primary)]"
+                      className="text-primary"
                       weight="duotone"
                     />
                   </div>
@@ -222,10 +222,10 @@ export function OnboardingPage() {
                 <h1 className="text-2xl font-bold mb-2">
                   Selamat datang di CuciPOS!
                 </h1>
-                <p className="text-[var(--muted-foreground)] mb-2">
+                <p className="text-muted-foreground mb-2">
                   {user?.name}
                 </p>
-                <p className="text-sm text-[var(--muted-foreground)] mb-8">
+                <p className="text-sm text-muted-foreground mb-8">
                   Mari siapkan bisnis Anda sebelum mulai menggunakan POS.
                 </p>
                 <Button
@@ -255,7 +255,7 @@ export function OnboardingPage() {
                   </Button>
                   <div>
                     <h2 className="text-xl font-bold">Harga Layanan</h2>
-                    <p className="text-sm text-[var(--muted-foreground)]">
+                    <p className="text-sm text-muted-foreground">
                       Atur harga layanan laundry Anda
                     </p>
                   </div>
@@ -265,11 +265,11 @@ export function OnboardingPage() {
                   <LoadingSpinner />
                 ) : services.length === 0 ? (
                   <div className="text-center py-8">
-                    <CurrencyDollar
+                    <DollarSign
                       size={48}
-                      className="mx-auto text-[var(--muted-foreground)] mb-3"
+                      className="mx-auto text-muted-foreground mb-3"
                     />
-                    <p className="text-sm text-[var(--muted-foreground)]">
+                    <p className="text-sm text-muted-foreground">
                       Belum ada template layanan tersedia.
                     </p>
                   </div>
@@ -278,20 +278,20 @@ export function OnboardingPage() {
                     {Object.entries(servicesByCategory).map(
                       ([category, categoryServices]) => (
                         <div key={category}>
-                          <p className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wide mb-2">
+                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
                             {category}
                           </p>
                           <div className="space-y-2">
                             {categoryServices.map((service) => (
                               <div
                                 key={service.template_id}
-                                className="flex items-center justify-between gap-3 bg-[var(--muted)] rounded-[var(--radius)] p-3"
+                                className="flex items-center justify-between gap-3 bg-muted rounded-[var(--radius)] p-3"
                               >
                                 <div className="min-w-0 flex-1">
                                   <p className="text-sm font-medium truncate">
                                     {service.name}
                                   </p>
-                                  <p className="text-xs text-[var(--muted-foreground)]">
+                                  <p className="text-xs text-muted-foreground">
                                     {service.pricing_unit
                                       ? `per ${service.pricing_unit}`
                                       : ''}{' '}
@@ -364,7 +364,7 @@ export function OnboardingPage() {
                   </Button>
                   <div>
                     <h2 className="text-xl font-bold">Tambah Kasir</h2>
-                    <p className="text-sm text-[var(--muted-foreground)]">
+                    <p className="text-sm text-muted-foreground">
                       Opsional - tambahkan akun kasir pertama Anda
                     </p>
                   </div>
@@ -375,12 +375,12 @@ export function OnboardingPage() {
                     <CheckCircle
                       size={48}
                       className="mx-auto text-emerald-500 mb-3"
-                      weight="fill"
+                     
                     />
                     <p className="text-sm font-semibold mb-1">
                       Kasir berhasil ditambahkan!
                     </p>
-                    <p className="text-xs text-[var(--muted-foreground)]">
+                    <p className="text-xs text-muted-foreground">
                       {cashierName} ({cashierEmail})
                     </p>
                   </div>
@@ -488,7 +488,7 @@ export function OnboardingPage() {
                   </Button>
                   <div>
                     <h2 className="text-xl font-bold">Metode Pembayaran</h2>
-                    <p className="text-sm text-[var(--muted-foreground)]">
+                    <p className="text-sm text-muted-foreground">
                       Aktifkan metode pembayaran yang Anda terima
                     </p>
                   </div>
@@ -500,9 +500,9 @@ export function OnboardingPage() {
                   <div className="text-center py-8">
                     <CreditCard
                       size={48}
-                      className="mx-auto text-[var(--muted-foreground)] mb-3"
+                      className="mx-auto text-muted-foreground mb-3"
                     />
-                    <p className="text-sm text-[var(--muted-foreground)]">
+                    <p className="text-sm text-muted-foreground">
                       Belum ada metode pembayaran tersedia.
                     </p>
                   </div>
@@ -511,11 +511,11 @@ export function OnboardingPage() {
                     {paymentMethods.map((method) => (
                       <div
                         key={method.id}
-                        className="flex items-center justify-between gap-3 bg-[var(--muted)] rounded-[var(--radius)] p-3"
+                        className="flex items-center justify-between gap-3 bg-muted rounded-[var(--radius)] p-3"
                       >
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-medium">{method.name}</p>
-                          <p className="text-xs text-[var(--muted-foreground)]">
+                          <p className="text-xs text-muted-foreground">
                             {method.type}
                             {method.description ? ` - ${method.description}` : ''}
                           </p>
@@ -527,8 +527,8 @@ export function OnboardingPage() {
                           className={cn(
                             'relative shrink-0 w-11 h-6 rounded-full transition-colors',
                             method.is_active
-                              ? 'bg-[var(--primary)]'
-                              : 'bg-[var(--border)]',
+                              ? 'bg-primary'
+                              : 'bg-border',
                             togglingId === method.id && 'opacity-50',
                           )}
                         >
@@ -567,14 +567,14 @@ export function OnboardingPage() {
                     <CheckCircle
                       size={48}
                       className="text-emerald-500"
-                      weight="fill"
+                     
                     />
                   </div>
                 </div>
                 <h1 className="text-2xl font-bold mb-2">
                   Setup bisnis Anda telah selesai!
                 </h1>
-                <p className="text-sm text-[var(--muted-foreground)] mb-8">
+                <p className="text-sm text-muted-foreground mb-8">
                   Selanjutnya, siapkan perangkat dan outlet untuk mulai menerima
                   transaksi.
                 </p>

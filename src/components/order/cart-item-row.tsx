@@ -1,6 +1,6 @@
 import type { CartItem } from '@/stores/cart-store'
 import { formatCurrency } from '@/lib/format'
-import { Trash } from '@phosphor-icons/react'
+import { Trash } from 'lucide-react'
 
 interface CartItemRowProps {
   item: CartItem
@@ -15,15 +15,15 @@ export function CartItemRow({ item, onRemove, onUpdateQuantity }: CartItemRowPro
     <div className="flex items-start gap-3 py-3">
       <div className="flex-1 min-w-0">
         <p className="text-sm font-bold truncate">{item.serviceName}</p>
-        <p className="text-xs text-[var(--muted-foreground)]">{item.categoryName}</p>
-        <p className="text-xs text-[var(--muted-foreground)] mt-0.5">
+        <p className="text-xs text-muted-foreground">{item.categoryName}</p>
+        <p className="text-xs text-muted-foreground mt-0.5">
           {formatCurrency(item.pricePerUnit)} x {item.quantity} = {formatCurrency(item.subtotal)}
         </p>
         <div className="flex items-center gap-2 mt-2">
           <button
             type="button"
             onClick={() => onUpdateQuantity(item.id, item.quantity - step)}
-            className="w-7 h-7 rounded-full border border-[var(--border)] flex items-center justify-center text-sm font-bold active:bg-[var(--accent)] touch-manipulation"
+            className="w-7 h-7 rounded-full border flex items-center justify-center text-sm font-bold active:bg-accent touch-manipulation"
           >
             -
           </button>
@@ -33,7 +33,7 @@ export function CartItemRow({ item, onRemove, onUpdateQuantity }: CartItemRowPro
           <button
             type="button"
             onClick={() => onUpdateQuantity(item.id, item.quantity + step)}
-            className="w-7 h-7 rounded-full border border-[var(--border)] flex items-center justify-center text-sm font-bold active:bg-[var(--accent)] touch-manipulation"
+            className="w-7 h-7 rounded-full border flex items-center justify-center text-sm font-bold active:bg-accent touch-manipulation"
           >
             +
           </button>
@@ -44,7 +44,7 @@ export function CartItemRow({ item, onRemove, onUpdateQuantity }: CartItemRowPro
         <button
           type="button"
           onClick={() => onRemove(item.id)}
-          className="p-1.5 rounded-full hover:bg-[var(--destructive)]/10 text-[var(--muted-foreground)] hover:text-[var(--destructive)]"
+          className="p-1.5 rounded-full hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
           aria-label="Hapus item"
         >
           <Trash size={16} />

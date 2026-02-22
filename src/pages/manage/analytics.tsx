@@ -2,12 +2,12 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import {
   ArrowLeft,
-  CurrencyDollar,
+  DollarSign,
   Receipt,
   TrendUp,
-  ChartBar,
-  Storefront,
-} from '@phosphor-icons/react'
+  BarChart3,
+  Store,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { LoadingSpinner } from '@/components/shared/loading-spinner'
 import { EmptyState } from '@/components/shared/empty-state'
@@ -48,7 +48,7 @@ function SummaryCard({
   iconColor: string
 }) {
   return (
-    <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] p-4">
+    <div className="bg-card border rounded-[var(--radius)] p-4">
       <div className="flex items-start gap-3">
         <div
           className={cn(
@@ -59,12 +59,12 @@ function SummaryCard({
           <span className={iconColor}>{icon}</span>
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-xs text-[var(--muted-foreground)] font-medium">
+          <p className="text-xs text-muted-foreground font-medium">
             {label}
           </p>
           <p className="text-lg font-bold mt-0.5 truncate">{value}</p>
           {subValue && (
-            <p className="text-xs text-[var(--muted-foreground)] mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5">
               {subValue}
             </p>
           )}
@@ -119,7 +119,7 @@ export function ManageAnalyticsPage() {
         </Button>
         <div className="flex-1">
           <h1 className="text-xl font-bold">Analitik</h1>
-          <p className="text-sm text-[var(--muted-foreground)]">
+          <p className="text-sm text-muted-foreground">
             Laporan dan statistik
           </p>
         </div>
@@ -143,7 +143,7 @@ export function ManageAnalyticsPage() {
           <LoadingSpinner />
         ) : !summary ? (
           <EmptyState
-            icon={<ChartBar size={48} />}
+            icon={<BarChart3 size={48} />}
             title="Data Tidak Tersedia"
             description="Belum ada data analitik untuk periode ini."
           />
@@ -151,21 +151,21 @@ export function ManageAnalyticsPage() {
           <>
             <div className="grid grid-cols-2 gap-3 mb-4">
               <SummaryCard
-                icon={<CurrencyDollar size={22} weight="bold" />}
+                icon={<DollarSign size={22} />}
                 label="Total Revenue"
                 value={formatCurrency(summary.total_revenue)}
                 iconBg="bg-emerald-100 dark:bg-emerald-900/30"
                 iconColor="text-emerald-600 dark:text-emerald-400"
               />
               <SummaryCard
-                icon={<Receipt size={22} weight="bold" />}
+                icon={<Receipt size={22} />}
                 label="Total Transaksi"
                 value={String(summary.total_transactions)}
                 iconBg="bg-blue-100 dark:bg-blue-900/30"
                 iconColor="text-blue-600 dark:text-blue-400"
               />
               <SummaryCard
-                icon={<TrendUp size={22} weight="bold" />}
+                icon={<TrendUp size={22} />}
                 label="Rata-rata"
                 value={formatCurrency(summary.avg_transaction)}
                 subValue="per transaksi"
@@ -173,7 +173,7 @@ export function ManageAnalyticsPage() {
                 iconColor="text-purple-600 dark:text-purple-400"
               />
               <SummaryCard
-                icon={<ChartBar size={22} weight="bold" />}
+                icon={<BarChart3 size={22} />}
                 label="Pertumbuhan"
                 value={`${summary.growth_pct >= 0 ? '+' : ''}${summary.growth_pct}%`}
                 subValue="dari periode sebelumnya"
@@ -182,27 +182,27 @@ export function ManageAnalyticsPage() {
               />
             </div>
 
-            <h2 className="text-sm font-semibold text-[var(--muted-foreground)] uppercase mb-2">
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase mb-2">
               Revenue per Outlet
             </h2>
             {outlets.length === 0 ? (
-              <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] p-6 text-center">
-                <p className="text-sm text-[var(--muted-foreground)]">
+              <div className="bg-card border rounded-[var(--radius)] p-6 text-center">
+                <p className="text-sm text-muted-foreground">
                   Belum ada data outlet
                 </p>
               </div>
             ) : (
-              <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] overflow-hidden">
+              <div className="bg-card border rounded-[var(--radius)] overflow-hidden">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-[var(--border)]">
-                      <th className="text-left p-3 font-semibold text-xs text-[var(--muted-foreground)] uppercase">
+                    <tr className="border-b border-border">
+                      <th className="text-left p-3 font-semibold text-xs text-muted-foreground uppercase">
                         Outlet
                       </th>
-                      <th className="text-right p-3 font-semibold text-xs text-[var(--muted-foreground)] uppercase">
+                      <th className="text-right p-3 font-semibold text-xs text-muted-foreground uppercase">
                         Revenue
                       </th>
-                      <th className="text-right p-3 font-semibold text-xs text-[var(--muted-foreground)] uppercase">
+                      <th className="text-right p-3 font-semibold text-xs text-muted-foreground uppercase">
                         Transaksi
                       </th>
                     </tr>
@@ -211,13 +211,13 @@ export function ManageAnalyticsPage() {
                     {outlets.map((outlet) => (
                       <tr
                         key={outlet.outlet_id}
-                        className="border-b border-[var(--border)] last:border-b-0"
+                        className="border-b border-border last:border-b-0"
                       >
                         <td className="p-3">
                           <div className="flex items-center gap-2">
-                            <Storefront
+                            <Store
                               size={16}
-                              className="text-[var(--muted-foreground)]"
+                              className="text-muted-foreground"
                             />
                             <span className="font-medium">
                               {outlet.outlet_name}
@@ -227,7 +227,7 @@ export function ManageAnalyticsPage() {
                         <td className="p-3 text-right font-medium">
                           {formatCurrency(outlet.revenue)}
                         </td>
-                        <td className="p-3 text-right text-[var(--muted-foreground)]">
+                        <td className="p-3 text-right text-muted-foreground">
                           {outlet.transactions}
                         </td>
                       </tr>

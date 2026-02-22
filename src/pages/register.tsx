@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { APP_NAME } from '@/lib/constants'
-import { Drop, SpinnerGap, WarningCircle } from '@phosphor-icons/react'
+import { Droplet, Loader2, AlertCircle } from 'lucide-react'
 
 function slugify(text: string): string {
   return text
@@ -159,15 +159,15 @@ export function RegisterPage() {
   const isLoading = registerState !== 'idle'
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--muted)] p-4">
+    <div className="min-h-screen flex items-center justify-center bg-muted p-4">
       <div className="w-full max-w-sm">
         {/* Logo and app name */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[var(--primary)] mb-3">
-            <Drop size={36} className="text-[var(--primary-foreground)]" weight="duotone" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-3">
+            <Droplet size={36} className="text-primary-foreground" weight="duotone" />
           </div>
           <h1 className="text-2xl font-bold">{APP_NAME}</h1>
-          <p className="text-sm text-[var(--muted-foreground)] mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             Daftarkan Bisnis Anda
           </p>
         </div>
@@ -179,8 +179,8 @@ export function RegisterPage() {
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {error && (
-                <div className="flex items-start gap-2 bg-[var(--destructive)]/10 border border-[var(--destructive)]/20 text-[var(--destructive)] text-sm rounded-[var(--radius)] p-3">
-                  <WarningCircle size={18} className="shrink-0 mt-0.5" weight="bold" />
+                <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/20 text-destructive text-sm rounded-[var(--radius)] p-3">
+                  <AlertCircle size={18} className="shrink-0 mt-0.5" />
                   <span>{error}</span>
                 </div>
               )}
@@ -198,7 +198,7 @@ export function RegisterPage() {
                   onChange={handleBusinessNameChange}
                 />
                 {errors.businessName && (
-                  <p className="text-xs text-[var(--destructive)]">{errors.businessName.message}</p>
+                  <p className="text-xs text-destructive">{errors.businessName.message}</p>
                 )}
               </div>
 
@@ -213,11 +213,11 @@ export function RegisterPage() {
                   disabled={isLoading}
                   {...register('slug')}
                 />
-                <p className="text-xs text-[var(--muted-foreground)]">
+                <p className="text-xs text-muted-foreground">
                   Huruf kecil dan angka saja, tanpa spasi atau simbol
                 </p>
                 {errors.slug && (
-                  <p className="text-xs text-[var(--destructive)]">{errors.slug.message}</p>
+                  <p className="text-xs text-destructive">{errors.slug.message}</p>
                 )}
               </div>
 
@@ -233,7 +233,7 @@ export function RegisterPage() {
                   {...register('ownerName')}
                 />
                 {errors.ownerName && (
-                  <p className="text-xs text-[var(--destructive)]">{errors.ownerName.message}</p>
+                  <p className="text-xs text-destructive">{errors.ownerName.message}</p>
                 )}
               </div>
 
@@ -250,7 +250,7 @@ export function RegisterPage() {
                   {...register('email')}
                 />
                 {errors.email && (
-                  <p className="text-xs text-[var(--destructive)]">{errors.email.message}</p>
+                  <p className="text-xs text-destructive">{errors.email.message}</p>
                 )}
               </div>
 
@@ -267,7 +267,7 @@ export function RegisterPage() {
                   {...register('password')}
                 />
                 {errors.password && (
-                  <p className="text-xs text-[var(--destructive)]">{errors.password.message}</p>
+                  <p className="text-xs text-destructive">{errors.password.message}</p>
                 )}
               </div>
 
@@ -284,13 +284,13 @@ export function RegisterPage() {
                   {...register('confirmPassword')}
                 />
                 {errors.confirmPassword && (
-                  <p className="text-xs text-[var(--destructive)]">{errors.confirmPassword.message}</p>
+                  <p className="text-xs text-destructive">{errors.confirmPassword.message}</p>
                 )}
               </div>
 
               <div className="space-y-2">
                 <label htmlFor="phone" className="text-sm font-medium">
-                  No. Telepon <span className="text-[var(--muted-foreground)]">(opsional)</span>
+                  No. Telepon <span className="text-muted-foreground">(opsional)</span>
                 </label>
                 <Input
                   id="phone"
@@ -309,7 +309,7 @@ export function RegisterPage() {
               >
                 {isLoading ? (
                   <span className="flex items-center gap-2">
-                    <SpinnerGap size={20} className="animate-spin" />
+                    <Loader2 size={20} className="animate-spin" />
                     {stateMessages[registerState]}
                   </span>
                 ) : (
@@ -320,7 +320,7 @@ export function RegisterPage() {
           </CardContent>
         </Card>
 
-        <p className="text-center text-xs text-[var(--muted-foreground)] mt-4">
+        <p className="text-center text-xs text-muted-foreground mt-4">
           Sudah punya akun?{' '}
           <Link to="/login" className="font-medium underline">
             Masuk

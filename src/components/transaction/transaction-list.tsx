@@ -4,7 +4,7 @@ import { useAuthStore } from '@/stores/auth-store'
 import { formatCurrency, formatDate, formatTime } from '@/lib/format'
 import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/shared/empty-state'
-import { Receipt } from '@phosphor-icons/react'
+import { Receipt } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { startOfDay } from 'date-fns'
 import type { Transaction, SyncStatus } from '@/db/schema'
@@ -77,7 +77,7 @@ export function TransactionList({ filter, onSelect }: TransactionListProps) {
   }
 
   return (
-    <div className="divide-y divide-[var(--border)]">
+    <div className="divide-y divide-border">
       {transactions.map((tx: Transaction) => (
         <button
           type="button"
@@ -85,13 +85,13 @@ export function TransactionList({ filter, onSelect }: TransactionListProps) {
           onClick={() => onSelect(tx.id)}
           className={cn(
             'w-full flex items-center justify-between p-4 text-left',
-            'hover:bg-[var(--accent)] active:bg-[var(--accent)] transition-colors',
+            'hover:bg-accent active:bg-accent transition-colors',
             'min-h-[64px]'
           )}
         >
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold">{tx.orderNumber}</p>
-            <p className="text-xs text-[var(--muted-foreground)] truncate">
+            <p className="text-xs text-muted-foreground truncate">
               {tx.customerName ?? 'Tanpa pelanggan'} &middot;{' '}
               {formatDate(tx.createdAt)} {formatTime(tx.createdAt)}
             </p>

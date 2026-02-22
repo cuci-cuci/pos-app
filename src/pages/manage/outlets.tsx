@@ -3,10 +3,10 @@ import { useRouter } from '@tanstack/react-router'
 import {
   ArrowLeft,
   Plus,
-  Storefront,
+  Store,
   MapPin,
   Phone,
-} from '@phosphor-icons/react'
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -106,7 +106,7 @@ export function ManageOutletsPage() {
         </Button>
         <div className="flex-1">
           <h1 className="text-xl font-bold">Outlet</h1>
-          <p className="text-sm text-[var(--muted-foreground)]">
+          <p className="text-sm text-muted-foreground">
             Kelola outlet dan cabang
           </p>
         </div>
@@ -121,7 +121,7 @@ export function ManageOutletsPage() {
           <LoadingSpinner />
         ) : outlets.length === 0 ? (
           <EmptyState
-            icon={<Storefront size={48} />}
+            icon={<Store size={48} />}
             title="Belum Ada Outlet"
             description="Tambahkan outlet pertama Anda untuk mulai."
           />
@@ -132,19 +132,19 @@ export function ManageOutletsPage() {
                 key={outlet.id}
                 type="button"
                 onClick={() => openEdit(outlet)}
-                className="w-full text-left bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] p-4 active:bg-[var(--muted)] transition-colors touch-manipulation"
+                className="w-full text-left bg-card border rounded-[var(--radius)] p-4 active:bg-muted transition-colors touch-manipulation"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="text-sm font-semibold">{outlet.name}</p>
                     {outlet.address && (
-                      <p className="text-xs text-[var(--muted-foreground)] flex items-center gap-1 mt-1">
+                      <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
                         <MapPin size={12} />
                         {outlet.address}
                       </p>
                     )}
                     {outlet.phone && (
-                      <p className="text-xs text-[var(--muted-foreground)] flex items-center gap-1 mt-0.5">
+                      <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                         <Phone size={12} />
                         {outlet.phone}
                       </p>

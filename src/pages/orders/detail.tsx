@@ -10,8 +10,8 @@ import { orderApi } from '@/services/order-api'
 import type { OrderDetail, OrderStatus } from '@/services/order-api'
 import {
   ArrowLeft,
-  Warning,
-} from '@phosphor-icons/react'
+  AlertTriangle,
+} from 'lucide-react'
 
 const statusColors: Record<OrderStatus, { bg: string; text: string }> = {
   received: {
@@ -175,7 +175,7 @@ export function OrderDetailPage() {
   if (!order) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-4">
-        <Warning size={48} className="text-[var(--muted-foreground)] mb-4" />
+        <AlertTriangle size={48} className="text-muted-foreground mb-4" />
         <p className="text-base font-semibold">Pesanan tidak ditemukan</p>
         <Button
           variant="outline"
@@ -199,7 +199,7 @@ export function OrderDetailPage() {
         <button
           type="button"
           onClick={() => router.navigate({ to: '/orders' })}
-          className="p-1.5 rounded-[var(--radius)] hover:bg-[var(--muted)] transition-colors touch-manipulation"
+          className="p-1.5 rounded-[var(--radius)] hover:bg-muted transition-colors touch-manipulation"
         >
           <ArrowLeft size={22} />
         </button>
@@ -214,16 +214,16 @@ export function OrderDetailPage() {
       {/* Content - scrollable */}
       <div className="flex-1 overflow-y-auto px-4 pb-6 space-y-4">
         {/* Customer & amount */}
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] p-4">
+        <div className="bg-card border rounded-[var(--radius)] p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-[var(--muted-foreground)]">Pelanggan</p>
+              <p className="text-xs text-muted-foreground">Pelanggan</p>
               <p className="text-sm font-semibold mt-0.5">
                 {order.customer_name || '-'}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-xs text-[var(--muted-foreground)]">Total</p>
+              <p className="text-xs text-muted-foreground">Total</p>
               <p className="text-lg font-bold mt-0.5">
                 {formatCurrency(order.total_amount)}
               </p>
@@ -233,14 +233,14 @@ export function OrderDetailPage() {
 
         {/* Items */}
         {order.transaction && (
-          <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] p-4">
+          <div className="bg-card border rounded-[var(--radius)] p-4">
             <h2 className="text-sm font-semibold mb-3">Item Pesanan</h2>
             <div className="space-y-2">
               {order.transaction.items.map((item) => (
                 <div key={item.id} className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm">{item.service_name}</p>
-                    <p className="text-xs text-[var(--muted-foreground)]">
+                    <p className="text-xs text-muted-foreground">
                       {item.quantity} {item.unit} x {formatCurrency(item.price)}
                     </p>
                   </div>
@@ -251,19 +251,19 @@ export function OrderDetailPage() {
               ))}
             </div>
 
-            <div className="border-t border-[var(--border)] mt-3 pt-3 space-y-1">
-              <div className="flex justify-between text-xs text-[var(--muted-foreground)]">
+            <div className="border-t border-border mt-3 pt-3 space-y-1">
+              <div className="flex justify-between text-xs text-muted-foreground">
                 <span>Subtotal</span>
                 <span>{formatCurrency(order.transaction.subtotal)}</span>
               </div>
               {order.transaction.discount > 0 && (
-                <div className="flex justify-between text-xs text-[var(--muted-foreground)]">
+                <div className="flex justify-between text-xs text-muted-foreground">
                   <span>Diskon</span>
                   <span>-{formatCurrency(order.transaction.discount)}</span>
                 </div>
               )}
               {order.transaction.tax > 0 && (
-                <div className="flex justify-between text-xs text-[var(--muted-foreground)]">
+                <div className="flex justify-between text-xs text-muted-foreground">
                   <span>Pajak</span>
                   <span>{formatCurrency(order.transaction.tax)}</span>
                 </div>
@@ -278,7 +278,7 @@ export function OrderDetailPage() {
 
         {/* Status Timeline */}
         {order.status_logs && order.status_logs.length > 0 && (
-          <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] p-4">
+          <div className="bg-card border rounded-[var(--radius)] p-4">
             <h2 className="text-sm font-semibold mb-3">Riwayat Status</h2>
             <div className="relative">
               {order.status_logs.map((log, index) => {
@@ -294,7 +294,7 @@ export function OrderDetailPage() {
                         className={cn('w-3 h-3 rounded-full shrink-0 mt-0.5', dotColor)}
                       />
                       {!isLast && (
-                        <div className="w-0.5 flex-1 bg-[var(--border)] min-h-[24px]" />
+                        <div className="w-0.5 flex-1 bg-border min-h-[24px]" />
                       )}
                     </div>
 
@@ -303,16 +303,16 @@ export function OrderDetailPage() {
                       <p className="text-sm font-medium">
                         {statusLabels[log.status as OrderStatus] ?? log.status}
                       </p>
-                      <p className="text-xs text-[var(--muted-foreground)]">
+                      <p className="text-xs text-muted-foreground">
                         {formatDate(log.created_at)} {formatTime(log.created_at)}
                       </p>
                       {log.notes && (
-                        <p className="text-xs text-[var(--muted-foreground)] mt-0.5">
+                        <p className="text-xs text-muted-foreground mt-0.5">
                           {log.notes}
                         </p>
                       )}
                       {log.created_by_name && (
-                        <p className="text-xs text-[var(--muted-foreground)]">
+                        <p className="text-xs text-muted-foreground">
                           oleh {log.created_by_name}
                         </p>
                       )}
@@ -352,7 +352,7 @@ export function OrderDetailPage() {
         {canCancel && (
           <Button
             variant="outline"
-            className="w-full text-[var(--destructive)] border-[var(--destructive)]"
+            className="w-full text-destructive border-destructive"
             disabled={updating}
             onClick={() => setShowCancelConfirm(true)}
           >
@@ -370,9 +370,9 @@ export function OrderDetailPage() {
             onClick={() => setConfirmAction(null)}
             aria-label="Tutup dialog"
           />
-          <div className="relative bg-[var(--card)] rounded-[var(--radius)] p-6 w-full max-w-sm shadow-lg">
+          <div className="relative bg-card rounded-[var(--radius)] p-6 w-full max-w-sm shadow-lg">
             <h3 className="text-base font-bold mb-2">Konfirmasi</h3>
-            <p className="text-sm text-[var(--muted-foreground)] mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               Ubah status pesanan ke &quot;{confirmAction.label}&quot;?
             </p>
             <div className="flex gap-2">
@@ -405,9 +405,9 @@ export function OrderDetailPage() {
             onClick={() => setShowCancelConfirm(false)}
             aria-label="Tutup dialog"
           />
-          <div className="relative bg-[var(--card)] rounded-[var(--radius)] p-6 w-full max-w-sm shadow-lg">
+          <div className="relative bg-card rounded-[var(--radius)] p-6 w-full max-w-sm shadow-lg">
             <h3 className="text-base font-bold mb-2">Batalkan Pesanan?</h3>
-            <p className="text-sm text-[var(--muted-foreground)] mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               Pesanan yang dibatalkan tidak dapat dikembalikan. Lanjutkan?
             </p>
             <div className="flex gap-2">
