@@ -12,16 +12,30 @@ export interface CartItem {
   subtotal: number
 }
 
+export type MemberTier = 'bronze' | 'silver' | 'gold' | 'platinum'
+
+export interface MemberInfo {
+  id: string
+  name: string
+  phone: string
+  email?: string
+  tier: MemberTier
+  totalSpending: number
+  discountPercent: number
+}
+
 interface CartState {
   items: CartItem[]
   customerId: string | null
   customerName: string | null
+  memberInfo: MemberInfo | null
   discountPercent: number
   notes: string
   addItem: (item: Omit<CartItem, 'id' | 'subtotal'>) => void
   removeItem: (id: string) => void
   updateQuantity: (id: string, quantity: number) => void
   setCustomer: (id: string | null, name: string | null) => void
+  setMember: (member: MemberInfo | null) => void
   setDiscount: (percent: number) => void
   setNotes: (notes: string) => void
   clear: () => void
@@ -35,6 +49,7 @@ export const useCartStore = create<CartState>()(
       items: [],
       customerId: null,
       customerName: null,
+      memberInfo: null,
       discountPercent: 0,
       notes: '',
 
@@ -78,6 +93,24 @@ export const useCartStore = create<CartState>()(
         set({ customerId: id, customerName: name })
       },
 
+      setMember: (member) => {
+        if (member) {
+          set({
+            customerId: member.id,
+            customerName: member.name,
+            memberInfo: member,
+            discountPercent: member.discountPercent,
+          })
+        } else {
+          set({
+            customerId: null,
+            customerName: null,
+            memberInfo: null,
+            discountPercent: 0,
+          })
+        }
+      },
+
       setDiscount: (percent) => {
         set({ discountPercent: percent })
       },
@@ -91,6 +124,7 @@ export const useCartStore = create<CartState>()(
           items: [],
           customerId: null,
           customerName: null,
+          memberInfo: null,
           discountPercent: 0,
           notes: '',
         })

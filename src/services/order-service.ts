@@ -74,6 +74,7 @@ export async function createTransaction(paymentInput: PaymentInput): Promise<Tra
     orderNumber: generateOrderNumber(),
     customerId: cart.customerId ?? undefined,
     customerName: cart.customerName ?? undefined,
+    memberId: cart.memberInfo?.id ?? undefined,
     items: transactionItems,
     payments: [payment],
     subtotal: priceResult.subtotal,

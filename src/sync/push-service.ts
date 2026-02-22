@@ -23,6 +23,7 @@ export async function pushPendingTransactions(tenantId: string): Promise<number>
   const transactionsWithOutlet = pending.map((t: Transaction) => ({
     ...t,
     outlet_id: deviceState.outletId,
+    member_id: t.memberId ?? null,
   }))
 
   try {

@@ -55,6 +55,8 @@ export interface TenantConfig {
   updatedAt: string
 }
 
+export type MemberTier = 'bronze' | 'silver' | 'gold' | 'platinum'
+
 export interface Customer {
   id: string
   tenantId: string
@@ -62,6 +64,10 @@ export interface Customer {
   phone: string
   email: string
   address: string
+  tier?: MemberTier
+  totalSpending?: number
+  discountPercent?: number
+  isMember?: boolean
   createdAt: string
   updatedAt: string
 }
@@ -97,6 +103,7 @@ export interface Transaction {
   orderNumber: string
   customerId?: string
   customerName?: string
+  memberId?: string
   items: TransactionItem[]
   payments: Payment[]
   subtotal: number

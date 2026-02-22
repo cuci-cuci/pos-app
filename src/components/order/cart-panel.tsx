@@ -7,13 +7,14 @@ import { PaymentDialog } from '@/components/payment/payment-dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
-import { ShoppingCart, Trash, CaretDown, CaretUp } from '@phosphor-icons/react'
+import { ShoppingCart, Trash, CaretDown, CaretUp, Crown } from '@phosphor-icons/react'
 import { EmptyState } from '@/components/shared/empty-state'
 
 export function CartPanel() {
   const {
     items,
     discountPercent,
+    memberInfo,
     notes,
     removeItem,
     updateQuantity,
@@ -106,20 +107,32 @@ export function CartPanel() {
       {/* Price breakdown */}
       <div className="border-t border-[var(--border)] p-4 space-y-2">
         {/* Discount input */}
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-[var(--muted-foreground)] whitespace-nowrap">Diskon</span>
-          <Input
-            type="number"
-            inputMode="numeric"
-            min={0}
-            max={100}
-            value={discountPercent || ''}
-            onChange={(e) => setDiscount(Math.min(100, Math.max(0, parseInt(e.target.value, 10) || 0)))}
-            placeholder="0"
-            className="h-8 w-16 text-center text-sm"
-          />
-          <span className="text-sm text-[var(--muted-foreground)]">%</span>
-        </div>
+        {memberInfo ? (
+          <div className="flex items-center gap-2 text-sm">
+            <Crown size={14} className="text-[var(--primary)]" weight="fill" />
+            <span className="text-[var(--primary)] font-medium">
+              Diskon Member ({memberInfo.tier.charAt(0).toUpperCase() + memberInfo.tier.slice(1)})
+            </span>
+            <span className="ml-auto font-semibold text-[var(--primary)]">
+              {discountPercent}%
+            </span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-[var(--muted-foreground)] whitespace-nowrap">Diskon</span>
+            <Input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={100}
+              value={discountPercent || ''}
+              onChange={(e) => setDiscount(Math.min(100, Math.max(0, Number.parseInt(e.target.value, 10) || 0)))}
+              placeholder="0"
+              className="h-8 w-16 text-center text-sm"
+            />
+            <span className="text-sm text-[var(--muted-foreground)]">%</span>
+          </div>
+        )}
 
         <div className="flex justify-between text-sm">
           <span className="text-[var(--muted-foreground)]">Subtotal</span>
@@ -128,7 +141,9 @@ export function CartPanel() {
 
         {discountPercent > 0 && (
           <div className="flex justify-between text-sm">
-            <span className="text-[var(--muted-foreground)]">Diskon ({discountPercent}%)</span>
+            <span className="text-[var(--muted-foreground)]">
+              {memberInfo ? `Diskon Member (${discountPercent}%)` : `Diskon (${discountPercent}%)`}
+            </span>
             <span className="text-[var(--destructive)]">-{formatCurrency(discountAmount)}</span>
           </div>
         )}
