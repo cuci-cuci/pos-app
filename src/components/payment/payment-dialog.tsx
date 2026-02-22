@@ -1,12 +1,13 @@
 import { useState } from 'react'
+import { useRouter } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '@/db'
-import type { PaymentMethod } from '@/db/schema'
+import type { PaymentMethod, Transaction } from '@/db/schema'
 import { useCartStore } from '@/stores/cart-store'
 import { useAuthStore } from '@/stores/auth-store'
 import { createTransaction } from '@/services/order-service'
 import { formatCurrency } from '@/lib/format'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Sheet, SheetContent } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
@@ -14,21 +15,31 @@ import { showToast } from '@/components/ui/toast'
 import {
   Money,
   QrCode,
+  Bank,
+  Wallet,
   CheckCircle,
   ArrowLeft,
 } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
-import type { Transaction } from '@/db/schema'
 
 interface PaymentDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
-type Step = 'method' | 'cash' | 'success'
+type Step = 'review' | 'method' | 'cash' | 'noncash' | 'success'
+
+const methodIcons: Record<string, typeof Money> = {
+  cash: Money,
+  qris: QrCode,
+  bank_transfer: Bank,
+  ewallet: Wallet,
+  other: Wallet,
+}
 
 export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
-  const [step, setStep] = useState<Step>('method')
+  const router = useRouter()
+  const [step, setStep] = useState<Step>('review')
   const [selectedMethod, setSelectedMethod] = useState<{
     id: string
     name: string
@@ -39,7 +50,10 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
   const [isProcessing, setIsProcessing] = useState(false)
 
   const tenantId = useAuthStore((s) => s.user?.tenantId)
-  const total = useCartStore((s) => s.getTotal())
+  const { items, discountPercent, getSubtotal, getTotal } = useCartStore()
+  const total = getTotal()
+  const subtotal = getSubtotal()
+  const discountAmount = Math.round(subtotal * (discountPercent / 100))
 
   const paymentMethods = useLiveQuery(
     () =>
@@ -50,11 +64,13 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
   )
 
   const quickAmounts = [
-    total,
-    Math.ceil(total / 10000) * 10000,
-    Math.ceil(total / 50000) * 50000,
-    Math.ceil(total / 100000) * 100000,
-  ].filter((v, i, a) => a.indexOf(v) === i && v >= total)
+    { label: 'Uang Pas', value: total },
+    { label: 'Rp 10rb', value: 10000 },
+    { label: 'Rp 20rb', value: 20000 },
+    { label: 'Rp 50rb', value: 50000 },
+    { label: 'Rp 100rb', value: 100000 },
+    { label: 'Rp 200rb', value: 200000 },
+  ]
 
   const cashAmount = parseInt(cashTendered, 10) || 0
   const changeAmount = cashAmount - total
@@ -64,7 +80,7 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
     if (method.type === 'cash') {
       setStep('cash')
     } else {
-      void handleConfirmPayment(method)
+      setStep('noncash')
     }
   }
 
@@ -95,11 +111,22 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
   }
 
   const handleClose = () => {
-    setStep('method')
+    setStep('review')
     setSelectedMethod(null)
     setCashTendered('')
     setCompletedTx(null)
     onOpenChange(false)
+  }
+
+  const handleNewTransaction = () => {
+    handleClose()
+  }
+
+  const handleViewDetail = () => {
+    if (completedTx) {
+      handleClose()
+      void router.navigate({ to: '/transactions/$id', params: { id: completedTx.id } })
+    }
   }
 
   const defaultMethods = [
@@ -113,68 +140,138 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
       : defaultMethods
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
-        {step === 'method' && (
-          <>
-            <DialogHeader>
-              <DialogTitle>Pembayaran</DialogTitle>
-            </DialogHeader>
+    <Sheet open={open} onOpenChange={handleClose}>
+      <SheetContent className="max-h-screen">
+        {/* Step 1: Review */}
+        {step === 'review' && (
+          <div className="space-y-4">
+            <h2 className="text-lg font-bold">Ringkasan Pesanan</h2>
 
-            <div className="text-center py-4">
-              <p className="text-sm text-[var(--muted-foreground)]">Total Pembayaran</p>
-              <p className="text-3xl font-bold mt-1">{formatCurrency(total)}</p>
-            </div>
-
-            <Separator />
-
-            <div className="space-y-3 mt-4">
-              <p className="text-sm font-medium text-[var(--muted-foreground)]">
-                Metode Pembayaran
-              </p>
-              {methods.map((method) => (
-                <button
-                  key={method.id}
-                  onClick={() => handleSelectMethod(method)}
-                  className={cn(
-                    'w-full flex items-center gap-4 p-4 rounded-[var(--radius)] border border-[var(--border)]',
-                    'hover:bg-[var(--accent)] active:bg-[var(--accent)] transition-colors',
-                    'min-h-[56px] touch-manipulation'
-                  )}
-                >
-                  {method.type === 'cash' ? (
-                    <Money size={28} className="text-green-600" weight="duotone" />
-                  ) : (
-                    <QrCode size={28} className="text-[var(--primary)]" weight="duotone" />
-                  )}
-                  <span className="text-base font-medium">{method.name}</span>
-                </button>
+            <div className="space-y-2 bg-[var(--muted)] rounded-xl p-4">
+              {items.map((item) => (
+                <div key={item.id} className="flex justify-between text-sm">
+                  <span className="truncate mr-2">
+                    {item.serviceName} x{item.quantity}
+                  </span>
+                  <span className="shrink-0">{formatCurrency(item.subtotal)}</span>
+                </div>
               ))}
             </div>
-          </>
+
+            <div className="space-y-1">
+              <div className="flex justify-between text-sm">
+                <span className="text-[var(--muted-foreground)]">Subtotal</span>
+                <span>{formatCurrency(subtotal)}</span>
+              </div>
+              {discountPercent > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-[var(--muted-foreground)]">Diskon ({discountPercent}%)</span>
+                  <span className="text-[var(--destructive)]">-{formatCurrency(discountAmount)}</span>
+                </div>
+              )}
+              <div className="flex justify-between text-sm">
+                <span className="text-[var(--muted-foreground)]">Pajak</span>
+                <span>Rp 0</span>
+              </div>
+              <Separator className="my-2" />
+              <div className="flex justify-between items-center">
+                <span className="font-bold text-lg">Total</span>
+                <span className="font-bold text-2xl">{formatCurrency(total)}</span>
+              </div>
+            </div>
+
+            <Button
+              size="lg"
+              className="w-full h-12 text-base font-bold mt-4"
+              onClick={() => setStep('method')}
+            >
+              Lanjut ke Pembayaran
+            </Button>
+          </div>
         )}
 
+        {/* Step 2: Payment Method */}
+        {step === 'method' && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setStep('review')}
+                className="p-1 rounded hover:bg-[var(--accent)]"
+              >
+                <ArrowLeft size={20} />
+              </button>
+              <h2 className="text-lg font-bold">Metode Pembayaran</h2>
+            </div>
+
+            <div className="text-center py-2">
+              <p className="text-sm text-[var(--muted-foreground)]">Total Pembayaran</p>
+              <p className="text-2xl font-bold">{formatCurrency(total)}</p>
+            </div>
+
+            <div className="space-y-3">
+              {methods.map((method) => {
+                const IconComp = methodIcons[method.type] ?? Wallet
+                return (
+                  <button
+                    key={method.id}
+                    onClick={() => handleSelectMethod(method)}
+                    className={cn(
+                      'w-full flex items-center gap-4 p-4 rounded-xl border border-[var(--border)]',
+                      'hover:bg-[var(--accent)] active:bg-[var(--accent)] transition-colors',
+                      'min-h-[60px] touch-manipulation'
+                    )}
+                  >
+                    <IconComp
+                      size={28}
+                      className={method.type === 'cash' ? 'text-green-600' : 'text-[var(--primary)]'}
+                      weight="duotone"
+                    />
+                    <span className="text-base font-medium">{method.name}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Step 3a: Cash */}
         {step === 'cash' && (
-          <>
-            <DialogHeader>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setStep('method')}
-                  className="p-1 rounded hover:bg-[var(--accent)]"
-                >
-                  <ArrowLeft size={20} />
-                </button>
-                <DialogTitle>Pembayaran Tunai</DialogTitle>
-              </div>
-            </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setStep('method')}
+                className="p-1 rounded hover:bg-[var(--accent)]"
+              >
+                <ArrowLeft size={20} />
+              </button>
+              <h2 className="text-lg font-bold">Pembayaran Tunai</h2>
+            </div>
 
             <div className="text-center py-2">
               <p className="text-sm text-[var(--muted-foreground)]">Total</p>
               <p className="text-2xl font-bold">{formatCurrency(total)}</p>
             </div>
 
-            <div className="space-y-3 mt-2">
-              <label className="text-sm font-medium">Uang Diterima</label>
+            <div className="grid grid-cols-2 gap-2">
+              {quickAmounts.map((qa) => (
+                <button
+                  key={qa.label}
+                  onClick={() => setCashTendered(String(qa.value))}
+                  className={cn(
+                    'px-3 py-3 rounded-xl border text-sm font-medium text-center',
+                    'min-h-[48px] touch-manipulation transition-colors',
+                    cashAmount === qa.value
+                      ? 'border-[var(--primary)] bg-[var(--primary)]/5 text-[var(--primary)]'
+                      : 'border-[var(--border)] hover:bg-[var(--accent)]'
+                  )}
+                >
+                  {qa.label}
+                </button>
+              ))}
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-1 block">Jumlah Lainnya</label>
               <Input
                 type="number"
                 inputMode="numeric"
@@ -182,57 +279,68 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
                 value={cashTendered}
                 onChange={(e) => setCashTendered(e.target.value)}
                 className="text-lg h-14 text-center font-semibold"
-                autoFocus
               />
+            </div>
 
-              <div className="flex flex-wrap gap-2">
-                {quickAmounts.map((amount) => (
-                  <button
-                    key={amount}
-                    onClick={() => setCashTendered(String(amount))}
-                    className={cn(
-                      'px-4 py-2.5 rounded-[var(--radius)] border text-sm font-medium',
-                      'hover:bg-[var(--accent)] active:bg-[var(--accent)] transition-colors',
-                      'min-h-[44px] touch-manipulation',
-                      cashAmount === amount
-                        ? 'border-[var(--primary)] bg-[var(--primary)]/5 text-[var(--primary)]'
-                        : 'border-[var(--border)]'
-                    )}
-                  >
-                    {formatCurrency(amount)}
-                  </button>
-                ))}
+            {cashAmount > 0 && cashAmount >= total && (
+              <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center">
+                <p className="text-sm text-[var(--muted-foreground)]">Kembalian</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {formatCurrency(changeAmount)}
+                </p>
               </div>
+            )}
 
-              {cashAmount > 0 && cashAmount >= total && (
-                <div className="bg-[var(--success)]/10 rounded-[var(--radius)] p-3 text-center">
-                  <p className="text-sm text-[var(--muted-foreground)]">Kembalian</p>
-                  <p className="text-xl font-bold text-[var(--success)]">
-                    {formatCurrency(changeAmount)}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div className="mt-4">
-              <Button
-                size="lg"
-                className="w-full h-14 text-base font-bold"
-                disabled={cashAmount < total || isProcessing}
-                onClick={() => void handleConfirmPayment()}
-              >
-                {isProcessing ? 'Memproses...' : 'Konfirmasi Pembayaran'}
-              </Button>
-            </div>
-          </>
+            <Button
+              size="lg"
+              className="w-full h-12 text-base font-bold"
+              disabled={cashAmount < total || isProcessing}
+              onClick={() => void handleConfirmPayment()}
+            >
+              {isProcessing ? 'Memproses...' : 'Konfirmasi Pembayaran'}
+            </Button>
+          </div>
         )}
 
+        {/* Step 3b: Non-cash */}
+        {step === 'noncash' && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setStep('method')}
+                className="p-1 rounded hover:bg-[var(--accent)]"
+              >
+                <ArrowLeft size={20} />
+              </button>
+              <h2 className="text-lg font-bold">{selectedMethod?.name}</h2>
+            </div>
+
+            <div className="text-center py-8">
+              <p className="text-sm text-[var(--muted-foreground)]">Total Pembayaran</p>
+              <p className="text-3xl font-bold mt-1">{formatCurrency(total)}</p>
+              <p className="text-sm text-[var(--muted-foreground)] mt-4">
+                Menunggu pembayaran...
+              </p>
+            </div>
+
+            <Button
+              size="lg"
+              className="w-full h-12 text-base font-bold"
+              disabled={isProcessing}
+              onClick={() => void handleConfirmPayment()}
+            >
+              {isProcessing ? 'Memproses...' : 'Konfirmasi Pembayaran Diterima'}
+            </Button>
+          </div>
+        )}
+
+        {/* Step 4: Success */}
         {step === 'success' && completedTx && (
-          <>
+          <div className="space-y-4">
             <div className="text-center py-6">
               <CheckCircle
-                size={64}
-                className="text-[var(--success)] mx-auto mb-4"
+                size={80}
+                className="text-green-500 mx-auto mb-4"
                 weight="fill"
               />
               <h2 className="text-xl font-bold mb-1">Pembayaran Berhasil!</h2>
@@ -241,7 +349,7 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
               </p>
             </div>
 
-            <div className="space-y-2 bg-[var(--muted)] rounded-[var(--radius)] p-4">
+            <div className="space-y-2 bg-[var(--muted)] rounded-xl p-4">
               {completedTx.items.map((item) => (
                 <div key={item.id} className="flex justify-between text-sm">
                   <span>
@@ -269,14 +377,26 @@ export function PaymentDialog({ open, onOpenChange }: PaymentDialogProps) {
               )}
             </div>
 
-            <div className="mt-4">
-              <Button size="lg" className="w-full h-14" onClick={handleClose}>
-                Selesai
+            <div className="flex gap-3 mt-4">
+              <Button
+                size="lg"
+                className="flex-1 h-12 text-base font-bold"
+                onClick={handleNewTransaction}
+              >
+                Transaksi Baru
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="flex-1 h-12 text-base font-bold"
+                onClick={handleViewDetail}
+              >
+                Lihat Detail
               </Button>
             </div>
-          </>
+          </div>
         )}
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   )
 }

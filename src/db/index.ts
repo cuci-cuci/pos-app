@@ -8,6 +8,7 @@ import type {
   Transaction,
   SyncLog,
   SyncState,
+  Outlet,
 } from './schema'
 
 export class PosDatabase extends Dexie {
@@ -19,6 +20,7 @@ export class PosDatabase extends Dexie {
   transactions!: Table<Transaction, string>
   syncLogs!: Table<SyncLog, number>
   syncState!: Table<SyncState, string>
+  outlets!: Table<Outlet, string>
 
   constructor() {
     super('LaundryPOS')
@@ -32,6 +34,18 @@ export class PosDatabase extends Dexie {
       transactions: 'id, [tenantId+syncStatus], [tenantId+status], createdAt',
       syncLogs: '++id, direction, timestamp',
       syncState: 'id',
+    })
+
+    this.version(2).stores({
+      serviceCategories: 'id, tenantId, sortOrder',
+      services: 'id, [tenantId+categoryId], tenantId',
+      paymentMethods: 'id, tenantId',
+      tenantConfig: 'id',
+      customers: 'id, tenantId, phone, name',
+      transactions: 'id, [tenantId+syncStatus], [tenantId+status], createdAt, outletId',
+      syncLogs: '++id, direction, timestamp',
+      syncState: 'id',
+      outlets: 'id, tenantId',
     })
   }
 }

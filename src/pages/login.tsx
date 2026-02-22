@@ -4,11 +4,13 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { login } from '@/services/auth-service'
+import { syncEngine } from '@/sync/sync-engine'
+import { useDeviceStore } from '@/stores/device-store'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { APP_NAME } from '@/lib/constants'
-import { Drop } from '@phosphor-icons/react'
+import { Drop, SpinnerGap, WarningCircle } from '@phosphor-icons/react'
 
 const loginSchema = z.object({
   email: z.string().email('Email tidak valid'),
@@ -17,10 +19,19 @@ const loginSchema = z.object({
 
 type LoginForm = z.infer<typeof loginSchema>
 
+type LoginState = 'idle' | 'authenticating' | 'syncing' | 'redirecting'
+
+const stateMessages: Record<LoginState, string> = {
+  idle: 'Masuk',
+  authenticating: 'Memverifikasi...',
+  syncing: 'Menyinkronkan data...',
+  redirecting: 'Mengalihkan...',
+}
+
 export function LoginPage() {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [loginState, setLoginState] = useState<LoginState>('idle')
 
   const {
     register,
@@ -32,79 +43,133 @@ export function LoginPage() {
 
   const onSubmit = async (data: LoginForm) => {
     setError(null)
-    setIsLoading(true)
+    setLoginState('authenticating')
 
     try {
       await login(data.email, data.password)
-      await router.navigate({ to: '/' })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login gagal. Periksa email dan password Anda.')
-    } finally {
-      setIsLoading(false)
+      const message =
+        err instanceof Error ? err.message : 'Login gagal. Periksa email dan password Anda.'
+
+      // Provide more specific error messages
+      let displayMessage = message
+      if (message.includes('401') || message.includes('Unauthorized')) {
+        displayMessage = 'Email atau password salah.'
+      } else if (message.includes('NetworkError') || message.includes('fetch')) {
+        displayMessage = 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.'
+      } else if (message.includes('500')) {
+        displayMessage = 'Terjadi kesalahan pada server. Coba lagi nanti.'
+      }
+
+      setError(displayMessage)
+      setLoginState('idle')
+      return
+    }
+
+    // Initial sync
+    setLoginState('syncing')
+    try {
+      await syncEngine.init()
+    } catch {
+      // Sync failure is non-fatal, continue to redirect
+    }
+
+    // Redirect based on device state
+    setLoginState('redirecting')
+    const isReady = useDeviceStore.getState().isDeviceReady()
+    if (isReady) {
+      await router.navigate({ to: '/' })
+    } else {
+      await router.navigate({ to: '/setup' })
     }
   }
 
+  const isLoading = loginState !== 'idle'
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--muted)] p-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-2">
-            <Drop size={48} className="text-[var(--primary)]" weight="duotone" />
+      <div className="w-full max-w-sm">
+        {/* Logo and app name */}
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[var(--primary)] mb-3">
+            <Drop size={36} className="text-[var(--primary-foreground)]" weight="duotone" />
           </div>
-          <CardTitle className="text-xl">{APP_NAME}</CardTitle>
-          <p className="text-sm text-[var(--muted-foreground)]">
-            Masuk ke akun Anda
+          <h1 className="text-2xl font-bold">{APP_NAME}</h1>
+          <p className="text-sm text-[var(--muted-foreground)] mt-1">
+            Sistem POS Laundry
           </p>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {error && (
-              <div className="bg-[var(--destructive)]/10 text-[var(--destructive)] text-sm rounded-[var(--radius)] p-3">
-                {error}
+        </div>
+
+        <Card>
+          <CardHeader className="text-center pb-2">
+            <CardTitle className="text-lg">Masuk ke Akun Anda</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              {error && (
+                <div className="flex items-start gap-2 bg-[var(--destructive)]/10 border border-[var(--destructive)]/20 text-[var(--destructive)] text-sm rounded-[var(--radius)] p-3">
+                  <WarningCircle size={18} className="shrink-0 mt-0.5" weight="bold" />
+                  <span>{error}</span>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <label htmlFor="email" className="text-sm font-medium">
+                  Email
+                </label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="email@contoh.com"
+                  autoComplete="email"
+                  disabled={isLoading}
+                  {...register('email')}
+                />
+                {errors.email && (
+                  <p className="text-xs text-[var(--destructive)]">{errors.email.message}</p>
+                )}
               </div>
-            )}
 
-            <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium">
-                Email
-              </label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="email@contoh.com"
-                {...register('email')}
-              />
-              {errors.email && (
-                <p className="text-xs text-[var(--destructive)]">{errors.email.message}</p>
-              )}
-            </div>
+              <div className="space-y-2">
+                <label htmlFor="password" className="text-sm font-medium">
+                  Password
+                </label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Masukkan password"
+                  autoComplete="current-password"
+                  disabled={isLoading}
+                  {...register('password')}
+                />
+                {errors.password && (
+                  <p className="text-xs text-[var(--destructive)]">{errors.password.message}</p>
+                )}
+              </div>
 
-            <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium">
-                Password
-              </label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Masukkan password"
-                {...register('password')}
-              />
-              {errors.password && (
-                <p className="text-xs text-[var(--destructive)]">{errors.password.message}</p>
-              )}
-            </div>
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full h-12"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <span className="flex items-center gap-2">
+                    <SpinnerGap size={20} className="animate-spin" />
+                    {stateMessages[loginState]}
+                  </span>
+                ) : (
+                  'Masuk'
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
 
-            <Button
-              type="submit"
-              size="lg"
-              className="w-full h-12"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Memproses...' : 'Masuk'}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+        <p className="text-center text-xs text-[var(--muted-foreground)] mt-4">
+          {APP_NAME} v1.0.0
+        </p>
+      </div>
     </div>
   )
 }

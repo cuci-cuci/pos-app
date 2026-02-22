@@ -1,17 +1,19 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '@/db'
 import type { Service, ServiceCategory } from '@/db/schema'
 import { useAuthStore } from '@/stores/auth-store'
 import { useCartStore } from '@/stores/cart-store'
-import { ServiceGrid } from '@/components/order/service-grid'
+import { ServiceCard } from '@/components/order/service-card'
 import { CartPanel } from '@/components/order/cart-panel'
-import { CustomerSearch } from '@/components/customer/customer-search'
 import { QuantityInput } from '@/components/order/quantity-input'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { ShoppingCart } from '@phosphor-icons/react'
+import { Input } from '@/components/ui/input'
+import { EmptyState } from '@/components/shared/empty-state'
+import { ShoppingCart, MagnifyingGlass } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 import { formatCurrency } from '@/lib/format'
+import { getCategoryIcon } from '@/lib/category-icons'
 
 export function PosPage() {
   const tenantId = useAuthStore((s) => s.user?.tenantId)
@@ -22,6 +24,7 @@ export function PosPage() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
   const [quantityService, setQuantityService] = useState<Service | null>(null)
   const [cartSheetOpen, setCartSheetOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
 
   const categories = useLiveQuery(
     () =>
@@ -34,26 +37,35 @@ export function PosPage() {
     [tenantId]
   )
 
-  const activeCategoryId = selectedCategoryId ?? categories?.[0]?.id ?? null
-
-  const services = useLiveQuery(
+  const allServices = useLiveQuery(
     () => {
       if (!tenantId) return [] as Service[]
-      if (activeCategoryId) {
-        return db.services
-          .where('[tenantId+categoryId]')
-          .equals([tenantId, activeCategoryId])
-          .toArray()
-          .then((s: Service[]) => s.filter((sv: Service) => sv.isActive).sort((a: Service, b: Service) => a.sortOrder - b.sortOrder))
-      }
       return db.services
         .where('tenantId')
         .equals(tenantId)
         .toArray()
         .then((s: Service[]) => s.filter((sv: Service) => sv.isActive).sort((a: Service, b: Service) => a.sortOrder - b.sortOrder))
     },
-    [tenantId, activeCategoryId]
+    [tenantId]
   )
+
+  const filteredServices = useMemo(() => {
+    if (!allServices) return []
+    let result = allServices
+
+    // Filter by category
+    if (selectedCategoryId) {
+      result = result.filter((s) => s.categoryId === selectedCategoryId)
+    }
+
+    // Filter by search
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase()
+      result = result.filter((s) => s.name.toLowerCase().includes(q))
+    }
+
+    return result
+  }, [allServices, selectedCategoryId, searchQuery])
 
   const handleSelectService = useCallback((service: Service) => {
     setQuantityService(service)
@@ -82,38 +94,127 @@ export function PosPage() {
     <div className="flex h-[calc(100vh-3.5rem-4rem)] md:h-[calc(100vh-3.5rem)]">
       {/* Left: Services */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Search bar */}
         <div className="p-4 pb-2">
-          <CustomerSearch />
+          <div className="relative">
+            <MagnifyingGlass size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]" />
+            <Input
+              placeholder="Cari layanan..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-10 pl-9"
+            />
+          </div>
         </div>
 
-        {/* Category tabs */}
-        {categories && categories.length > 0 && (
-          <div className="flex gap-2 px-4 py-2 overflow-x-auto scrollbar-hide">
-            {categories.map((cat) => (
+        <div className="flex flex-1 min-h-0">
+          {/* Category sidebar (desktop) */}
+          {categories && categories.length > 0 && (
+            <div className="hidden md:flex flex-col w-48 border-r border-[var(--border)] overflow-y-auto shrink-0">
               <button
-                key={cat.id}
-                onClick={() => setSelectedCategoryId(cat.id)}
+                onClick={() => setSelectedCategoryId(null)}
                 className={cn(
-                  'px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors',
-                  'min-h-[40px] touch-manipulation',
-                  activeCategoryId === cat.id
-                    ? 'bg-[var(--primary)] text-[var(--primary-foreground)]'
-                    : 'bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--accent)]'
+                  'flex items-center gap-2 px-4 py-3 text-sm font-medium text-left transition-colors',
+                  'min-h-[44px] border-l-2',
+                  selectedCategoryId === null
+                    ? 'bg-[var(--primary)]/10 text-[var(--primary)] border-l-[var(--primary)]'
+                    : 'text-[var(--muted-foreground)] border-l-transparent hover:bg-[var(--accent)]'
                 )}
               >
-                {cat.name}
+                Semua
               </button>
-            ))}
+              {categories.map((cat) => {
+                const IconComp = getCategoryIcon(cat.name)
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => setSelectedCategoryId(cat.id)}
+                    className={cn(
+                      'flex items-center gap-2 px-4 py-3 text-sm font-medium text-left transition-colors',
+                      'min-h-[44px] border-l-2',
+                      selectedCategoryId === cat.id
+                        ? 'bg-[var(--primary)]/10 text-[var(--primary)] border-l-[var(--primary)]'
+                        : 'text-[var(--muted-foreground)] border-l-transparent hover:bg-[var(--accent)]'
+                    )}
+                  >
+                    <IconComp size={18} weight={selectedCategoryId === cat.id ? 'fill' : 'regular'} />
+                    <span className="truncate">{cat.name}</span>
+                  </button>
+                )
+              })}
+            </div>
+          )}
+
+          {/* Category pills (mobile) + Service grid */}
+          <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+            {/* Mobile category pills */}
+            {categories && categories.length > 0 && (
+              <div className="flex gap-2 px-4 py-2 overflow-x-auto scrollbar-hide md:hidden">
+                <button
+                  onClick={() => setSelectedCategoryId(null)}
+                  className={cn(
+                    'px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors',
+                    'min-h-[36px] touch-manipulation',
+                    selectedCategoryId === null
+                      ? 'bg-[var(--primary)] text-[var(--primary-foreground)]'
+                      : 'bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--accent)]'
+                  )}
+                >
+                  Semua
+                </button>
+                {categories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setSelectedCategoryId(cat.id)}
+                    className={cn(
+                      'px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors',
+                      'min-h-[36px] touch-manipulation',
+                      selectedCategoryId === cat.id
+                        ? 'bg-[var(--primary)] text-[var(--primary-foreground)]'
+                        : 'bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--accent)]'
+                    )}
+                  >
+                    {cat.name}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Service grid */}
+            <div className="flex-1 overflow-y-auto">
+              {filteredServices.length === 0 ? (
+                <EmptyState
+                  icon={<MagnifyingGlass size={48} />}
+                  title="Tidak ada layanan"
+                  description={searchQuery ? 'Coba kata kunci lain' : 'Belum ada layanan untuk kategori ini.'}
+                />
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 p-4">
+                  {filteredServices.map((service) => (
+                    <ServiceCard
+                      key={service.id}
+                      service={service}
+                      categoryName={categories?.find((c) => c.id === service.categoryId)?.name ?? ''}
+                      cartQuantity={cartItems.find((ci) => ci.serviceId === service.id)?.quantity}
+                      onSelect={handleSelectService}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Sticky cart bar (desktop) */}
+        {itemCount > 0 && (
+          <div className="hidden md:flex items-center justify-between px-4 py-3 border-t border-[var(--border)] bg-[var(--card)]">
+            <div className="flex items-center gap-2">
+              <ShoppingCart size={20} className="text-[var(--primary)]" weight="fill" />
+              <span className="text-sm font-medium">{itemCount} item</span>
+            </div>
+            <span className="text-base font-bold">{formatCurrency(total)}</span>
           </div>
         )}
-
-        {/* Service grid */}
-        <div className="flex-1 overflow-y-auto">
-          <ServiceGrid
-            services={services ?? []}
-            onSelectService={handleSelectService}
-          />
-        </div>
       </div>
 
       {/* Right: Cart (tablet+) */}
@@ -121,7 +222,7 @@ export function PosPage() {
         <CartPanel />
       </div>
 
-      {/* Mobile: floating cart button */}
+      {/* Mobile: floating cart bar */}
       {itemCount > 0 && (
         <button
           onClick={() => setCartSheetOpen(true)}
@@ -164,6 +265,8 @@ export function PosPage() {
           }}
           serviceName={quantityService.name}
           unit={quantityService.unit}
+          pricePerUnit={quantityService.pricePerUnit}
+          currentCartQuantity={cartItems.find((ci) => ci.serviceId === quantityService.id)?.quantity}
           onConfirm={handleConfirmQuantity}
         />
       )}

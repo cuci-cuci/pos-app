@@ -6,11 +6,14 @@ import {
 } from '@tanstack/react-router'
 import { AppShell } from '@/components/layout/app-shell'
 import { LoginPage } from '@/pages/login'
+import { SetupPage } from '@/pages/setup'
 import { PosPage } from '@/pages/pos'
+import { DashboardPage } from '@/pages/dashboard'
 import { TransactionsPage } from '@/pages/transactions'
 import { TransactionDetailPage } from '@/pages/transaction-detail-page'
 import { SettingsPage } from '@/pages/settings'
 import { useAuthStore } from '@/stores/auth-store'
+import { useDeviceStore } from '@/stores/device-store'
 
 const rootRoute = createRootRoute({})
 
@@ -20,10 +23,10 @@ const loginRoute = createRoute({
   component: LoginPage,
 })
 
-const authenticatedRoute = createRoute({
+const setupRoute = createRoute({
   getParentRoute: () => rootRoute,
-  id: 'authenticated',
-  component: AppShell,
+  path: '/setup',
+  component: SetupPage,
   beforeLoad: () => {
     const isAuthenticated = useAuthStore.getState().isAuthenticated()
     if (!isAuthenticated) {
@@ -32,10 +35,33 @@ const authenticatedRoute = createRoute({
   },
 })
 
+const authenticatedRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  id: 'authenticated',
+  component: AppShell,
+  beforeLoad: ({ location }) => {
+    const isAuthenticated = useAuthStore.getState().isAuthenticated()
+    if (!isAuthenticated) {
+      throw redirect({ to: '/login' })
+    }
+
+    const isReady = useDeviceStore.getState().isDeviceReady()
+    if (!isReady && location.pathname !== '/setup') {
+      throw redirect({ to: '/setup' })
+    }
+  },
+})
+
 const posRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/',
   component: PosPage,
+})
+
+const dashboardRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: '/dashboard',
+  component: DashboardPage,
 })
 
 const transactionsRoute = createRoute({
@@ -58,8 +84,10 @@ const settingsRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([
   loginRoute,
+  setupRoute,
   authenticatedRoute.addChildren([
     posRoute,
+    dashboardRoute,
     transactionsRoute,
     transactionDetailRoute,
     settingsRoute,
