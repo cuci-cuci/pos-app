@@ -289,38 +289,42 @@ export function PosPage() {
         {/* Mobile: floating cart bar */}
         <AnimatePresence>
           {itemCount > 0 && (
-            <motion.button
-              type="button"
+            <motion.div
               key="cart-bar"
               initial={{ y: 100, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 100, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              onClick={() => setCartSheetOpen(true)}
-              className={cn(
-                'md:hidden fixed bottom-20 left-4 right-4 z-30',
-                'bg-primary text-primary-foreground rounded-[var(--radius)]',
-                'flex items-center justify-between px-5 py-4 shadow-lg',
-                'active:scale-[0.98] transition-transform touch-manipulation',
-              )}
+              className="md:hidden fixed bottom-[72px] left-3 right-3 z-30"
             >
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <ShoppingCart size={24} weight="fill" />
-                  <motion.span
-                    key={itemCount}
-                    initial={{ scale: 0.5 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-                    className="absolute -top-2 -right-2 bg-white text-primary text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center"
-                  >
-                    {itemCount}
-                  </motion.span>
+              <button
+                type="button"
+                onClick={() => setCartSheetOpen(true)}
+                className={cn(
+                  'w-full bg-primary text-primary-foreground rounded-2xl',
+                  'flex items-center justify-between px-5 py-4',
+                  'shadow-[0_4px_24px_rgba(0,0,0,0.15)]',
+                  'active:scale-[0.98] transition-transform touch-manipulation',
+                )}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <ShoppingCart size={22} weight="fill" />
+                    <motion.span
+                      key={itemCount}
+                      initial={{ scale: 0.5 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                      className="absolute -top-2 -right-2.5 bg-white text-primary text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center"
+                    >
+                      {itemCount}
+                    </motion.span>
+                  </div>
+                  <span className="font-semibold text-sm">Lihat Keranjang</span>
                 </div>
-                <span className="font-semibold">Lihat Keranjang</span>
-              </div>
-              <span className="font-bold text-lg">{formatCurrency(total)}</span>
-            </motion.button>
+                <span className="font-bold text-lg">{formatCurrency(total)}</span>
+              </button>
+            </motion.div>
           )}
         </AnimatePresence>
 
