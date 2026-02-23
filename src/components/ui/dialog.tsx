@@ -1,11 +1,11 @@
 import {
-  useRef,
-  useEffect,
-  useCallback,
-  type ReactNode,
   type HTMLAttributes,
-  type MouseEvent,
   type KeyboardEvent,
+  type MouseEvent,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
 } from 'react'
 import { cn } from '@/lib/utils'
 
@@ -47,7 +47,7 @@ function Dialog({ open, onOpenChange, children }: DialogProps) {
         onOpenChange(false)
       }
     },
-    [onOpenChange]
+    [onOpenChange],
   )
 
   const handleKeyDown = useCallback(
@@ -56,7 +56,7 @@ function Dialog({ open, onOpenChange, children }: DialogProps) {
         onOpenChange(false)
       }
     },
-    [onOpenChange]
+    [onOpenChange],
   )
 
   return (
@@ -75,10 +75,7 @@ function Dialog({ open, onOpenChange, children }: DialogProps) {
 function DialogContent({ className, children, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn(
-        'bg-card rounded-[var(--radius)] border shadow-lg p-6',
-        className
-      )}
+      className={cn('bg-card rounded-[var(--radius)] border shadow-lg p-6', className)}
       {...props}
     >
       {children}
@@ -91,7 +88,9 @@ function DialogHeader({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
 }
 
 function DialogTitle({ className, ...props }: HTMLAttributes<HTMLHeadingElement>) {
-  return <h2 className={cn('text-lg font-semibold leading-none tracking-tight', className)} {...props} />
+  return (
+    <h2 className={cn('text-lg font-semibold leading-none tracking-tight', className)} {...props} />
+  )
 }
 
 function DialogDescription({ className, ...props }: HTMLAttributes<HTMLParagraphElement>) {
@@ -99,7 +98,15 @@ function DialogDescription({ className, ...props }: HTMLAttributes<HTMLParagraph
 }
 
 function DialogFooter({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 mt-4 gap-2', className)} {...props} />
+  return (
+    <div
+      className={cn(
+        'flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 mt-4 gap-2',
+        className,
+      )}
+      {...props}
+    />
+  )
 }
 
 export { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter }

@@ -1,5 +1,3 @@
-import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from '@tanstack/react-router'
 import {
   ArrowLeft,
   ArrowRight,
@@ -9,15 +7,17 @@ import {
   Storefront,
   UserPlus,
 } from '@phosphor-icons/react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent } from '@/components/ui/card'
+import { useRouter } from '@tanstack/react-router'
+import { useCallback, useEffect, useState } from 'react'
 import { LoadingSpinner } from '@/components/shared/loading-spinner'
-import { useAuthStore } from '@/stores/auth-store'
-import { ownerApi } from '@/services/owner-api'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { showToast } from '@/components/ui/toast'
 import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
+import { ownerApi } from '@/services/owner-api'
+import { useAuthStore } from '@/stores/auth-store'
 
 const TOTAL_STEPS = 5
 const STEP_IDS = ['welcome', 'pricing', 'cashier', 'payment', 'done'] as const
@@ -154,9 +154,7 @@ export function OnboardingPage() {
         is_active: !method.is_active,
       })
       setPaymentMethods((prev) =>
-        prev.map((m) =>
-          m.id === method.id ? { ...m, is_active: !m.is_active } : m,
-        ),
+        prev.map((m) => (m.id === method.id ? { ...m, is_active: !m.is_active } : m)),
       )
     } catch {
       showToast('Gagal mengubah status', 'error')
@@ -171,15 +169,12 @@ export function OnboardingPage() {
   }
 
   // Group services by category
-  const servicesByCategory = services.reduce<Record<string, Service[]>>(
-    (acc, service) => {
-      const cat = service.category || 'Lainnya'
-      if (!acc[cat]) acc[cat] = []
-      acc[cat].push(service)
-      return acc
-    },
-    {},
-  )
+  const servicesByCategory = services.reduce<Record<string, Service[]>>((acc, service) => {
+    const cat = service.category || 'Lainnya'
+    if (!acc[cat]) acc[cat] = []
+    acc[cat].push(service)
+    return acc
+  }, {})
 
   return (
     <div className="min-h-screen flex flex-col bg-muted">
@@ -191,11 +186,7 @@ export function OnboardingPage() {
               key={id}
               className={cn(
                 'h-2 rounded-full transition-all duration-300',
-                i === step
-                  ? 'w-8 bg-primary'
-                  : i < step
-                    ? 'w-2 bg-primary'
-                    : 'w-2 bg-border',
+                i === step ? 'w-8 bg-primary' : i < step ? 'w-2 bg-primary' : 'w-2 bg-border',
               )}
             />
           ))}
@@ -213,19 +204,11 @@ export function OnboardingPage() {
               <CardContent className="p-8 text-center">
                 <div className="flex justify-center mb-6">
                   <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Storefront
-                      size={48}
-                      className="text-primary"
-                      weight="fill"
-                    />
+                    <Storefront size={48} className="text-primary" weight="fill" />
                   </div>
                 </div>
-                <h1 className="text-2xl font-bold mb-2">
-                  Selamat datang di LaundryPOS!
-                </h1>
-                <p className="text-muted-foreground mb-2">
-                  {user?.name}
-                </p>
+                <h1 className="text-2xl font-bold mb-2">Selamat datang di LaundryPOS!</h1>
+                <p className="text-muted-foreground mb-2">{user?.name}</p>
                 <p className="text-sm text-muted-foreground mb-8">
                   Mari siapkan bisnis Anda sebelum mulai menggunakan POS.
                 </p>
@@ -256,9 +239,7 @@ export function OnboardingPage() {
                   </Button>
                   <div>
                     <h2 className="text-xl font-bold">Harga Layanan</h2>
-                    <p className="text-sm text-muted-foreground">
-                      Atur harga layanan laundry Anda
-                    </p>
+                    <p className="text-sm text-muted-foreground">Atur harga layanan laundry Anda</p>
                   </div>
                 </div>
 
@@ -277,48 +258,39 @@ export function OnboardingPage() {
                   </div>
                 ) : (
                   <div className="mt-4 space-y-4 max-h-[50vh] overflow-y-auto">
-                    {Object.entries(servicesByCategory).map(
-                      ([category, categoryServices]) => (
-                        <div key={category}>
-                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                            {category}
-                          </p>
-                          <div className="space-y-2">
-                            {categoryServices.map((service) => (
-                              <div
-                                key={service.template_id}
-                                className="flex items-center justify-between gap-3 bg-muted rounded-[var(--radius)] p-3"
-                              >
-                                <div className="min-w-0 flex-1">
-                                  <p className="text-sm font-medium truncate">
-                                    {service.name}
-                                  </p>
-                                  <p className="text-xs text-muted-foreground">
-                                    {service.pricing_unit
-                                      ? `per ${service.pricing_unit}`
-                                      : ''}{' '}
-                                    {service.base_price > 0 &&
-                                      `Default: ${formatCurrency(service.base_price)}`}
-                                  </p>
-                                </div>
-                                <Input
-                                  type="number"
-                                  className="w-28 h-9 text-right"
-                                  placeholder="Harga"
-                                  value={getDisplayPrice(service)}
-                                  onChange={(e) =>
-                                    handlePriceChange(
-                                      service.template_id,
-                                      e.target.value,
-                                    )
-                                  }
-                                />
+                    {Object.entries(servicesByCategory).map(([category, categoryServices]) => (
+                      <div key={category}>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                          {category}
+                        </p>
+                        <div className="space-y-2">
+                          {categoryServices.map((service) => (
+                            <div
+                              key={service.template_id}
+                              className="flex items-center justify-between gap-3 bg-muted rounded-[var(--radius)] p-3"
+                            >
+                              <div className="min-w-0 flex-1">
+                                <p className="text-sm font-medium truncate">{service.name}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {service.pricing_unit ? `per ${service.pricing_unit}` : ''}{' '}
+                                  {service.base_price > 0 &&
+                                    `Default: ${formatCurrency(service.base_price)}`}
+                                </p>
                               </div>
-                            ))}
-                          </div>
+                              <Input
+                                type="number"
+                                className="w-28 h-9 text-right"
+                                placeholder="Harga"
+                                value={getDisplayPrice(service)}
+                                onChange={(e) =>
+                                  handlePriceChange(service.template_id, e.target.value)
+                                }
+                              />
+                            </div>
+                          ))}
                         </div>
-                      ),
-                    )}
+                      </div>
+                    ))}
                   </div>
                 )}
 
@@ -336,16 +308,11 @@ export function OnboardingPage() {
                         : 'Lanjutkan'}
                     {!savingPrices && <ArrowRight size={18} className="ml-2" weight="bold" />}
                   </Button>
-                  {Object.keys(editingPrices).length === 0 &&
-                    services.length > 0 && (
-                      <Button
-                        variant="ghost"
-                        className="w-full text-sm"
-                        onClick={() => setStep(2)}
-                      >
-                        Gunakan harga default
-                      </Button>
-                    )}
+                  {Object.keys(editingPrices).length === 0 && services.length > 0 && (
+                    <Button variant="ghost" className="w-full text-sm" onClick={() => setStep(2)}>
+                      Gunakan harga default
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -379,9 +346,7 @@ export function OnboardingPage() {
                       className="mx-auto text-emerald-500 mb-3"
                       weight="fill"
                     />
-                    <p className="text-sm font-semibold mb-1">
-                      Kasir berhasil ditambahkan!
-                    </p>
+                    <p className="text-sm font-semibold mb-1">Kasir berhasil ditambahkan!</p>
                     <p className="text-xs text-muted-foreground">
                       {cashierName} ({cashierEmail})
                     </p>
@@ -461,11 +426,7 @@ export function OnboardingPage() {
                         <UserPlus size={18} className="mr-2" weight="fill" />
                         {addingCashier ? 'Menambahkan...' : 'Tambah Kasir'}
                       </Button>
-                      <Button
-                        variant="ghost"
-                        className="w-full text-sm"
-                        onClick={() => setStep(3)}
-                      >
+                      <Button variant="ghost" className="w-full text-sm" onClick={() => setStep(3)}>
                         Lewati
                       </Button>
                     </>
@@ -529,9 +490,7 @@ export function OnboardingPage() {
                           onClick={() => handleTogglePaymentMethod(method)}
                           className={cn(
                             'relative shrink-0 w-11 h-6 rounded-full transition-colors',
-                            method.is_active
-                              ? 'bg-primary'
-                              : 'bg-border',
+                            method.is_active ? 'bg-primary' : 'bg-border',
                             togglingId === method.id && 'opacity-50',
                           )}
                         >
@@ -567,19 +526,12 @@ export function OnboardingPage() {
               <CardContent className="p-8 text-center">
                 <div className="flex justify-center mb-6">
                   <div className="w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-                    <CheckCircle
-                      size={48}
-                      className="text-emerald-500"
-                      weight="fill"
-                    />
+                    <CheckCircle size={48} className="text-emerald-500" weight="fill" />
                   </div>
                 </div>
-                <h1 className="text-2xl font-bold mb-2">
-                  Setup bisnis Anda telah selesai!
-                </h1>
+                <h1 className="text-2xl font-bold mb-2">Setup bisnis Anda telah selesai!</h1>
                 <p className="text-sm text-muted-foreground mb-8">
-                  Selanjutnya, siapkan perangkat dan outlet untuk mulai menerima
-                  transaksi.
+                  Selanjutnya, siapkan perangkat dan outlet untuk mulai menerima transaksi.
                 </p>
                 <Button
                   size="lg"

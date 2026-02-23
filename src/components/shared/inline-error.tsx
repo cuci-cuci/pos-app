@@ -1,4 +1,4 @@
-import { WarningCircle, ArrowsClockwise } from '@phosphor-icons/react'
+import { ArrowsClockwise, WarningCircle } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 
 interface InlineErrorProps {

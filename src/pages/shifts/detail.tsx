@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react'
-import { useParams, useRouter } from '@tanstack/react-router'
-import { shiftApi } from '@/services/shift-api'
-import { ShiftSummary } from '@/components/shift/shift-summary'
-import { DetailSkeleton } from '@/components/shared/skeleton-loaders'
-import { EmptyState } from '@/components/shared/empty-state'
-import { Button } from '@/components/ui/button'
 import { CaretLeft, WarningCircle } from '@phosphor-icons/react'
+import { useParams, useRouter } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
+import { EmptyState } from '@/components/shared/empty-state'
+import { DetailSkeleton } from '@/components/shared/skeleton-loaders'
+import { ShiftSummary } from '@/components/shift/shift-summary'
+import { Button } from '@/components/ui/button'
 import type { ShiftSummary as ShiftSummaryType } from '@/services/shift-api'
+import { shiftApi } from '@/services/shift-api'
 
 export function ShiftDetailPage() {
   const { id } = useParams({ strict: false })

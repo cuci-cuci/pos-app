@@ -1,6 +1,12 @@
+import {
+  ArrowsClockwise,
+  CheckCircle,
+  MagnifyingGlass,
+  Receipt,
+  XCircle,
+} from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { CheckCircle, Receipt, ArrowsClockwise, MagnifyingGlass, XCircle } from '@phosphor-icons/react'
 import { useMemo, useState } from 'react'
 import { EmptyState } from '@/components/shared/empty-state'
 import { TransactionListSkeleton } from '@/components/shared/skeleton-loaders'

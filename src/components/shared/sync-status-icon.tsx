@@ -1,4 +1,4 @@
-import { CheckCircle, Clock, ArrowsClockwise, WarningCircle } from '@phosphor-icons/react'
+import { ArrowsClockwise, CheckCircle, Clock, WarningCircle } from '@phosphor-icons/react'
 import type { SyncStatus } from '@/db/schema'
 
 export function SyncStatusIcon({ status }: { status: SyncStatus }) {

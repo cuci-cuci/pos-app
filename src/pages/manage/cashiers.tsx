@@ -1,19 +1,19 @@
-import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from '@tanstack/react-router'
 import { ArrowLeft, Plus, UserCircle } from '@phosphor-icons/react'
+import { useRouter } from '@tanstack/react-router'
+import { useCallback, useEffect, useState } from 'react'
+import { EmptyState } from '@/components/shared/empty-state'
+import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@/components/ui/dialog'
-import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
-import { EmptyState } from '@/components/shared/empty-state'
-import { ownerApi } from '@/services/owner-api'
+import { Input } from '@/components/ui/input'
 import { showToast } from '@/components/ui/toast'
+import { ownerApi } from '@/services/owner-api'
 
 interface Cashier {
   id: string
@@ -111,18 +111,12 @@ export function ManageCashiersPage() {
   return (
     <div className="flex flex-col h-full overflow-y-auto">
       <div className="px-4 pt-4 pb-2 flex items-center gap-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => router.navigate({ to: '/manage' })}
-        >
+        <Button variant="ghost" size="icon" onClick={() => router.navigate({ to: '/manage' })}>
           <ArrowLeft size={20} weight="bold" />
         </Button>
         <div className="flex-1">
           <h1 className="text-xl font-bold">Kasir</h1>
-          <p className="text-sm text-muted-foreground">
-            Kelola akun kasir
-          </p>
+          <p className="text-sm text-muted-foreground">Kelola akun kasir</p>
         </div>
         <Button size="sm" onClick={openCreate}>
           <Plus size={16} weight="bold" className="mr-1" />
@@ -142,10 +136,7 @@ export function ManageCashiersPage() {
         ) : (
           <div className="space-y-2">
             {cashiers.map((cashier) => (
-              <div
-                key={cashier.id}
-                className="bg-card border rounded-[var(--radius)] p-4"
-              >
+              <div key={cashier.id} className="bg-card border rounded-[var(--radius)] p-4">
                 <div className="flex items-start justify-between gap-2">
                   <button
                     type="button"
@@ -153,13 +144,9 @@ export function ManageCashiersPage() {
                     className="text-left min-w-0 flex-1"
                   >
                     <p className="text-sm font-semibold">{cashier.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {cashier.email}
-                    </p>
+                    <p className="text-xs text-muted-foreground">{cashier.email}</p>
                     {cashier.outlet_name && (
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {cashier.outlet_name}
-                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{cashier.outlet_name}</p>
                     )}
                   </button>
                   <button
@@ -183,13 +170,13 @@ export function ManageCashiersPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {editingCashier ? 'Edit Kasir' : 'Tambah Kasir'}
-            </DialogTitle>
+            <DialogTitle>{editingCashier ? 'Edit Kasir' : 'Tambah Kasir'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <div>
-              <label htmlFor="cashier-name" className="text-sm font-medium mb-1 block">Nama</label>
+              <label htmlFor="cashier-name" className="text-sm font-medium mb-1 block">
+                Nama
+              </label>
               <Input
                 id="cashier-name"
                 placeholder="Nama kasir"
@@ -198,7 +185,9 @@ export function ManageCashiersPage() {
               />
             </div>
             <div>
-              <label htmlFor="cashier-email" className="text-sm font-medium mb-1 block">Email</label>
+              <label htmlFor="cashier-email" className="text-sm font-medium mb-1 block">
+                Email
+              </label>
               <Input
                 id="cashier-email"
                 type="email"
@@ -208,7 +197,9 @@ export function ManageCashiersPage() {
               />
             </div>
             <div>
-              <label htmlFor="cashier-phone" className="text-sm font-medium mb-1 block">No. Telepon</label>
+              <label htmlFor="cashier-phone" className="text-sm font-medium mb-1 block">
+                No. Telepon
+              </label>
               <Input
                 id="cashier-phone"
                 placeholder="08xxxxxxxxxx"
@@ -230,11 +221,7 @@ export function ManageCashiersPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDialogOpen(false)}
-              disabled={submitting}
-            >
+            <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={submitting}>
               Batal
             </Button>
             <Button onClick={handleSubmit} disabled={submitting}>

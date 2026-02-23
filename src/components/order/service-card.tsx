@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import type { Service } from '@/db/schema'
-import { getCategoryIcon, getCategoryColor } from '@/lib/category-icons'
+import { getCategoryColor, getCategoryIcon } from '@/lib/category-icons'
 import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
 

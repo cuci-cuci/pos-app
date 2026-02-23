@@ -1,6 +1,14 @@
+import {
+  ArrowLeft,
+  Bank,
+  CircleNotch,
+  type Icon,
+  Money,
+  QrCode,
+  Wallet,
+} from '@phosphor-icons/react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowLeft, Money, Bank, CircleNotch, QrCode, Wallet, type Icon } from '@phosphor-icons/react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'

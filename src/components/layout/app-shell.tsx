@@ -1,8 +1,8 @@
-import { useEffect } from 'react'
 import { Outlet } from '@tanstack/react-router'
+import { useEffect } from 'react'
 import { useShiftStore } from '@/stores/shift-store'
-import { Header } from './header'
 import { BottomNav } from './bottom-nav'
+import { Header } from './header'
 
 export function AppShell() {
   useEffect(() => {

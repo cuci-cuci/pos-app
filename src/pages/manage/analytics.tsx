@@ -1,30 +1,22 @@
-import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from '@tanstack/react-router'
 import {
   ArrowLeft,
+  ChartBar,
   CurrencyDollar,
   Receipt,
-  TrendUp,
-  ChartBar,
   Storefront,
+  TrendUp,
 } from '@phosphor-icons/react'
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts'
-import { Button } from '@/components/ui/button'
-import { AnalyticsSkeleton } from '@/components/shared/skeleton-loaders'
+import { useRouter } from '@tanstack/react-router'
+import type { ReactNode } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { EmptyState } from '@/components/shared/empty-state'
+import { AnalyticsSkeleton } from '@/components/shared/skeleton-loaders'
+import { Button } from '@/components/ui/button'
+import { showToast } from '@/components/ui/toast'
 import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { ownerApi } from '@/services/owner-api'
-import { showToast } from '@/components/ui/toast'
-import type { ReactNode } from 'react'
 
 interface SummaryData {
   total_revenue: number
@@ -75,15 +67,9 @@ function SummaryCard({
           <span className={iconColor}>{icon}</span>
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-xs text-muted-foreground font-medium">
-            {label}
-          </p>
+          <p className="text-xs text-muted-foreground font-medium">{label}</p>
           <p className="text-lg font-bold mt-0.5 truncate">{value}</p>
-          {subValue && (
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {subValue}
-            </p>
-          )}
+          {subValue && <p className="text-xs text-muted-foreground mt-0.5">{subValue}</p>}
         </div>
       </div>
     </div>
@@ -133,18 +119,12 @@ export function ManageAnalyticsPage() {
   return (
     <div className="flex flex-col h-full overflow-y-auto">
       <div className="px-4 pt-4 pb-2 flex items-center gap-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => router.navigate({ to: '/manage' })}
-        >
+        <Button variant="ghost" size="icon" onClick={() => router.navigate({ to: '/manage' })}>
           <ArrowLeft size={20} weight="bold" />
         </Button>
         <div className="flex-1">
           <h1 className="text-xl font-bold">Analitik</h1>
-          <p className="text-sm text-muted-foreground">
-            Laporan dan statistik
-          </p>
+          <p className="text-sm text-muted-foreground">Laporan dan statistik</p>
         </div>
       </div>
 
@@ -206,9 +186,7 @@ export function ManageAnalyticsPage() {
             </div>
 
             <div className="bg-card border rounded-[var(--radius)] p-4 mb-4">
-              <h3 className="text-sm font-semibold mb-3">
-                Tren Revenue Harian
-              </h3>
+              <h3 className="text-sm font-semibold mb-3">Tren Revenue Harian</h3>
               {dailyLoading ? (
                 <div className="h-[250px] bg-muted/50 rounded animate-pulse" />
               ) : dailyData.length === 0 ? (
@@ -218,10 +196,7 @@ export function ManageAnalyticsPage() {
               ) : (
                 <ResponsiveContainer width="100%" height={250}>
                   <BarChart data={dailyData}>
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="var(--color-border)"
-                    />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
                     <XAxis
                       dataKey="date"
                       tick={{ fontSize: 10 }}
@@ -229,18 +204,10 @@ export function ManageAnalyticsPage() {
                     />
                     <YAxis
                       tick={{ fontSize: 10 }}
-                      tickFormatter={(v: number) =>
-                        `${(v / 1000).toFixed(0)}k`
-                      }
+                      tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}k`}
                     />
-                    <Tooltip
-                      formatter={(v: number | undefined) => formatCurrency(v ?? 0)}
-                    />
-                    <Bar
-                      dataKey="revenue"
-                      fill="var(--color-primary)"
-                      radius={[4, 4, 0, 0]}
-                    />
+                    <Tooltip formatter={(v: number | undefined) => formatCurrency(v ?? 0)} />
+                    <Bar dataKey="revenue" fill="var(--color-primary)" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               )}
@@ -251,9 +218,7 @@ export function ManageAnalyticsPage() {
             </h2>
             {outlets.length === 0 ? (
               <div className="bg-card border rounded-[var(--radius)] p-6 text-center">
-                <p className="text-sm text-muted-foreground">
-                  Belum ada data outlet
-                </p>
+                <p className="text-sm text-muted-foreground">Belum ada data outlet</p>
               </div>
             ) : (
               <div className="bg-card border rounded-[var(--radius)] overflow-hidden">
@@ -273,20 +238,11 @@ export function ManageAnalyticsPage() {
                   </thead>
                   <tbody>
                     {outlets.map((outlet) => (
-                      <tr
-                        key={outlet.outlet_id}
-                        className="border-b border-border last:border-b-0"
-                      >
+                      <tr key={outlet.outlet_id} className="border-b border-border last:border-b-0">
                         <td className="p-3">
                           <div className="flex items-center gap-2">
-                            <Storefront
-                              size={16}
-                              weight="fill"
-                              className="text-muted-foreground"
-                            />
-                            <span className="font-medium">
-                              {outlet.outlet_name}
-                            </span>
+                            <Storefront size={16} weight="fill" className="text-muted-foreground" />
+                            <span className="font-medium">{outlet.outlet_name}</span>
                           </div>
                         </td>
                         <td className="p-3 text-right font-medium">

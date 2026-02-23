@@ -1,6 +1,6 @@
-import { useDeviceStore } from '@/stores/device-store'
 import { formatCurrency, formatDate, formatTime } from '@/lib/format'
 import type { OrderDetail } from '@/services/order-api'
+import { useDeviceStore } from '@/stores/device-store'
 
 interface ReceiptTemplateProps {
   order: OrderDetail
@@ -100,9 +100,7 @@ export function ReceiptTemplate({ order }: ReceiptTemplateProps) {
       <p className="text-[10px] text-center">================================</p>
       <div className="text-center mt-2">
         <p className="font-semibold">Terima kasih!</p>
-        <p className="text-[10px] mt-0.5 text-gray-500">
-          Simpan struk ini sebagai bukti
-        </p>
+        <p className="text-[10px] mt-0.5 text-gray-500">Simpan struk ini sebagai bukti</p>
       </div>
     </div>
   )

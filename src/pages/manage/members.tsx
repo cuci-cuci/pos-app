@@ -1,25 +1,19 @@
-import { useState, useEffect, useCallback } from 'react'
+import { ArrowLeft, MagnifyingGlass, Phone, Plus, Users } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
-import {
-  ArrowLeft,
-  Plus,
-  Users,
-  MagnifyingGlass,
-  Phone,
-} from '@phosphor-icons/react'
+import { useCallback, useEffect, useState } from 'react'
+import { EmptyState } from '@/components/shared/empty-state'
+import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@/components/ui/dialog'
-import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
-import { EmptyState } from '@/components/shared/empty-state'
-import { ownerApi } from '@/services/owner-api'
+import { Input } from '@/components/ui/input'
 import { showToast } from '@/components/ui/toast'
+import { ownerApi } from '@/services/owner-api'
 
 interface Member {
   id: string
@@ -110,18 +104,12 @@ export function ManageMembersPage() {
   return (
     <div className="flex flex-col h-full overflow-y-auto">
       <div className="px-4 pt-4 pb-2 flex items-center gap-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => router.navigate({ to: '/manage' })}
-        >
+        <Button variant="ghost" size="icon" onClick={() => router.navigate({ to: '/manage' })}>
           <ArrowLeft size={20} weight="bold" />
         </Button>
         <div className="flex-1">
           <h1 className="text-xl font-bold">Member</h1>
-          <p className="text-sm text-muted-foreground">
-            Kelola data pelanggan member
-          </p>
+          <p className="text-sm text-muted-foreground">Kelola data pelanggan member</p>
         </div>
         <Button size="sm" onClick={openCreate}>
           <Plus size={16} weight="bold" className="mr-1" />
@@ -153,9 +141,7 @@ export function ManageMembersPage() {
             icon={<Users size={48} weight="fill" />}
             title={search ? 'Tidak Ditemukan' : 'Belum Ada Member'}
             description={
-              search
-                ? 'Coba gunakan kata kunci lain.'
-                : 'Tambahkan member untuk program loyalitas.'
+              search ? 'Coba gunakan kata kunci lain.' : 'Tambahkan member untuk program loyalitas.'
             }
           />
         ) : (
@@ -177,15 +163,11 @@ export function ManageMembersPage() {
                       </p>
                     )}
                     {member.email && (
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {member.email}
-                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{member.email}</p>
                     )}
                   </div>
                   <div className="text-right shrink-0">
-                    <span className="text-xs font-semibold text-primary">
-                      {member.points} poin
-                    </span>
+                    <span className="text-xs font-semibold text-primary">{member.points} poin</span>
                   </div>
                 </div>
               </button>
@@ -197,13 +179,13 @@ export function ManageMembersPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {editingMember ? 'Edit Member' : 'Tambah Member'}
-            </DialogTitle>
+            <DialogTitle>{editingMember ? 'Edit Member' : 'Tambah Member'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <div>
-              <label htmlFor="member-name" className="text-sm font-medium mb-1 block">Nama</label>
+              <label htmlFor="member-name" className="text-sm font-medium mb-1 block">
+                Nama
+              </label>
               <Input
                 id="member-name"
                 placeholder="Nama member"
@@ -212,7 +194,9 @@ export function ManageMembersPage() {
               />
             </div>
             <div>
-              <label htmlFor="member-phone" className="text-sm font-medium mb-1 block">No. Telepon</label>
+              <label htmlFor="member-phone" className="text-sm font-medium mb-1 block">
+                No. Telepon
+              </label>
               <Input
                 id="member-phone"
                 placeholder="08xxxxxxxxxx"
@@ -221,7 +205,9 @@ export function ManageMembersPage() {
               />
             </div>
             <div>
-              <label htmlFor="member-email" className="text-sm font-medium mb-1 block">Email</label>
+              <label htmlFor="member-email" className="text-sm font-medium mb-1 block">
+                Email
+              </label>
               <Input
                 id="member-email"
                 type="email"
@@ -232,11 +218,7 @@ export function ManageMembersPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDialogOpen(false)}
-              disabled={submitting}
-            >
+            <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={submitting}>
               Batal
             </Button>
             <Button onClick={handleSubmit} disabled={submitting}>

@@ -1,9 +1,14 @@
+import { WarningOctagon } from '@phosphor-icons/react'
 import { Component, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
-import { WarningOctagon } from '@phosphor-icons/react'
 
-interface Props { children: ReactNode }
-interface State { hasError: boolean; error: Error | null }
+interface Props {
+  children: ReactNode
+}
+interface State {
+  hasError: boolean
+  error: Error | null
+}
 
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
@@ -33,9 +38,7 @@ export class ErrorBoundary extends Component<Props, State> {
               </p>
             </div>
           )}
-          <Button onClick={() => window.location.reload()}>
-            Muat Ulang
-          </Button>
+          <Button onClick={() => window.location.reload()}>Muat Ulang</Button>
         </div>
       )
     }

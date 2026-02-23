@@ -1,12 +1,12 @@
 import { db } from '@/db'
-import type { Transaction, TransactionItem, Payment } from '@/db/schema'
-import { useCartStore, type CartItem } from '@/stores/cart-store'
-import { useSyncStore } from '@/stores/sync-store'
-import { useAuthStore } from '@/stores/auth-store'
-import { useDeviceStore } from '@/stores/device-store'
-import { useShiftStore } from '@/stores/shift-store'
+import type { Payment, Transaction, TransactionItem } from '@/db/schema'
 import { generateId, generateOrderNumber } from '@/lib/id-generator'
 import { calculatePrice } from '@/lib/price-calculator'
+import { useAuthStore } from '@/stores/auth-store'
+import { type CartItem, useCartStore } from '@/stores/cart-store'
+import { useDeviceStore } from '@/stores/device-store'
+import { useShiftStore } from '@/stores/shift-store'
+import { useSyncStore } from '@/stores/sync-store'
 
 interface PaymentInput {
   methodId: string

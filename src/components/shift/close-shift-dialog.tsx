@@ -1,20 +1,20 @@
-import { useState, useEffect } from 'react'
-import { useShiftStore } from '@/stores/shift-store'
-import { shiftApi } from '@/services/shift-api'
-import { formatCurrency } from '@/lib/format'
+import { CurrencyDollar, Lock, Receipt, WarningCircle } from '@phosphor-icons/react'
+import { useEffect, useState } from 'react'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { showToast } from '@/components/ui/toast'
-import { Lock, CurrencyDollar, Receipt, WarningCircle } from '@phosphor-icons/react'
+import { formatCurrency } from '@/lib/format'
 import type { ShiftSummary } from '@/services/shift-api'
+import { shiftApi } from '@/services/shift-api'
+import { useShiftStore } from '@/stores/shift-store'
 
 interface CloseShiftDialogProps {
   open: boolean
@@ -64,7 +64,7 @@ export function CloseShiftDialog({ open, onOpenChange }: CloseShiftDialogProps) 
   const cashValue = Number(closingCash) || 0
   const expectedCash = summary
     ? (currentShift?.opening_cash ?? 0) + summary.total_revenue
-    : currentShift?.opening_cash ?? 0
+    : (currentShift?.opening_cash ?? 0)
   const difference = cashValue - expectedCash
 
   return (
@@ -75,15 +75,11 @@ export function CloseShiftDialog({ open, onOpenChange }: CloseShiftDialogProps) 
             <Lock size={20} weight="fill" />
             Tutup Shift
           </DialogTitle>
-          <DialogDescription>
-            Hitung kas akhir dan tutup shift Anda.
-          </DialogDescription>
+          <DialogDescription>Hitung kas akhir dan tutup shift Anda.</DialogDescription>
         </DialogHeader>
 
         {loadingSummary ? (
-          <div className="py-6 text-center text-sm text-muted-foreground">
-            Memuat ringkasan...
-          </div>
+          <div className="py-6 text-center text-sm text-muted-foreground">Memuat ringkasan...</div>
         ) : (
           <div className="space-y-4">
             {/* Shift summary */}
@@ -136,9 +132,7 @@ export function CloseShiftDialog({ open, onOpenChange }: CloseShiftDialogProps) 
                 />
               </div>
               {cashValue > 0 && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  {formatCurrency(cashValue)}
-                </p>
+                <p className="text-xs text-muted-foreground mt-1">{formatCurrency(cashValue)}</p>
               )}
             </div>
 
@@ -177,18 +171,10 @@ export function CloseShiftDialog({ open, onOpenChange }: CloseShiftDialogProps) 
         )}
 
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={loading}
-          >
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
             Batal
           </Button>
-          <Button
-            variant="destructive"
-            onClick={handleClose}
-            disabled={loading || loadingSummary}
-          >
+          <Button variant="destructive" onClick={handleClose} disabled={loading || loadingSummary}>
             {loading ? 'Menutup...' : 'Tutup Shift'}
           </Button>
         </DialogFooter>

@@ -1,14 +1,14 @@
-import { useRouter } from '@tanstack/react-router'
+import type { Icon } from '@phosphor-icons/react'
 import {
+  CaretRight,
+  ChartBar,
+  CreditCard,
   Storefront,
   Tag,
   UserCircle,
-  CreditCard,
   Users,
-  ChartBar,
-  CaretRight,
 } from '@phosphor-icons/react'
-import type { Icon } from '@phosphor-icons/react'
+import { useRouter } from '@tanstack/react-router'
 
 interface ManageMenuItem {
   label: string
@@ -70,13 +70,7 @@ const menuItems: ManageMenuItem[] = [
   },
 ]
 
-function MenuCard({
-  item,
-  onClick,
-}: {
-  item: ManageMenuItem
-  onClick: () => void
-}) {
+function MenuCard({ item, onClick }: { item: ManageMenuItem; onClick: () => void }) {
   const IconComponent = item.icon
   return (
     <button
@@ -92,15 +86,9 @@ function MenuCard({
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold">{item.label}</p>
-          <p className="text-xs text-muted-foreground">
-            {item.description}
-          </p>
+          <p className="text-xs text-muted-foreground">{item.description}</p>
         </div>
-        <CaretRight
-          size={18}
-          weight="bold"
-          className="shrink-0 text-muted-foreground"
-        />
+        <CaretRight size={18} weight="bold" className="shrink-0 text-muted-foreground" />
       </div>
     </button>
   )
@@ -113,9 +101,7 @@ export function ManagePage() {
     <div className="flex flex-col h-full overflow-y-auto">
       <div className="px-4 pt-4 pb-2">
         <h1 className="text-xl font-bold">Kelola</h1>
-        <p className="text-sm text-muted-foreground">
-          Manajemen outlet, layanan, dan tim
-        </p>
+        <p className="text-sm text-muted-foreground">Manajemen outlet, layanan, dan tim</p>
       </div>
 
       <div className="px-4 pb-6 space-y-2">

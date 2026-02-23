@@ -26,7 +26,8 @@
 				"noNonNullAssertion": "off"
 			},
 			"suspicious": {
-				"noExplicitAny": "off"
+				"noExplicitAny": "off",
+				"noArrayIndexKey": "off"
 			}
 		}
 	},
@@ -39,7 +40,8 @@
 	"css": {
 		"parser": {
 			"cssModules": false,
-			"allowWrongLineComments": false
+			"allowWrongLineComments": false,
+			"tailwindDirectives": true
 		},
 		"linter": {
 			"enabled": false

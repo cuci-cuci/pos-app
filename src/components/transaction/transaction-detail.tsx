@@ -1,11 +1,11 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { db } from '@/db'
-import { formatCurrency, formatDate, formatTime } from '@/lib/format'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
+import { db } from '@/db'
 import type { SyncStatus } from '@/db/schema'
+import { formatCurrency, formatDate, formatTime } from '@/lib/format'
 
 interface TransactionDetailProps {
   transactionId: string
@@ -26,10 +26,7 @@ const syncLabel: Record<SyncStatus, string> = {
 }
 
 export function TransactionDetail({ transactionId }: TransactionDetailProps) {
-  const transaction = useLiveQuery(
-    () => db.transactions.get(transactionId),
-    [transactionId]
-  )
+  const transaction = useLiveQuery(() => db.transactions.get(transactionId), [transactionId])
 
   if (transaction === undefined) {
     return (
@@ -42,11 +39,7 @@ export function TransactionDetail({ transactionId }: TransactionDetailProps) {
   }
 
   if (transaction === null) {
-    return (
-      <div className="p-4 text-center text-muted-foreground">
-        Transaksi tidak ditemukan
-      </div>
-    )
+    return <div className="p-4 text-center text-muted-foreground">Transaksi tidak ditemukan</div>
   }
 
   return (
@@ -100,9 +93,7 @@ export function TransactionDetail({ transactionId }: TransactionDetailProps) {
 
           {transaction.discountAmount > 0 && (
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">
-                Diskon ({transaction.discountPercent}%)
-              </span>
+              <span className="text-muted-foreground">Diskon ({transaction.discountPercent}%)</span>
               <span className="text-destructive">
                 -{formatCurrency(transaction.discountAmount)}
               </span>
@@ -111,9 +102,7 @@ export function TransactionDetail({ transactionId }: TransactionDetailProps) {
 
           {transaction.taxAmount > 0 && (
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">
-                Pajak ({transaction.taxRate}%)
-              </span>
+              <span className="text-muted-foreground">Pajak ({transaction.taxRate}%)</span>
               <span>{formatCurrency(transaction.taxAmount)}</span>
             </div>
           )}
@@ -166,12 +155,16 @@ export function TransactionDetail({ transactionId }: TransactionDetailProps) {
           </div>
           <div className="flex justify-between">
             <span>Dibuat</span>
-            <span>{formatDate(transaction.createdAt)} {formatTime(transaction.createdAt)}</span>
+            <span>
+              {formatDate(transaction.createdAt)} {formatTime(transaction.createdAt)}
+            </span>
           </div>
           {transaction.syncedAt && (
             <div className="flex justify-between">
               <span>Disinkronkan</span>
-              <span>{formatDate(transaction.syncedAt)} {formatTime(transaction.syncedAt)}</span>
+              <span>
+                {formatDate(transaction.syncedAt)} {formatTime(transaction.syncedAt)}
+              </span>
             </div>
           )}
           {transaction.notes && (

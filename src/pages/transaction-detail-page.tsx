@@ -1,16 +1,16 @@
-import { useParams, useRouter } from '@tanstack/react-router'
-import { useLiveQuery } from 'dexie-react-hooks'
 import {
   ArrowLeft,
-  Prohibit,
+  ArrowsClockwise,
   CheckCircle,
   Clock,
   CloudCheck,
   CloudSlash,
+  Prohibit,
   Receipt,
-  ArrowsClockwise,
   XCircle,
 } from '@phosphor-icons/react'
+import { useParams, useRouter } from '@tanstack/react-router'
+import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 import { ReceiptActions } from '@/components/receipt/receipt-actions'
 import { EmptyState } from '@/components/shared/empty-state'
@@ -29,24 +29,59 @@ import { useShiftStore } from '@/stores/shift-store'
 function statusLabel(status: TransactionStatus) {
   switch (status) {
     case 'completed':
-      return { label: 'Selesai', variant: 'success' as const, icon: CheckCircle, weight: 'fill' as const }
+      return {
+        label: 'Selesai',
+        variant: 'success' as const,
+        icon: CheckCircle,
+        weight: 'fill' as const,
+      }
     case 'cancelled':
-      return { label: 'Dibatalkan', variant: 'destructive' as const, icon: XCircle, weight: 'fill' as const }
+      return {
+        label: 'Dibatalkan',
+        variant: 'destructive' as const,
+        icon: XCircle,
+        weight: 'fill' as const,
+      }
     case 'refunded':
-      return { label: 'Refund', variant: 'secondary' as const, icon: ArrowsClockwise, weight: 'bold' as const }
+      return {
+        label: 'Refund',
+        variant: 'secondary' as const,
+        icon: ArrowsClockwise,
+        weight: 'bold' as const,
+      }
   }
 }
 
 function syncStatusInfo(syncStatus: SyncStatus) {
   switch (syncStatus) {
     case 'synced':
-      return { label: 'Tersinkron', color: 'text-success', icon: CloudCheck, weight: 'fill' as const }
+      return {
+        label: 'Tersinkron',
+        color: 'text-success',
+        icon: CloudCheck,
+        weight: 'fill' as const,
+      }
     case 'pending':
-      return { label: 'Menunggu sinkronisasi', color: 'text-muted-foreground', icon: Clock, weight: 'fill' as const }
+      return {
+        label: 'Menunggu sinkronisasi',
+        color: 'text-muted-foreground',
+        icon: Clock,
+        weight: 'fill' as const,
+      }
     case 'syncing':
-      return { label: 'Sedang sinkronisasi...', color: 'text-primary', icon: ArrowsClockwise, weight: 'bold' as const }
+      return {
+        label: 'Sedang sinkronisasi...',
+        color: 'text-primary',
+        icon: ArrowsClockwise,
+        weight: 'bold' as const,
+      }
     case 'failed':
-      return { label: 'Gagal sinkron', color: 'text-destructive', icon: CloudSlash, weight: 'fill' as const }
+      return {
+        label: 'Gagal sinkron',
+        color: 'text-destructive',
+        icon: CloudSlash,
+        weight: 'fill' as const,
+      }
   }
 }
 

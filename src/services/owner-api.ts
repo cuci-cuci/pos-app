@@ -2,8 +2,7 @@ import { apiClient } from './api-client'
 
 export const ownerApi = {
   // Outlets
-  listOutlets: (page = 1) =>
-    apiClient.get('owner/outlets', { searchParams: { page } }).json<any>(),
+  listOutlets: (page = 1) => apiClient.get('owner/outlets', { searchParams: { page } }).json<any>(),
   createOutlet: (data: Record<string, unknown>) =>
     apiClient.post('owner/outlets', { json: data }).json<any>(),
   updateOutlet: (id: string, data: Record<string, unknown>) =>
@@ -23,8 +22,7 @@ export const ownerApi = {
     apiClient.post('owner/payment-methods', { json: data }).json<any>(),
   updatePaymentMethod: (id: string, data: Record<string, unknown>) =>
     apiClient.put(`owner/payment-methods/${id}`, { json: data }).json<any>(),
-  deletePaymentMethod: (id: string) =>
-    apiClient.delete(`owner/payment-methods/${id}`).json<any>(),
+  deletePaymentMethod: (id: string) => apiClient.delete(`owner/payment-methods/${id}`).json<any>(),
 
   // Cashiers
   listCashiers: (page = 1) =>
@@ -35,8 +33,7 @@ export const ownerApi = {
     apiClient.put(`owner/cashiers/${id}`, { json: data }).json<any>(),
 
   // Members
-  listMembers: (page = 1) =>
-    apiClient.get('owner/members', { searchParams: { page } }).json<any>(),
+  listMembers: (page = 1) => apiClient.get('owner/members', { searchParams: { page } }).json<any>(),
   createMember: (data: Record<string, unknown>) =>
     apiClient.post('owner/members', { json: data }).json<any>(),
   updateMember: (id: string, data: Record<string, unknown>) =>

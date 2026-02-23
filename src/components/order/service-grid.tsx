@@ -1,7 +1,7 @@
+import { MagnifyingGlass } from '@phosphor-icons/react'
+import { EmptyState } from '@/components/shared/empty-state'
 import type { Service } from '@/db/schema'
 import { ServiceCard } from './service-card'
-import { EmptyState } from '@/components/shared/empty-state'
-import { MagnifyingGlass } from '@phosphor-icons/react'
 
 interface ServiceGridProps {
   services: Service[]
@@ -22,7 +22,12 @@ export function ServiceGrid({ services, onSelectService }: ServiceGridProps) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-3 p-4">
       {services.map((service) => (
-        <ServiceCard key={service.id} service={service} categoryName="" onSelect={onSelectService} />
+        <ServiceCard
+          key={service.id}
+          service={service}
+          categoryName=""
+          onSelect={onSelectService}
+        />
       ))}
     </div>
   )

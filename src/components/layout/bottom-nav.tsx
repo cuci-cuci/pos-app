@@ -1,8 +1,17 @@
-import { useRouter, useMatches } from '@tanstack/react-router'
-import { Storefront, Package, Receipt, Clock, DotsThreeOutline, ChartBar, Wrench, type Icon } from '@phosphor-icons/react'
-import { useAuthStore } from '@/stores/auth-store'
+import {
+  ChartBar,
+  Clock,
+  DotsThreeOutline,
+  type Icon,
+  Package,
+  Receipt,
+  Storefront,
+  Wrench,
+} from '@phosphor-icons/react'
+import { useMatches, useRouter } from '@tanstack/react-router'
 import { ROLE_TENANT_OWNER } from '@/lib/constants'
 import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/stores/auth-store'
 
 interface NavItem {
   label: string
@@ -39,9 +48,7 @@ export function BottomNav() {
       <div className="flex items-stretch justify-around">
         {navItems.map((item) => {
           const isActive =
-            item.path === '/'
-              ? currentPath === '/'
-              : currentPath.startsWith(item.path)
+            item.path === '/' ? currentPath === '/' : currentPath.startsWith(item.path)
 
           return (
             <button
@@ -50,9 +57,7 @@ export function BottomNav() {
               onClick={() => router.navigate({ to: item.path })}
               className={cn(
                 'flex flex-col items-center justify-center gap-0.5 flex-1 min-h-[56px] px-2 py-1.5 transition-colors relative',
-                isActive
-                  ? 'text-primary'
-                  : 'text-muted-foreground'
+                isActive ? 'text-primary' : 'text-muted-foreground',
               )}
             >
               {isActive && (

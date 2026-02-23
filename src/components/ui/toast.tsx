@@ -1,7 +1,7 @@
+import { X } from '@phosphor-icons/react'
 import { useEffect } from 'react'
 import { create } from 'zustand'
 import { cn } from '@/lib/utils'
-import { X } from '@phosphor-icons/react'
 
 type ToastType = 'success' | 'error' | 'info'
 
@@ -19,10 +19,8 @@ interface ToastState {
 
 const useToastStore = create<ToastState>()((set) => ({
   toasts: [],
-  addToast: (toast) =>
-    set((state) => ({ toasts: [...state.toasts, toast] })),
-  removeToast: (id) =>
-    set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
+  addToast: (toast) => set((state) => ({ toasts: [...state.toasts, toast] })),
+  removeToast: (id) => set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
 }))
 
 export function showToast(message: string, type: ToastType = 'info') {
@@ -43,7 +41,7 @@ function ToastItem({ toast }: { toast: Toast }) {
         'flex items-center gap-2 rounded-[var(--radius)] px-4 py-3 text-sm font-medium shadow-lg',
         toast.type === 'success' && 'bg-success text-primary-foreground',
         toast.type === 'error' && 'bg-destructive text-destructive-foreground',
-        toast.type === 'info' && 'bg-foreground text-background'
+        toast.type === 'info' && 'bg-foreground text-background',
       )}
     >
       <span className="flex-1">{toast.message}</span>

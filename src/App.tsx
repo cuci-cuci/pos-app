@@ -1,7 +1,7 @@
 import { RouterProvider } from '@tanstack/react-router'
-import { router } from '@/routes'
-import { ToastContainer } from '@/components/ui/toast'
 import { ErrorBoundary } from '@/components/shared/error-boundary'
+import { ToastContainer } from '@/components/ui/toast'
+import { router } from '@/routes'
 
 export default function App() {
   return (

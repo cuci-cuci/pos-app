@@ -41,7 +41,10 @@ export function TransactionListSkeleton() {
         ))}
       </div>
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="border rounded-[var(--radius)] p-3 flex items-center justify-between">
+        <div
+          key={i}
+          className="border rounded-[var(--radius)] p-3 flex items-center justify-between"
+        >
           <div className="space-y-1.5">
             <Skeleton className="h-4 w-28" />
             <Skeleton className="h-3 w-20" />

@@ -1,13 +1,13 @@
+import { Gear, Monitor, SignOut, Storefront } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { logout } from '@/services/auth-service'
 import { useAuthStore } from '@/stores/auth-store'
 import { useDeviceStore } from '@/stores/device-store'
 import { syncEngine } from '@/sync/sync-engine'
-import { logout } from '@/services/auth-service'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { Gear, SignOut, Storefront, Monitor } from '@phosphor-icons/react'
 
 interface UserMenuProps {
   open: boolean

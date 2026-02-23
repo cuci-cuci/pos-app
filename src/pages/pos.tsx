@@ -1,6 +1,6 @@
+import { Clock, MagnifyingGlass, ShoppingCart } from '@phosphor-icons/react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Clock, MagnifyingGlass, ShoppingCart } from '@phosphor-icons/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { CartPanel } from '@/components/order/cart-panel'
 import { QuantityInput } from '@/components/order/quantity-input'
@@ -190,7 +190,10 @@ export function PosPage() {
                           : 'text-muted-foreground border-l-transparent hover:bg-accent',
                       )}
                     >
-                      <IconComp size={16} weight={selectedCategoryId === cat.id ? 'fill' : 'regular'} />
+                      <IconComp
+                        size={16}
+                        weight={selectedCategoryId === cat.id ? 'fill' : 'regular'}
+                      />
                       <span className="truncate">{cat.name}</span>
                     </button>
                   )

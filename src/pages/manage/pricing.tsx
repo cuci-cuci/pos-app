@@ -1,13 +1,13 @@
-import { useState, useEffect, useCallback } from 'react'
+import { ArrowLeft, FloppyDisk, Tag } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
-import { ArrowLeft, Tag, FloppyDisk } from '@phosphor-icons/react'
+import { useCallback, useEffect, useState } from 'react'
+import { EmptyState } from '@/components/shared/empty-state'
+import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
-import { EmptyState } from '@/components/shared/empty-state'
+import { showToast } from '@/components/ui/toast'
 import { formatCurrency } from '@/lib/format'
 import { ownerApi } from '@/services/owner-api'
-import { showToast } from '@/components/ui/toast'
 
 interface Service {
   id: string
@@ -78,18 +78,12 @@ export function ManagePricingPage() {
   return (
     <div className="flex flex-col h-full overflow-y-auto">
       <div className="px-4 pt-4 pb-2 flex items-center gap-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => router.navigate({ to: '/manage' })}
-        >
+        <Button variant="ghost" size="icon" onClick={() => router.navigate({ to: '/manage' })}>
           <ArrowLeft size={20} weight="bold" />
         </Button>
         <div className="flex-1">
           <h1 className="text-xl font-bold">Harga Layanan</h1>
-          <p className="text-sm text-muted-foreground">
-            Atur harga layanan laundry
-          </p>
+          <p className="text-sm text-muted-foreground">Atur harga layanan laundry</p>
         </div>
         {hasChanges && (
           <Button size="sm" onClick={handleSaveAll} disabled={saving}>
@@ -135,9 +129,7 @@ export function ManagePricingPage() {
                       className="border-b border-border last:border-b-0"
                     >
                       <td className="p-3 font-medium">{service.name}</td>
-                      <td className="p-3 text-muted-foreground">
-                        {service.category}
-                      </td>
+                      <td className="p-3 text-muted-foreground">{service.category}</td>
                       <td className="p-3 text-right text-muted-foreground">
                         {formatCurrency(service.base_price)}
                       </td>
@@ -147,12 +139,7 @@ export function ManagePricingPage() {
                           className="w-28 h-8 text-right ml-auto"
                           placeholder="Harga"
                           value={getDisplayPrice(service)}
-                          onChange={(e) =>
-                            handlePriceChange(
-                              service.template_id,
-                              e.target.value,
-                            )
-                          }
+                          onChange={(e) => handlePriceChange(service.template_id, e.target.value)}
                         />
                       </td>
                     </tr>

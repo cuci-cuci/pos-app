@@ -1,52 +1,41 @@
-import { useState } from 'react'
+import {
+  ArrowsClockwise,
+  CloudCheck,
+  DeviceMobile,
+  Info,
+  SignOut,
+  Storefront,
+  Trash,
+  UserCircle,
+  WarningCircle,
+  WifiHigh,
+  WifiSlash,
+  Wrench,
+} from '@phosphor-icons/react'
+import { useRouter } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
+import { useState } from 'react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import { showToast } from '@/components/ui/toast'
 import { db } from '@/db'
+import { APP_NAME, ROLE_TENANT_OWNER } from '@/lib/constants'
+import { formatDate, formatTime } from '@/lib/format'
+import { logout } from '@/services/auth-service'
 import { useAuthStore } from '@/stores/auth-store'
 import { useDeviceStore } from '@/stores/device-store'
 import { useSyncStore } from '@/stores/sync-store'
 import { syncEngine } from '@/sync/sync-engine'
-import { logout } from '@/services/auth-service'
-import { useRouter } from '@tanstack/react-router'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { showToast } from '@/components/ui/toast'
-import { APP_NAME, ROLE_TENANT_OWNER } from '@/lib/constants'
-import { formatDate, formatTime } from '@/lib/format'
-import {
-  ArrowsClockwise,
-  SignOut,
-  WifiHigh,
-  WifiSlash,
-  CloudCheck,
-  WarningCircle,
-  DeviceMobile,
-  Storefront,
-  UserCircle,
-  Wrench,
-  Trash,
-  Info,
-} from '@phosphor-icons/react'
 
 export function SettingsPage() {
   const router = useRouter()
   const user = useAuthStore((s) => s.user)
-  const {
-    isOnline,
-    isSyncing,
-    lastSyncAt,
-    pendingCount,
-    failedCount,
-    configVersion,
-  } = useSyncStore()
+  const { isOnline, isSyncing, lastSyncAt, pendingCount, failedCount, configVersion } =
+    useSyncStore()
 
-  const {
-    deviceId,
-    deviceName,
-    outletName,
-    setupCompletedAt,
-  } = useDeviceStore()
+  const { deviceId, deviceName, outletName, setupCompletedAt } = useDeviceStore()
 
   const [syncing, setSyncing] = useState(false)
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
@@ -54,10 +43,7 @@ export function SettingsPage() {
 
   const isOwner = user?.role === ROLE_TENANT_OWNER
 
-  const tenantConfig = useLiveQuery(
-    () => db.tenantConfig.toCollection().first(),
-    []
-  )
+  const tenantConfig = useLiveQuery(() => db.tenantConfig.toCollection().first(), [])
 
   const handleSync = async () => {
     setSyncing(true)
@@ -127,9 +113,7 @@ export function SettingsPage() {
             {setupCompletedAt && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Setup Selesai</span>
-                <span className="text-muted-foreground">
-                  {formatDate(setupCompletedAt)}
-                </span>
+                <span className="text-muted-foreground">{formatDate(setupCompletedAt)}</span>
               </div>
             )}
           </CardContent>
@@ -231,9 +215,7 @@ export function SettingsPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Alamat</span>
-                <span className="font-medium text-right max-w-[200px]">
-                  {tenantConfig.address}
-                </span>
+                <span className="font-medium text-right max-w-[200px]">{tenantConfig.address}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Telepon</span>
@@ -286,9 +268,7 @@ export function SettingsPage() {
                   <Info size={16} className="text-muted-foreground" weight="fill" />
                   <span className="text-sm">Versi Aplikasi</span>
                 </div>
-                <span className="text-sm text-muted-foreground">
-                  {APP_NAME} v1.0.0
-                </span>
+                <span className="text-sm text-muted-foreground">{APP_NAME} v1.0.0</span>
               </div>
 
               <Button
@@ -321,11 +301,7 @@ export function SettingsPage() {
                 >
                   Batal
                 </Button>
-                <Button
-                  variant="destructive"
-                  className="flex-1 h-11"
-                  onClick={handleLogout}
-                >
+                <Button variant="destructive" className="flex-1 h-11" onClick={handleLogout}>
                   <SignOut size={18} className="mr-2" weight="fill" />
                   Keluar
                 </Button>

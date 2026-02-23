@@ -1,32 +1,32 @@
-import { useState, useMemo, useEffect } from 'react'
+import {
+  ArrowsClockwise,
+  ClipboardText,
+  ClockCounterClockwise,
+  CloudArrowUp,
+  CurrencyDollar,
+  Play,
+  Plus,
+  Receipt,
+  Stop,
+  TrendUp,
+  WarningCircle,
+} from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { db } from '@/db'
-import { useAuthStore } from '@/stores/auth-store'
-import { useSyncStore } from '@/stores/sync-store'
-import { useShiftStore } from '@/stores/shift-store'
-import { formatCurrency, formatTime } from '@/lib/format'
-import { ROLE_TENANT_OWNER } from '@/lib/constants'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import type { ReactNode } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { DashboardSkeleton } from '@/components/shared/skeleton-loaders'
 import { SyncStatusIcon } from '@/components/shared/sync-status-icon'
-import { OpenShiftDialog } from '@/components/shift/open-shift-dialog'
 import { CloseShiftDialog } from '@/components/shift/close-shift-dialog'
-import {
-  CurrencyDollar,
-  Receipt,
-  CloudArrowUp,
-  TrendUp,
-  Plus,
-  ClockCounterClockwise,
-  ArrowsClockwise,
-  WarningCircle,
-  Play,
-  Stop,
-  ClipboardText,
-} from '@phosphor-icons/react'
-import type { ReactNode } from 'react'
+import { OpenShiftDialog } from '@/components/shift/open-shift-dialog'
+import { Button } from '@/components/ui/button'
+import { db } from '@/db'
+import { ROLE_TENANT_OWNER } from '@/lib/constants'
+import { formatCurrency, formatTime } from '@/lib/format'
+import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/stores/auth-store'
+import { useShiftStore } from '@/stores/shift-store'
+import { useSyncStore } from '@/stores/sync-store'
 
 type CardVariant = 'primary' | 'success' | 'warning' | 'info'
 
@@ -50,7 +50,12 @@ function SummaryCard({ icon, label, value, subValue, variant = 'primary' }: Summ
   return (
     <div className="bg-card border rounded-[var(--radius)] p-4">
       <div className="flex items-start gap-3">
-        <div className={cn('shrink-0 w-10 h-10 rounded-[var(--radius)] flex items-center justify-center', style.bg)}>
+        <div
+          className={cn(
+            'shrink-0 w-10 h-10 rounded-[var(--radius)] flex items-center justify-center',
+            style.bg,
+          )}
+        >
           <span className={style.text}>{icon}</span>
         </div>
         <div className="flex-1 min-w-0">
@@ -74,7 +79,10 @@ function useShiftDuration(openedAt: string | undefined) {
 
     function computeDuration() {
       const start = new Date(openedAt!).getTime()
-      if (isNaN(start)) { setDuration('-'); return }
+      if (Number.isNaN(start)) {
+        setDuration('-')
+        return
+      }
       const now = Date.now()
       const diffMs = now - start
       const hours = Math.floor(diffMs / (1000 * 60 * 60))
@@ -112,9 +120,7 @@ function ShiftStatusCard({ onOpenShift, onCloseShift }: ShiftStatusCardProps) {
               <Play size={16} weight="fill" className="text-success" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-success">
-                Shift Aktif
-              </p>
+              <p className="text-sm font-semibold text-success">Shift Aktif</p>
               <p className="text-xs text-success/80">
                 Kas awal: {formatCurrency(currentShift.opening_cash)}
                 {duration && <> &middot; {duration}</>}
@@ -143,12 +149,8 @@ function ShiftStatusCard({ onOpenShift, onCloseShift }: ShiftStatusCardProps) {
             <WarningCircle size={16} weight="fill" className="text-warning" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-warning">
-              Tidak Ada Shift Aktif
-            </p>
-            <p className="text-xs text-warning/80">
-              Buka shift untuk mulai transaksi
-            </p>
+            <p className="text-sm font-semibold text-warning">Tidak Ada Shift Aktif</p>
+            <p className="text-xs text-warning/80">Buka shift untuk mulai transaksi</p>
           </div>
         </div>
         <Button
@@ -215,9 +217,7 @@ export function DashboardPage() {
       <div className="flex flex-col h-full overflow-y-auto">
         <div className="px-4 pt-4 pb-2">
           <h1 className="text-xl font-bold">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">
-            Selamat datang, {user?.name}
-          </p>
+          <p className="text-sm text-muted-foreground">Selamat datang, {user?.name}</p>
         </div>
 
         {/* Shift status */}
@@ -260,9 +260,7 @@ export function DashboardPage() {
 
         {/* Quick actions */}
         <div className="px-4 mt-4">
-          <h2 className="text-sm font-semibold text-muted-foreground uppercase mb-2">
-            Aksi Cepat
-          </h2>
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase mb-2">Aksi Cepat</h2>
           <div className="grid grid-cols-3 gap-2">
             <Button
               variant="outline"
@@ -335,9 +333,7 @@ export function DashboardPage() {
                     </div>
                     <div className="text-right shrink-0">
                       <p className="text-sm font-semibold">{formatCurrency(tx.totalAmount)}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatTime(tx.createdAt)}
-                      </p>
+                      <p className="text-xs text-muted-foreground">{formatTime(tx.createdAt)}</p>
                     </div>
                   </div>
                 </button>
@@ -357,9 +353,7 @@ export function DashboardPage() {
     <div className="flex flex-col h-full overflow-y-auto">
       <div className="px-4 pt-4 pb-2">
         <h1 className="text-xl font-bold">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">
-          Selamat datang, {user?.name}
-        </p>
+        <p className="text-sm text-muted-foreground">Selamat datang, {user?.name}</p>
       </div>
 
       {/* Shift status for owners too */}
@@ -403,9 +397,7 @@ export function DashboardPage() {
 
       {/* Quick actions */}
       <div className="px-4 mt-4">
-        <h2 className="text-sm font-semibold text-muted-foreground uppercase mb-2">
-          Aksi Cepat
-        </h2>
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase mb-2">Aksi Cepat</h2>
         <div className="grid grid-cols-3 gap-2">
           <Button
             variant="outline"
@@ -459,9 +451,7 @@ export function DashboardPage() {
               <button
                 type="button"
                 key={tx.id}
-                onClick={() =>
-                  router.navigate({ to: '/transactions/$id', params: { id: tx.id } })
-                }
+                onClick={() => router.navigate({ to: '/transactions/$id', params: { id: tx.id } })}
                 className="w-full text-left bg-card border rounded-[var(--radius)] p-3 active:bg-muted transition-colors touch-manipulation"
               >
                 <div className="flex items-center justify-between gap-2">
@@ -470,17 +460,13 @@ export function DashboardPage() {
                     <div className="min-w-0">
                       <span className="text-sm font-semibold">#{tx.orderNumber}</span>
                       {tx.customerName && (
-                        <p className="text-xs text-muted-foreground truncate">
-                          {tx.customerName}
-                        </p>
+                        <p className="text-xs text-muted-foreground truncate">{tx.customerName}</p>
                       )}
                     </div>
                   </div>
                   <div className="text-right shrink-0">
                     <p className="text-sm font-semibold">{formatCurrency(tx.totalAmount)}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatTime(tx.createdAt)}
-                    </p>
+                    <p className="text-xs text-muted-foreground">{formatTime(tx.createdAt)}</p>
                   </div>
                 </div>
               </button>

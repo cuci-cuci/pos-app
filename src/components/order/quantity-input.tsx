@@ -1,8 +1,8 @@
-import { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Minus, Plus } from '@phosphor-icons/react'
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
@@ -95,7 +95,7 @@ export function QuantityInput({
                 'min-h-[40px] touch-manipulation transition-colors',
                 quantity === value && !customInput
                   ? 'border-primary bg-primary/5 text-primary'
-                  : 'border-border hover:bg-accent'
+                  : 'border-border hover:bg-accent',
               )}
             >
               {value} {unit}
@@ -146,12 +146,9 @@ export function QuantityInput({
         </div>
 
         {/* Confirm button */}
-        <Button
-          size="lg"
-          className="w-full h-12 text-base font-bold"
-          onClick={handleConfirm}
-        >
-          {currentCartQuantity ? 'Perbarui' : 'Tambah ke Keranjang'} &middot; {formatCurrency(subtotal)}
+        <Button size="lg" className="w-full h-12 text-base font-bold" onClick={handleConfirm}>
+          {currentCartQuantity ? 'Perbarui' : 'Tambah ke Keranjang'} &middot;{' '}
+          {formatCurrency(subtotal)}
         </Button>
       </DialogContent>
     </Dialog>

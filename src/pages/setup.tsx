@@ -1,17 +1,17 @@
-import { useState, useEffect } from 'react'
+import { CheckCircle, MapPin, Phone, Storefront } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
+import { useEffect, useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { db } from '@/db'
 import type { Outlet } from '@/db/schema'
-import { useDeviceStore } from '@/stores/device-store'
-import { useAuthStore } from '@/stores/auth-store'
-import { apiClient } from '@/services/api-client'
-import { syncEngine } from '@/sync/sync-engine'
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Storefront, MapPin, Phone, CheckCircle } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
+import { apiClient } from '@/services/api-client'
+import { useAuthStore } from '@/stores/auth-store'
+import { useDeviceStore } from '@/stores/device-store'
+import { syncEngine } from '@/sync/sync-engine'
 
 export function SetupPage() {
   const router = useRouter()
@@ -24,15 +24,9 @@ export function SetupPage() {
   const user = useAuthStore((s) => s.user)
   const { setDevice, completeSetup } = useDeviceStore()
 
-  const tenantConfig = useLiveQuery(
-    () => db.tenantConfig.toCollection().first(),
-    []
-  )
+  const tenantConfig = useLiveQuery(() => db.tenantConfig.toCollection().first(), [])
 
-  const localOutlets = useLiveQuery(
-    () => db.outlets.toArray(),
-    []
-  )
+  const localOutlets = useLiveQuery(() => db.outlets.toArray(), [])
 
   useEffect(() => {
     if (localOutlets && localOutlets.length > 0) {
@@ -83,7 +77,7 @@ export function SetupPage() {
               key={i}
               className={cn(
                 'h-2 rounded-full transition-all duration-300',
-                i === step ? 'w-8 bg-primary' : i < step ? 'w-2 bg-primary' : 'w-2 bg-border'
+                i === step ? 'w-8 bg-primary' : i < step ? 'w-2 bg-primary' : 'w-2 bg-border',
               )}
             />
           ))}
@@ -144,16 +138,18 @@ export function SetupPage() {
                         'hover:border-primary/50 active:scale-[0.99]',
                         selectedOutletId === outlet.id
                           ? 'border-primary bg-primary/5'
-                          : 'border-border bg-card'
+                          : 'border-border bg-card',
                       )}
                     >
                       <div className="flex items-start gap-3">
-                        <div className={cn(
-                          'w-10 h-10 rounded-full flex items-center justify-center shrink-0 mt-0.5',
-                          selectedOutletId === outlet.id
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-muted text-muted-foreground'
-                        )}>
+                        <div
+                          className={cn(
+                            'w-10 h-10 rounded-full flex items-center justify-center shrink-0 mt-0.5',
+                            selectedOutletId === outlet.id
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-muted text-muted-foreground',
+                          )}
+                        >
                           <Storefront size={20} weight="fill" />
                         </div>
                         <div className="flex-1 min-w-0">

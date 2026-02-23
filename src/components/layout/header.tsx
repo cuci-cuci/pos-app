@@ -1,11 +1,11 @@
+import { Clock, Storefront } from '@phosphor-icons/react'
 import { useState } from 'react'
-import { useDeviceStore } from '@/stores/device-store'
-import { useAuthStore } from '@/stores/auth-store'
-import { useSyncStore } from '@/stores/sync-store'
-import { useShiftStore } from '@/stores/shift-store'
 import { CloseShiftDialog } from '@/components/shift/close-shift-dialog'
-import { Storefront, Clock } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/stores/auth-store'
+import { useDeviceStore } from '@/stores/device-store'
+import { useShiftStore } from '@/stores/shift-store'
+import { useSyncStore } from '@/stores/sync-store'
 import { UserMenu } from './user-menu'
 
 export function Header() {
@@ -35,9 +35,13 @@ export function Header() {
         <div className="flex items-center gap-2 min-w-0">
           <Storefront size={22} weight="fill" className="text-primary shrink-0" />
           <div className="min-w-0">
-            <p className="text-sm font-semibold leading-tight truncate">{outletName || 'LaundryPOS'}</p>
+            <p className="text-sm font-semibold leading-tight truncate">
+              {outletName || 'LaundryPOS'}
+            </p>
             {deviceName && (
-              <p className="text-[10px] text-muted-foreground leading-tight truncate">{deviceName}</p>
+              <p className="text-[10px] text-muted-foreground leading-tight truncate">
+                {deviceName}
+              </p>
             )}
           </div>
         </div>

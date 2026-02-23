@@ -1,14 +1,14 @@
 import Dexie, { type Table } from 'dexie'
 import type {
-  ServiceCategory,
-  Service,
-  PaymentMethod,
-  TenantConfig,
   Customer,
-  Transaction,
+  Outlet,
+  PaymentMethod,
+  Service,
+  ServiceCategory,
   SyncLog,
   SyncState,
-  Outlet,
+  TenantConfig,
+  Transaction,
 } from './schema'
 
 export class PosDatabase extends Dexie {

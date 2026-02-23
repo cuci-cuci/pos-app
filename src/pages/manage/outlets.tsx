@@ -1,25 +1,19 @@
-import { useState, useEffect, useCallback } from 'react'
+import { ArrowLeft, MapPin, Phone, Plus, Storefront } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
-import {
-  ArrowLeft,
-  Plus,
-  Storefront,
-  MapPin,
-  Phone,
-} from '@phosphor-icons/react'
+import { useCallback, useEffect, useState } from 'react'
+import { EmptyState } from '@/components/shared/empty-state'
+import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@/components/ui/dialog'
-import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
-import { EmptyState } from '@/components/shared/empty-state'
-import { ownerApi } from '@/services/owner-api'
+import { Input } from '@/components/ui/input'
 import { showToast } from '@/components/ui/toast'
+import { ownerApi } from '@/services/owner-api'
 
 interface Outlet {
   id: string
@@ -98,18 +92,12 @@ export function ManageOutletsPage() {
   return (
     <div className="flex flex-col h-full overflow-y-auto">
       <div className="px-4 pt-4 pb-2 flex items-center gap-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => router.navigate({ to: '/manage' })}
-        >
+        <Button variant="ghost" size="icon" onClick={() => router.navigate({ to: '/manage' })}>
           <ArrowLeft size={20} weight="bold" />
         </Button>
         <div className="flex-1">
           <h1 className="text-xl font-bold">Outlet</h1>
-          <p className="text-sm text-muted-foreground">
-            Kelola outlet dan cabang
-          </p>
+          <p className="text-sm text-muted-foreground">Kelola outlet dan cabang</p>
         </div>
         <Button size="sm" onClick={openCreate}>
           <Plus size={16} weight="bold" className="mr-1" />
@@ -170,13 +158,13 @@ export function ManageOutletsPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {editingOutlet ? 'Edit Outlet' : 'Tambah Outlet'}
-            </DialogTitle>
+            <DialogTitle>{editingOutlet ? 'Edit Outlet' : 'Tambah Outlet'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <div>
-              <label htmlFor="outlet-name" className="text-sm font-medium mb-1 block">Nama Outlet</label>
+              <label htmlFor="outlet-name" className="text-sm font-medium mb-1 block">
+                Nama Outlet
+              </label>
               <Input
                 id="outlet-name"
                 placeholder="Nama outlet"
@@ -185,7 +173,9 @@ export function ManageOutletsPage() {
               />
             </div>
             <div>
-              <label htmlFor="outlet-address" className="text-sm font-medium mb-1 block">Alamat</label>
+              <label htmlFor="outlet-address" className="text-sm font-medium mb-1 block">
+                Alamat
+              </label>
               <Input
                 id="outlet-address"
                 placeholder="Alamat outlet"
@@ -194,7 +184,9 @@ export function ManageOutletsPage() {
               />
             </div>
             <div>
-              <label htmlFor="outlet-phone" className="text-sm font-medium mb-1 block">No. Telepon</label>
+              <label htmlFor="outlet-phone" className="text-sm font-medium mb-1 block">
+                No. Telepon
+              </label>
               <Input
                 id="outlet-phone"
                 placeholder="08xxxxxxxxxx"
@@ -204,11 +196,7 @@ export function ManageOutletsPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDialogOpen(false)}
-              disabled={submitting}
-            >
+            <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={submitting}>
               Batal
             </Button>
             <Button onClick={handleSubmit} disabled={submitting}>

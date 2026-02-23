@@ -58,13 +58,10 @@ export const shiftApi = {
   close: (data: { closing_cash: number; notes?: string }) =>
     apiClient.post('pos/shifts/close', { json: data }).json<ShiftResponse>(),
 
-  getCurrent: () =>
-    apiClient.get('pos/shifts/current').json<ShiftNullableResponse>(),
+  getCurrent: () => apiClient.get('pos/shifts/current').json<ShiftNullableResponse>(),
 
   list: (page = 1) =>
-    apiClient
-      .get('pos/shifts', { searchParams: { page } })
-      .json<ShiftListResponse>(),
+    apiClient.get('pos/shifts', { searchParams: { page } }).json<ShiftListResponse>(),
 
   getSummary: (id: string) =>
     apiClient.get(`pos/shifts/${id}/summary`).json<ShiftSummaryResponse>(),

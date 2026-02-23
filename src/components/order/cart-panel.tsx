@@ -1,5 +1,5 @@
-import { useLiveQuery } from 'dexie-react-hooks'
 import { CaretDown, CaretUp, Crown, ShoppingCart, Trash } from '@phosphor-icons/react'
+import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 import { CustomerSearch } from '@/components/customer/customer-search'
 import { PaymentDialog } from '@/components/payment/payment-dialog'
@@ -96,7 +96,11 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
           onClick={() => setNotesExpanded(!notesExpanded)}
           className="flex items-center gap-1 text-sm text-muted-foreground w-full"
         >
-          {notesExpanded ? <CaretUp size={14} weight="bold" /> : <CaretDown size={14} weight="bold" />}
+          {notesExpanded ? (
+            <CaretUp size={14} weight="bold" />
+          ) : (
+            <CaretDown size={14} weight="bold" />
+          )}
           <span>Catatan pesanan</span>
           {notes && !notesExpanded && (
             <span className="text-xs text-primary ml-auto truncate max-w-[120px]">{notes}</span>

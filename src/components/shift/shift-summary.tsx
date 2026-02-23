@@ -1,14 +1,14 @@
-import { formatCurrency, formatDate, formatTime } from '@/lib/format'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import {
-  Clock,
-  UserCircle,
-  Storefront,
-  Receipt,
-  CurrencyDollar,
   ArrowsLeftRight,
+  Clock,
+  CurrencyDollar,
+  Receipt,
+  Storefront,
+  UserCircle,
 } from '@phosphor-icons/react'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { formatCurrency, formatDate, formatTime } from '@/lib/format'
 import type { ShiftSummary as ShiftSummaryType } from '@/services/shift-api'
 
 interface ShiftSummaryProps {

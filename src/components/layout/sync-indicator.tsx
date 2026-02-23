@@ -1,6 +1,6 @@
-import { useSyncStore } from '@/stores/sync-store'
-import { ArrowsClockwise, WifiHigh, WifiSlash, WarningCircle } from '@phosphor-icons/react'
+import { ArrowsClockwise, WarningCircle, WifiHigh, WifiSlash } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
+import { useSyncStore } from '@/stores/sync-store'
 
 export function SyncIndicator() {
   const { isOnline, isSyncing, pendingCount, hasConfigUpdate } = useSyncStore()
@@ -30,9 +30,7 @@ export function SyncIndicator() {
         </span>
       )}
 
-      {!isOnline && (
-        <WarningCircle size={16} weight="fill" className="text-warning" />
-      )}
+      {!isOnline && <WarningCircle size={16} weight="fill" className="text-warning" />}
     </div>
   )
 }

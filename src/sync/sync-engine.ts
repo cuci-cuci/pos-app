@@ -1,10 +1,10 @@
-import { networkMonitor } from './network-monitor'
-import { pushPendingTransactions } from './push-service'
-import { pullConfig } from './pull-service'
-import { useSyncStore } from '@/stores/sync-store'
-import { useAuthStore } from '@/stores/auth-store'
 import { db } from '@/db'
 import { SYNC_INTERVAL_MS } from '@/lib/constants'
+import { useAuthStore } from '@/stores/auth-store'
+import { useSyncStore } from '@/stores/sync-store'
+import { networkMonitor } from './network-monitor'
+import { pullConfig } from './pull-service'
+import { pushPendingTransactions } from './push-service'
 
 class SyncEngine {
   private intervalId: ReturnType<typeof setInterval> | null = null

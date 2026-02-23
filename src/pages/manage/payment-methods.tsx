@@ -1,19 +1,19 @@
-import { useState, useEffect, useCallback } from 'react'
+import { ArrowLeft, CreditCard, Plus, Trash } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
-import { ArrowLeft, Plus, CreditCard, Trash } from '@phosphor-icons/react'
+import { useCallback, useEffect, useState } from 'react'
+import { EmptyState } from '@/components/shared/empty-state'
+import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@/components/ui/dialog'
-import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
-import { EmptyState } from '@/components/shared/empty-state'
-import { ownerApi } from '@/services/owner-api'
+import { Input } from '@/components/ui/input'
 import { showToast } from '@/components/ui/toast'
+import { ownerApi } from '@/services/owner-api'
 
 interface PaymentMethod {
   id: string
@@ -115,18 +115,12 @@ export function ManagePaymentMethodsPage() {
   return (
     <div className="flex flex-col h-full overflow-y-auto">
       <div className="px-4 pt-4 pb-2 flex items-center gap-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => router.navigate({ to: '/manage' })}
-        >
+        <Button variant="ghost" size="icon" onClick={() => router.navigate({ to: '/manage' })}>
           <ArrowLeft size={20} weight="bold" />
         </Button>
         <div className="flex-1">
           <h1 className="text-xl font-bold">Metode Pembayaran</h1>
-          <p className="text-sm text-muted-foreground">
-            Atur metode pembayaran
-          </p>
+          <p className="text-sm text-muted-foreground">Atur metode pembayaran</p>
         </div>
         <Button size="sm" onClick={openCreate}>
           <Plus size={16} weight="bold" className="mr-1" />
@@ -146,10 +140,7 @@ export function ManagePaymentMethodsPage() {
         ) : (
           <div className="space-y-2">
             {methods.map((method) => (
-              <div
-                key={method.id}
-                className="bg-card border rounded-[var(--radius)] p-4"
-              >
+              <div key={method.id} className="bg-card border rounded-[var(--radius)] p-4">
                 <div className="flex items-start justify-between gap-2">
                   <button
                     type="button"
@@ -157,13 +148,9 @@ export function ManagePaymentMethodsPage() {
                     className="text-left min-w-0 flex-1"
                   >
                     <p className="text-sm font-semibold">{method.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {method.type}
-                    </p>
+                    <p className="text-xs text-muted-foreground">{method.type}</p>
                     {method.description && (
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {method.description}
-                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{method.description}</p>
                     )}
                   </button>
                   <div className="flex items-center gap-2 shrink-0">
@@ -198,14 +185,14 @@ export function ManagePaymentMethodsPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {editingMethod
-                ? 'Edit Metode Pembayaran'
-                : 'Tambah Metode Pembayaran'}
+              {editingMethod ? 'Edit Metode Pembayaran' : 'Tambah Metode Pembayaran'}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <div>
-              <label htmlFor="pm-name" className="text-sm font-medium mb-1 block">Nama</label>
+              <label htmlFor="pm-name" className="text-sm font-medium mb-1 block">
+                Nama
+              </label>
               <Input
                 id="pm-name"
                 placeholder="Contoh: Transfer BCA"
@@ -214,7 +201,9 @@ export function ManagePaymentMethodsPage() {
               />
             </div>
             <div>
-              <label htmlFor="pm-type" className="text-sm font-medium mb-1 block">Tipe</label>
+              <label htmlFor="pm-type" className="text-sm font-medium mb-1 block">
+                Tipe
+              </label>
               <select
                 id="pm-type"
                 className="flex h-11 w-full rounded-[var(--radius)] border border-input bg-background px-3 py-2 text-sm"
@@ -228,7 +217,9 @@ export function ManagePaymentMethodsPage() {
               </select>
             </div>
             <div>
-              <label htmlFor="pm-description" className="text-sm font-medium mb-1 block">Keterangan</label>
+              <label htmlFor="pm-description" className="text-sm font-medium mb-1 block">
+                Keterangan
+              </label>
               <Input
                 id="pm-description"
                 placeholder="Keterangan tambahan"
@@ -238,11 +229,7 @@ export function ManagePaymentMethodsPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDialogOpen(false)}
-              disabled={submitting}
-            >
+            <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={submitting}>
               Batal
             </Button>
             <Button onClick={handleSubmit} disabled={submitting}>

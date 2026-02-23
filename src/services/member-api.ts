@@ -26,12 +26,8 @@ export interface MemberRegisterResponse {
 
 export const memberApi = {
   search: (phone: string) =>
-    apiClient
-      .get('pos/members/search', { searchParams: { phone } })
-      .json<MemberSearchResponse>(),
+    apiClient.get('pos/members/search', { searchParams: { phone } }).json<MemberSearchResponse>(),
 
   register: (data: MemberRegisterInput) =>
-    apiClient
-      .post('pos/members', { json: data })
-      .json<MemberRegisterResponse>(),
+    apiClient.post('pos/members', { json: data }).json<MemberRegisterResponse>(),
 }
