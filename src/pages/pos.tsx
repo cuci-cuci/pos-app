@@ -1,4 +1,5 @@
-import { Clock, MagnifyingGlass, ShoppingCart } from '@phosphor-icons/react'
+import { ChartBar, Clock, MagnifyingGlass, ShoppingCart } from '@phosphor-icons/react'
+import { useRouter } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -22,6 +23,7 @@ import { useShiftStore } from '@/stores/shift-store'
 
 export function PosPage() {
   const tenantId = useAuthStore((s) => s.user?.tenantId)
+  const userRole = useAuthStore((s) => s.user?.role)
   const cartItems = useCartStore((s) => s.items)
   const addItem = useCartStore((s) => s.addItem)
   const getTotal = useCartStore((s) => s.getTotal)
@@ -105,6 +107,9 @@ export function PosPage() {
   const itemCount = cartItems.length
   const total = getTotal()
 
+  const router = useRouter()
+  const isOwner = userRole === 'tenant_owner'
+
   if (!shiftLoading && !currentShift) {
     return (
       <div className="flex h-[calc(100vh-3.5rem-56px)] items-center justify-center">
@@ -114,11 +119,23 @@ export function PosPage() {
           </div>
           <h2 className="text-lg font-semibold">Buka Shift Terlebih Dahulu</h2>
           <p className="text-sm text-muted-foreground">
-            Anda harus membuka shift sebelum bisa melakukan transaksi.
+            {isOwner
+              ? 'Buka shift untuk mulai transaksi, atau kelola toko dari dashboard.'
+              : 'Anda harus membuka shift sebelum bisa melakukan transaksi.'}
           </p>
-          <Button onClick={() => setOpenShiftDialogOpen(true)} className="mt-2">
-            Buka Shift
-          </Button>
+          <div className="flex flex-col gap-2 w-full mt-2">
+            <Button onClick={() => setOpenShiftDialogOpen(true)}>Buka Shift</Button>
+            {isOwner && (
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => router.navigate({ to: '/dashboard' })}
+              >
+                <ChartBar size={18} weight="fill" />
+                Ke Dashboard
+              </Button>
+            )}
+          </div>
         </div>
         <OpenShiftDialog open={openShiftDialogOpen} onOpenChange={setOpenShiftDialogOpen} />
       </div>

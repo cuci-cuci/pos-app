@@ -9,6 +9,7 @@ import { ManageMembersPage } from '@/pages/manage/members'
 import { ManageOutletsPage } from '@/pages/manage/outlets'
 import { ManagePaymentMethodsPage } from '@/pages/manage/payment-methods'
 import { ManagePricingPage } from '@/pages/manage/pricing'
+import { ManageStoreSettingsPage } from '@/pages/manage/store-settings'
 import { OnboardingPage } from '@/pages/onboarding'
 import { OrdersPage } from '@/pages/orders'
 import { OrderDetailPage } from '@/pages/orders/detail'
@@ -93,6 +94,12 @@ const posRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/',
   component: PosPage,
+  beforeLoad: () => {
+    const user = useAuthStore.getState().user
+    if (user?.role === 'tenant_owner') {
+      throw redirect({ to: '/dashboard' })
+    }
+  },
 })
 
 const dashboardRoute = createRoute({
@@ -215,6 +222,18 @@ const shiftDetailRoute = createRoute({
   component: ShiftDetailPage,
 })
 
+const manageStoreSettingsRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: '/manage/store-settings',
+  component: ManageStoreSettingsPage,
+  beforeLoad: () => {
+    const user = useAuthStore.getState().user
+    if (user?.role !== 'tenant_owner') {
+      throw redirect({ to: '/' })
+    }
+  },
+})
+
 const manageAnalyticsRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/manage/analytics',
@@ -247,6 +266,7 @@ const routeTree = rootRoute.addChildren([
     managePaymentMethodsRoute,
     manageMembersRoute,
     manageAnalyticsRoute,
+    manageStoreSettingsRoute,
     shiftsRoute,
     shiftDetailRoute,
   ]),

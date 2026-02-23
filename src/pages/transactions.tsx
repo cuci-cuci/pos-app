@@ -1,6 +1,7 @@
 import {
   ArrowsClockwise,
   CheckCircle,
+  DownloadSimple,
   MagnifyingGlass,
   Receipt,
   XCircle,
@@ -12,9 +13,11 @@ import { EmptyState } from '@/components/shared/empty-state'
 import { TransactionListSkeleton } from '@/components/shared/skeleton-loaders'
 import { SyncStatusIcon } from '@/components/shared/sync-status-icon'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { db } from '@/db'
 import type { TransactionStatus } from '@/db/schema'
+import { exportCSV } from '@/lib/export'
 import { formatCurrency, formatTime } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth-store'
@@ -107,6 +110,30 @@ export function TransactionsPage() {
     void router.navigate({ to: '/transactions/$id', params: { id } })
   }
 
+  const handleExport = () => {
+    if (filtered.length === 0) return
+    const rows = filtered.map((t) => ({
+      orderNumber: t.orderNumber,
+      customerName: t.customerName ?? '-',
+      status: t.status,
+      totalAmount: t.totalAmount,
+      itemCount: t.items.length,
+      createdAt: t.createdAt,
+    }))
+    exportCSV(
+      rows,
+      [
+        { key: 'orderNumber', label: 'No. Order' },
+        { key: 'customerName', label: 'Pelanggan' },
+        { key: 'status', label: 'Status' },
+        { key: 'totalAmount', label: 'Total' },
+        { key: 'itemCount', label: 'Jumlah Item' },
+        { key: 'createdAt', label: 'Waktu' },
+      ],
+      `transaksi-${new Date().toISOString().slice(0, 10)}`,
+    )
+  }
+
   if (transactions === undefined) {
     return <TransactionListSkeleton />
   }
@@ -138,9 +165,9 @@ export function TransactionsPage() {
         ))}
       </div>
 
-      {/* Search */}
-      <div className="px-4 pb-2">
-        <div className="relative">
+      {/* Search + Export */}
+      <div className="px-4 pb-2 flex gap-2">
+        <div className="relative flex-1">
           <MagnifyingGlass
             size={18}
             weight="bold"
@@ -153,6 +180,11 @@ export function TransactionsPage() {
             className="pl-9"
           />
         </div>
+        {filtered.length > 0 && (
+          <Button variant="outline" size="icon" onClick={handleExport} title="Export CSV">
+            <DownloadSimple size={18} weight="bold" />
+          </Button>
+        )}
       </div>
 
       {/* Transaction list */}

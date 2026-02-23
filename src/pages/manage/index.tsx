@@ -3,6 +3,7 @@ import {
   CaretRight,
   ChartBar,
   CreditCard,
+  GearSix,
   Storefront,
   Tag,
   UserCircle,
@@ -67,6 +68,14 @@ const menuItems: ManageMenuItem[] = [
     iconBg: 'bg-primary/10',
     iconColor: 'text-primary',
     path: '/manage/analytics',
+  },
+  {
+    label: 'Pengaturan Toko',
+    description: 'Edit nama, alamat, pajak, dan struk',
+    icon: GearSix,
+    iconBg: 'bg-primary/10',
+    iconColor: 'text-primary',
+    path: '/manage/store-settings',
   },
 ]
 

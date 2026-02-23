@@ -177,6 +177,8 @@ export function DashboardPage() {
 
   const isOwner = user?.role === ROLE_TENANT_OWNER
 
+  const currentShift = useShiftStore((s) => s.currentShift)
+
   const todayStart = useMemo(() => {
     const d = new Date()
     d.setHours(0, 0, 0, 0)
@@ -192,6 +194,15 @@ export function DashboardPage() {
       .toArray()
   }, [user, todayStart])
 
+  const shiftTransactions = useLiveQuery(async () => {
+    if (!user || !currentShift) return []
+    return db.transactions
+      .where('createdAt')
+      .above('')
+      .filter((t) => t.tenantId === user.tenantId && t.shiftId === currentShift.id && t.status === 'completed')
+      .toArray()
+  }, [user, currentShift])
+
   const recentTransactions = useLiveQuery(async () => {
     if (!user) return []
     const all = await db.transactions
@@ -203,13 +214,15 @@ export function DashboardPage() {
     return all.slice(0, 5)
   }, [user])
 
-  if (todayTransactions === undefined || recentTransactions === undefined) {
+  if (todayTransactions === undefined || recentTransactions === undefined || shiftTransactions === undefined) {
     return <DashboardSkeleton />
   }
 
   const todayRevenue = todayTransactions.reduce((sum, t) => sum + t.totalAmount, 0)
   const todayCount = todayTransactions.length
   const avgTransaction = todayCount > 0 ? todayRevenue / todayCount : 0
+  const shiftRevenue = shiftTransactions.reduce((sum, t) => sum + t.totalAmount, 0)
+  const shiftCount = shiftTransactions.length
 
   if (!isOwner) {
     // Cashier dashboard
@@ -227,6 +240,29 @@ export function DashboardPage() {
             onCloseShift={() => setCloseShiftDialog(true)}
           />
         </div>
+
+        {/* Shift totals */}
+        {currentShift && (
+          <div className="px-4 mb-3">
+            <div className="bg-card border rounded-[var(--radius)] p-4">
+              <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">Shift Saat Ini</p>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="text-center">
+                  <p className="text-lg font-bold">{shiftCount}</p>
+                  <p className="text-xs text-muted-foreground">Transaksi</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-lg font-bold text-success">{formatCurrency(shiftRevenue)}</p>
+                  <p className="text-xs text-muted-foreground">Revenue</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-lg font-bold">{formatCurrency((currentShift.opening_cash ?? 0) + shiftRevenue)}</p>
+                  <p className="text-xs text-muted-foreground">Kas Saat Ini</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Today's stats */}
         <div className="px-4 grid grid-cols-2 gap-3">

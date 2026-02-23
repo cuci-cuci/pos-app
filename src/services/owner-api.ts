@@ -39,6 +39,11 @@ export const ownerApi = {
   updateMember: (id: string, data: Record<string, unknown>) =>
     apiClient.put(`owner/members/${id}`, { json: data }).json<any>(),
 
+  // Store Settings
+  getStoreSettings: () => apiClient.get('owner/store-settings').json<any>(),
+  updateStoreSettings: (data: Record<string, unknown>) =>
+    apiClient.put('owner/store-settings', { json: data }).json<any>(),
+
   // Analytics
   analyticsSummary: (params: Record<string, string>) =>
     apiClient.get('owner/analytics/summary', { searchParams: params }).json<any>(),
@@ -46,4 +51,8 @@ export const ownerApi = {
     apiClient.get('owner/analytics/outlets', { searchParams: params }).json<any>(),
   dailyRevenue: (params: Record<string, string>) =>
     apiClient.get('owner/analytics/daily-revenue', { searchParams: params }).json<any>(),
+  analyticsByService: (params: Record<string, string>) =>
+    apiClient.get('owner/analytics/by-service', { searchParams: params }).json<any>(),
+  analyticsByPaymentMethod: (params: Record<string, string>) =>
+    apiClient.get('owner/analytics/by-payment-method', { searchParams: params }).json<any>(),
 }

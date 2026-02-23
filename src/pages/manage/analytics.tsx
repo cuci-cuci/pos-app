@@ -1,9 +1,12 @@
 import {
   ArrowLeft,
   ChartBar,
+  CreditCard,
   CurrencyDollar,
+  DownloadSimple,
   Receipt,
   Storefront,
+  Tag,
   TrendUp,
 } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
@@ -14,6 +17,7 @@ import { EmptyState } from '@/components/shared/empty-state'
 import { AnalyticsSkeleton } from '@/components/shared/skeleton-loaders'
 import { Button } from '@/components/ui/button'
 import { showToast } from '@/components/ui/toast'
+import { exportCSV } from '@/lib/export'
 import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { ownerApi } from '@/services/owner-api'
@@ -36,6 +40,19 @@ interface DailyRevenuePoint {
   date: string
   revenue: number
   transactions: number
+}
+
+interface ServiceAnalytics {
+  service_name: string
+  revenue: number
+  quantity: number
+}
+
+interface PaymentMethodAnalytics {
+  method_name: string
+  method_type: string
+  revenue: number
+  transaction_count: number
 }
 
 type Period = '7d' | '30d' | '90d'
@@ -82,6 +99,8 @@ export function ManageAnalyticsPage() {
   const [summary, setSummary] = useState<SummaryData | null>(null)
   const [outlets, setOutlets] = useState<OutletAnalytics[]>([])
   const [dailyData, setDailyData] = useState<DailyRevenuePoint[]>([])
+  const [services, setServices] = useState<ServiceAnalytics[]>([])
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethodAnalytics[]>([])
   const [dailyLoading, setDailyLoading] = useState(true)
   const [loading, setLoading] = useState(true)
 
@@ -90,14 +109,18 @@ export function ManageAnalyticsPage() {
       setLoading(true)
       setDailyLoading(true)
       const days = period.replace('d', '')
-      const [summaryRes, outletsRes, dailyRes] = await Promise.all([
+      const [summaryRes, outletsRes, dailyRes, servicesRes, paymentRes] = await Promise.all([
         ownerApi.analyticsSummary({ period }),
         ownerApi.analyticsOutlets({ period }),
         ownerApi.dailyRevenue({ period: days }),
+        ownerApi.analyticsByService({ period }),
+        ownerApi.analyticsByPaymentMethod({ period }),
       ])
       setSummary(summaryRes.data ?? null)
       setOutlets(outletsRes.data ?? [])
       setDailyData(dailyRes.data ?? [])
+      setServices(servicesRes.data ?? [])
+      setPaymentMethods(paymentRes.data ?? [])
     } catch {
       showToast('Gagal memuat data analitik', 'error')
     } finally {
@@ -109,6 +132,39 @@ export function ManageAnalyticsPage() {
   useEffect(() => {
     fetchAnalytics()
   }, [fetchAnalytics])
+
+  const handleExportAll = () => {
+    const rows = [
+      ...outlets.map((o) => ({
+        kategori: 'Outlet',
+        nama: o.outlet_name,
+        revenue: o.revenue,
+        jumlah: o.transactions,
+      })),
+      ...services.map((s) => ({
+        kategori: 'Layanan',
+        nama: s.service_name,
+        revenue: s.revenue,
+        jumlah: s.quantity,
+      })),
+      ...paymentMethods.map((p) => ({
+        kategori: 'Metode Bayar',
+        nama: p.method_name,
+        revenue: p.revenue,
+        jumlah: p.transaction_count,
+      })),
+    ]
+    exportCSV(
+      rows,
+      [
+        { key: 'kategori', label: 'Kategori' },
+        { key: 'nama', label: 'Nama' },
+        { key: 'revenue', label: 'Revenue' },
+        { key: 'jumlah', label: 'Jumlah' },
+      ],
+      `analitik-${period}-${new Date().toISOString().slice(0, 10)}`,
+    )
+  }
 
   const periods: { value: Period; label: string }[] = [
     { value: '7d', label: '7 Hari' },
@@ -126,6 +182,11 @@ export function ManageAnalyticsPage() {
           <h1 className="text-xl font-bold">Analitik</h1>
           <p className="text-sm text-muted-foreground">Laporan dan statistik</p>
         </div>
+        {!loading && summary && (
+          <Button variant="outline" size="icon" onClick={handleExportAll} title="Export CSV">
+            <DownloadSimple size={18} weight="bold" />
+          </Button>
+        )}
       </div>
 
       <div className="px-4 pb-3 flex gap-2">
@@ -250,6 +311,96 @@ export function ManageAnalyticsPage() {
                         </td>
                         <td className="p-3 text-right text-muted-foreground">
                           {outlet.transactions}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* Revenue by Service */}
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase mb-2 mt-4">
+              Revenue per Layanan
+            </h2>
+            {services.length === 0 ? (
+              <div className="bg-card border rounded-[var(--radius)] p-6 text-center">
+                <p className="text-sm text-muted-foreground">Belum ada data layanan</p>
+              </div>
+            ) : (
+              <div className="bg-card border rounded-[var(--radius)] overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left p-3 font-semibold text-xs text-muted-foreground uppercase">
+                        Layanan
+                      </th>
+                      <th className="text-right p-3 font-semibold text-xs text-muted-foreground uppercase">
+                        Revenue
+                      </th>
+                      <th className="text-right p-3 font-semibold text-xs text-muted-foreground uppercase">
+                        Qty
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {services.map((svc) => (
+                      <tr key={svc.service_name} className="border-b border-border last:border-b-0">
+                        <td className="p-3">
+                          <div className="flex items-center gap-2">
+                            <Tag size={16} weight="fill" className="text-muted-foreground" />
+                            <span className="font-medium">{svc.service_name}</span>
+                          </div>
+                        </td>
+                        <td className="p-3 text-right font-medium">
+                          {formatCurrency(svc.revenue)}
+                        </td>
+                        <td className="p-3 text-right text-muted-foreground">{svc.quantity}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* Revenue by Payment Method */}
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase mb-2 mt-4">
+              Revenue per Metode Bayar
+            </h2>
+            {paymentMethods.length === 0 ? (
+              <div className="bg-card border rounded-[var(--radius)] p-6 text-center">
+                <p className="text-sm text-muted-foreground">Belum ada data metode bayar</p>
+              </div>
+            ) : (
+              <div className="bg-card border rounded-[var(--radius)] overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left p-3 font-semibold text-xs text-muted-foreground uppercase">
+                        Metode
+                      </th>
+                      <th className="text-right p-3 font-semibold text-xs text-muted-foreground uppercase">
+                        Revenue
+                      </th>
+                      <th className="text-right p-3 font-semibold text-xs text-muted-foreground uppercase">
+                        Transaksi
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paymentMethods.map((pm) => (
+                      <tr key={pm.method_name} className="border-b border-border last:border-b-0">
+                        <td className="p-3">
+                          <div className="flex items-center gap-2">
+                            <CreditCard size={16} weight="fill" className="text-muted-foreground" />
+                            <span className="font-medium">{pm.method_name}</span>
+                          </div>
+                        </td>
+                        <td className="p-3 text-right font-medium">
+                          {formatCurrency(pm.revenue)}
+                        </td>
+                        <td className="p-3 text-right text-muted-foreground">
+                          {pm.transaction_count}
                         </td>
                       </tr>
                     ))}

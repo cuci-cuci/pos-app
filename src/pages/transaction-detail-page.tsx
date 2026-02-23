@@ -90,6 +90,8 @@ export function TransactionDetailPage() {
   const router = useRouter()
   const [showCancelConfirm, setShowCancelConfirm] = useState(false)
   const [isCancelling, setIsCancelling] = useState(false)
+  const [showRefundConfirm, setShowRefundConfirm] = useState(false)
+  const [isRefunding, setIsRefunding] = useState(false)
   const { currentShift } = useShiftStore()
 
   const transaction = useLiveQuery(() => db.transactions.get(id), [id])
@@ -123,10 +125,12 @@ export function TransactionDetailPage() {
   const SyncIcon = sync.icon
   const payment = transaction.payments[0]
 
-  const canCancel =
-    transaction.status === 'completed' &&
-    ((currentShift && transaction.shiftId === currentShift.id) ||
-      new Date(transaction.createdAt).toDateString() === new Date().toDateString())
+  const isSameShiftOrToday =
+    (currentShift && transaction.shiftId === currentShift.id) ||
+    new Date(transaction.createdAt).toDateString() === new Date().toDateString()
+
+  const canCancel = transaction.status === 'completed' && isSameShiftOrToday
+  const canRefund = transaction.status === 'completed' && !isSameShiftOrToday
 
   const handleCancelTransaction = async () => {
     setIsCancelling(true)
@@ -142,6 +146,23 @@ export function TransactionDetailPage() {
       showToast('Gagal membatalkan transaksi', 'error')
     } finally {
       setIsCancelling(false)
+    }
+  }
+
+  const handleRefundTransaction = async () => {
+    setIsRefunding(true)
+    try {
+      await db.transactions.update(transaction.id, {
+        status: 'refunded',
+        updatedAt: new Date().toISOString(),
+        syncStatus: transaction.syncStatus === 'synced' ? 'pending' : transaction.syncStatus,
+      })
+      showToast('Transaksi berhasil di-refund', 'success')
+      setShowRefundConfirm(false)
+    } catch {
+      showToast('Gagal melakukan refund', 'error')
+    } finally {
+      setIsRefunding(false)
     }
   }
 
@@ -168,6 +189,19 @@ export function TransactionDetailPage() {
               <p className="text-destructive font-bold text-sm">TRANSAKSI DIBATALKAN</p>
               <p className="text-xs text-muted-foreground mt-1">
                 Transaksi ini telah dibatalkan dan tidak dihitung dalam laporan.
+              </p>
+            </div>
+          )}
+
+          {/* Refunded banner */}
+          {transaction.status === 'refunded' && (
+            <div className="bg-muted border rounded-[var(--radius)] p-3 text-center">
+              <p className="font-bold text-sm flex items-center justify-center gap-1.5">
+                <ArrowsClockwise size={16} weight="bold" />
+                TRANSAKSI DI-REFUND
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Transaksi ini telah di-refund dan tidak dihitung dalam laporan.
               </p>
             </div>
           )}
@@ -299,6 +333,18 @@ export function TransactionDetailPage() {
               Batalkan Transaksi
             </Button>
           )}
+
+          {/* Refund button */}
+          {canRefund && (
+            <Button
+              variant="outline"
+              className="w-full h-11 gap-2"
+              onClick={() => setShowRefundConfirm(true)}
+            >
+              <ArrowsClockwise size={18} weight="bold" />
+              Refund Transaksi
+            </Button>
+          )}
         </div>
       </div>
 
@@ -343,6 +389,49 @@ export function TransactionDetailPage() {
                 disabled={isCancelling}
               >
                 {isCancelling ? 'Membatalkan...' : 'Ya, Batalkan'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Refund confirmation dialog */}
+      {showRefundConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-card rounded-[var(--radius)] p-6 max-w-sm w-full shadow-xl">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center shrink-0">
+                <ArrowsClockwise size={20} weight="bold" />
+              </div>
+              <h3 className="text-lg font-bold">Refund Transaksi?</h3>
+            </div>
+            <p className="text-sm text-muted-foreground mb-1">
+              Transaksi{' '}
+              <span className="font-semibold text-foreground">#{transaction.orderNumber}</span>{' '}
+              senilai{' '}
+              <span className="font-semibold text-foreground">
+                {formatCurrency(transaction.totalAmount)}
+              </span>{' '}
+              akan di-refund.
+            </p>
+            <p className="text-sm text-muted-foreground mb-4">
+              Dana harus dikembalikan ke pelanggan secara manual.
+            </p>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setShowRefundConfirm(false)}
+                disabled={isRefunding}
+              >
+                Kembali
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={() => void handleRefundTransaction()}
+                disabled={isRefunding}
+              >
+                {isRefunding ? 'Memproses...' : 'Ya, Refund'}
               </Button>
             </div>
           </div>
