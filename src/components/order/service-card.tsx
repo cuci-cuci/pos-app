@@ -50,20 +50,18 @@ export function ServiceCard({
         onClick={() => onSelect(service)}
         whileTap={{ scale: 0.97 }}
         className={cn(
-          'relative flex items-center gap-3 p-3 rounded-xl shadow-sm border',
+          'relative flex flex-col p-2.5 rounded-xl shadow-sm border',
           'bg-card hover:bg-accent active:bg-accent',
-          'min-h-[56px] transition-colors text-left no-select',
+          'min-h-[72px] transition-colors text-left no-select',
           'touch-manipulation',
           cartQuantity && cartQuantity > 0 && 'border-primary/30',
         )}
       >
         <CartBadge quantity={cartQuantity ?? 0} size="sm" />
-        <IconComp size={16} className="text-muted-foreground shrink-0" />
-        <div className="flex-1 min-w-0">
-          <span className="text-xs font-bold leading-tight line-clamp-1">{service.name}</span>
-          <span className="text-[10px] text-muted-foreground block">per {service.unit}</span>
-        </div>
-        <span className="text-primary font-semibold text-xs shrink-0">
+        <IconComp size={14} className="text-muted-foreground mb-1" />
+        <span className="text-xs font-bold leading-tight line-clamp-2 mb-0.5">{service.name}</span>
+        <span className="text-[10px] text-muted-foreground">per {service.unit}</span>
+        <span className="text-primary font-semibold text-xs mt-auto">
           {formatCurrency(service.pricePerUnit)}
         </span>
       </motion.button>
