@@ -1,35 +1,89 @@
+import { AnimatePresence, motion } from 'framer-motion'
 import type { Service } from '@/db/schema'
-import { formatCurrency } from '@/lib/format'
 import { getCategoryIcon } from '@/lib/category-icons'
+import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 interface ServiceCardProps {
   service: Service
   categoryName: string
   cartQuantity?: number
+  compact?: boolean
   onSelect: (service: Service) => void
 }
 
-export function ServiceCard({ service, categoryName, cartQuantity, onSelect }: ServiceCardProps) {
+function CartBadge({ quantity, size = 'md' }: { quantity: number; size?: 'sm' | 'md' }) {
+  return (
+    <AnimatePresence mode="popLayout">
+      {quantity > 0 && (
+        <motion.span
+          key={quantity}
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          exit={{ scale: 0 }}
+          transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+          className={cn(
+            'absolute -top-2 -right-2 bg-primary text-primary-foreground font-bold rounded-full flex items-center justify-center z-10',
+            size === 'sm' ? 'text-[10px] w-5 h-5' : 'text-[10px] w-6 h-6',
+          )}
+        >
+          x{quantity}
+        </motion.span>
+      )}
+    </AnimatePresence>
+  )
+}
+
+export function ServiceCard({
+  service,
+  categoryName,
+  cartQuantity,
+  compact,
+  onSelect,
+}: ServiceCardProps) {
   const IconComp = getCategoryIcon(categoryName)
 
+  if (compact) {
+    return (
+      <motion.button
+        type="button"
+        onClick={() => onSelect(service)}
+        whileTap={{ scale: 0.97 }}
+        className={cn(
+          'relative flex items-center gap-3 p-3 rounded-xl shadow-sm border',
+          'bg-card hover:bg-accent active:bg-accent',
+          'min-h-[56px] transition-colors text-left no-select',
+          'touch-manipulation',
+          cartQuantity && cartQuantity > 0 && 'border-primary/30',
+        )}
+      >
+        <CartBadge quantity={cartQuantity ?? 0} size="sm" />
+        <IconComp size={16} className="text-muted-foreground shrink-0" />
+        <div className="flex-1 min-w-0">
+          <span className="text-xs font-bold leading-tight line-clamp-1">{service.name}</span>
+          <span className="text-[10px] text-muted-foreground block">per {service.unit}</span>
+        </div>
+        <span className="text-primary font-semibold text-xs shrink-0">
+          {formatCurrency(service.pricePerUnit)}
+        </span>
+      </motion.button>
+    )
+  }
+
   return (
-    <button
+    <motion.button
       type="button"
       onClick={() => onSelect(service)}
+      whileTap={{ scale: 0.97 }}
       className={cn(
         'relative flex flex-col p-4 rounded-xl shadow-sm border',
         'bg-card hover:bg-accent active:bg-accent',
         'min-h-[100px] transition-colors text-left no-select',
-        'touch-manipulation'
+        'touch-manipulation',
+        cartQuantity && cartQuantity > 0 && 'border-primary/30',
       )}
     >
-      {/* Cart badge */}
-      {cartQuantity && cartQuantity > 0 && (
-        <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-[10px] font-bold rounded-full w-6 h-6 flex items-center justify-center z-10">
-          x{cartQuantity}
-        </span>
-      )}
+      <CartBadge quantity={cartQuantity ?? 0} />
 
       {/* Category icon */}
       <IconComp size={18} className="text-muted-foreground mb-2" />
@@ -38,14 +92,12 @@ export function ServiceCard({ service, categoryName, cartQuantity, onSelect }: S
       <span className="text-sm font-bold leading-tight line-clamp-2 mb-1">{service.name}</span>
 
       {/* Unit label */}
-      <span className="text-xs text-muted-foreground mb-2">
-        per {service.unit}
-      </span>
+      <span className="text-xs text-muted-foreground mb-2">per {service.unit}</span>
 
       {/* Price */}
       <span className="text-primary font-semibold text-base mt-auto">
         {formatCurrency(service.pricePerUnit)}
       </span>
-    </button>
+    </motion.button>
   )
 }

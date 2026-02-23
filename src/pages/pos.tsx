@@ -1,22 +1,24 @@
-import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Clock, Search, ShoppingCart } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { CartPanel } from '@/components/order/cart-panel'
+import { QuantityInput } from '@/components/order/quantity-input'
+import { ServiceCard } from '@/components/order/service-card'
+import { SuccessOverlay } from '@/components/payment/success-overlay'
+import { EmptyState } from '@/components/shared/empty-state'
+import { OpenShiftDialog } from '@/components/shift/open-shift-dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { db } from '@/db'
-import type { Service, ServiceCategory } from '@/db/schema'
+import type { Service, ServiceCategory, Transaction } from '@/db/schema'
+import { getCategoryIcon } from '@/lib/category-icons'
+import { formatCurrency, formatTime } from '@/lib/format'
+import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth-store'
 import { useCartStore } from '@/stores/cart-store'
 import { useShiftStore } from '@/stores/shift-store'
-import { ServiceCard } from '@/components/order/service-card'
-import { CartPanel } from '@/components/order/cart-panel'
-import { QuantityInput } from '@/components/order/quantity-input'
-import { OpenShiftDialog } from '@/components/shift/open-shift-dialog'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { EmptyState } from '@/components/shared/empty-state'
-import { ShoppingCart, Search, Clock } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { formatCurrency, formatTime } from '@/lib/format'
-import { getCategoryIcon } from '@/lib/category-icons'
 
 export function PosPage() {
   const tenantId = useAuthStore((s) => s.user?.tenantId)
@@ -34,29 +36,33 @@ export function PosPage() {
   const [quantityService, setQuantityService] = useState<Service | null>(null)
   const [cartSheetOpen, setCartSheetOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [successTx, setSuccessTx] = useState<Transaction | null>(null)
+
+  const handleTransactionComplete = useCallback((tx: Transaction) => {
+    setCartSheetOpen(false)
+    setSuccessTx(tx)
+  }, [])
 
   const categories = useLiveQuery(
     () =>
       tenantId
-        ? db.serviceCategories
-            .where('tenantId')
-            .equals(tenantId)
-            .sortBy('sortOrder')
+        ? db.serviceCategories.where('tenantId').equals(tenantId).sortBy('sortOrder')
         : ([] as ServiceCategory[]),
-    [tenantId]
+    [tenantId],
   )
 
-  const allServices = useLiveQuery(
-    () => {
-      if (!tenantId) return [] as Service[]
-      return db.services
-        .where('tenantId')
-        .equals(tenantId)
-        .toArray()
-        .then((s: Service[]) => s.filter((sv: Service) => sv.isActive).sort((a: Service, b: Service) => a.sortOrder - b.sortOrder))
-    },
-    [tenantId]
-  )
+  const allServices = useLiveQuery(() => {
+    if (!tenantId) return [] as Service[]
+    return db.services
+      .where('tenantId')
+      .equals(tenantId)
+      .toArray()
+      .then((s: Service[]) =>
+        s
+          .filter((sv: Service) => sv.isActive)
+          .sort((a: Service, b: Service) => a.sortOrder - b.sortOrder),
+      )
+  }, [tenantId])
 
   const filteredServices = useMemo(() => {
     if (!allServices) return []
@@ -93,7 +99,7 @@ export function PosPage() {
         pricePerUnit: quantityService.pricePerUnit,
       })
     },
-    [quantityService, categories, addItem]
+    [quantityService, categories, addItem],
   )
 
   const itemCount = cartItems.length
@@ -101,7 +107,7 @@ export function PosPage() {
 
   if (!shiftLoading && !currentShift) {
     return (
-      <div className="flex h-[calc(100vh-3.5rem-4rem)] md:h-[calc(100vh-3.5rem)] items-center justify-center">
+      <div className="flex h-[calc(100vh-3.5rem-56px)] items-center justify-center">
         <div className="flex flex-col items-center gap-4 p-8 max-w-sm text-center">
           <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
             <Clock size={32} className="text-muted-foreground" />
@@ -119,12 +125,10 @@ export function PosPage() {
     )
   }
 
-  const shiftOpenedTime = currentShift?.opened_at
-    ? formatTime(currentShift.opened_at)
-    : ''
+  const shiftOpenedTime = currentShift?.opened_at ? formatTime(currentShift.opened_at) : ''
 
   return (
-    <div className="flex flex-col h-[calc(100vh-3.5rem-4rem)] md:h-[calc(100vh-3.5rem)]">
+    <div className="flex flex-col h-[calc(100vh-3.5rem-56px)]">
       {/* Shift info bar */}
       {currentShift && (
         <div className="flex items-center gap-2 px-4 py-1.5 bg-success/10 border-b border-success/20 text-sm text-success">
@@ -135,189 +139,220 @@ export function PosPage() {
         </div>
       )}
       <div className="flex flex-1 min-h-0">
-      {/* Left: Services */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Search bar */}
-        <div className="p-4 pb-2">
-          <div className="relative">
-            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Cari layanan..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-10 pl-9"
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-1 min-h-0">
-          {/* Category sidebar (desktop) */}
-          {categories && categories.length > 0 && (
-            <div className="hidden md:flex flex-col w-48 border-r border-border overflow-y-auto shrink-0">
-              <button
-                type="button"
-                onClick={() => setSelectedCategoryId(null)}
-                className={cn(
-                  'flex items-center gap-2 px-4 py-3 text-sm font-medium text-left transition-colors',
-                  'min-h-[44px] border-l-2',
-                  selectedCategoryId === null
-                    ? 'bg-primary/10 text-primary border-l-primary'
-                    : 'text-muted-foreground border-l-transparent hover:bg-accent'
-                )}
-              >
-                Semua
-              </button>
-              {categories.map((cat) => {
-                const IconComp = getCategoryIcon(cat.name)
-                return (
-                  <button
-                    type="button"
-                    key={cat.id}
-                    onClick={() => setSelectedCategoryId(cat.id)}
-                    className={cn(
-                      'flex items-center gap-2 px-4 py-3 text-sm font-medium text-left transition-colors',
-                      'min-h-[44px] border-l-2',
-                      selectedCategoryId === cat.id
-                        ? 'bg-primary/10 text-primary border-l-primary'
-                        : 'text-muted-foreground border-l-transparent hover:bg-accent'
-                    )}
-                  >
-                    <IconComp size={18} strokeWidth={selectedCategoryId === cat.id ? 2.5 : 1.5} />
-                    <span className="truncate">{cat.name}</span>
-                  </button>
-                )
-              })}
+        {/* Left: Services */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          {/* Search bar */}
+          <div className="p-4 pb-2">
+            <div className="relative">
+              <Search
+                size={18}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+              />
+              <Input
+                placeholder="Cari layanan..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="h-10 pl-9"
+              />
             </div>
-          )}
+          </div>
 
-          {/* Category pills (mobile) + Service grid */}
-          <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-            {/* Mobile category pills */}
+          <div className="flex flex-1 min-h-0">
+            {/* Category sidebar (desktop) */}
             {categories && categories.length > 0 && (
-              <div className="flex gap-2 px-4 py-2 overflow-x-auto scrollbar-hide md:hidden">
+              <div className="hidden md:flex flex-col md:w-32 lg:w-40 xl:w-48 border-r border-border overflow-y-auto shrink-0">
                 <button
                   type="button"
                   onClick={() => setSelectedCategoryId(null)}
                   className={cn(
-                    'px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors',
-                    'min-h-[36px] touch-manipulation',
+                    'flex items-center gap-2 px-3 lg:px-4 py-2.5 lg:py-3 text-xs lg:text-sm font-medium text-left transition-colors',
+                    'min-h-[40px] border-l-2',
                     selectedCategoryId === null
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted text-muted-foreground hover:bg-accent'
+                      ? 'bg-primary/10 text-primary border-l-primary'
+                      : 'text-muted-foreground border-l-transparent hover:bg-accent',
                   )}
                 >
                   Semua
                 </button>
-                {categories.map((cat) => (
-                  <button
-                    type="button"
-                    key={cat.id}
-                    onClick={() => setSelectedCategoryId(cat.id)}
-                    className={cn(
-                      'px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors',
-                      'min-h-[36px] touch-manipulation',
-                      selectedCategoryId === cat.id
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted text-muted-foreground hover:bg-accent'
-                    )}
-                  >
-                    {cat.name}
-                  </button>
-                ))}
+                {categories.map((cat) => {
+                  const IconComp = getCategoryIcon(cat.name)
+                  return (
+                    <button
+                      type="button"
+                      key={cat.id}
+                      onClick={() => setSelectedCategoryId(cat.id)}
+                      className={cn(
+                        'flex items-center gap-2 px-3 lg:px-4 py-2.5 lg:py-3 text-xs lg:text-sm font-medium text-left transition-colors',
+                        'min-h-[40px] border-l-2',
+                        selectedCategoryId === cat.id
+                          ? 'bg-primary/10 text-primary border-l-primary'
+                          : 'text-muted-foreground border-l-transparent hover:bg-accent',
+                      )}
+                    >
+                      <IconComp size={16} strokeWidth={selectedCategoryId === cat.id ? 2.5 : 1.5} />
+                      <span className="truncate">{cat.name}</span>
+                    </button>
+                  )
+                })}
               </div>
             )}
 
-            {/* Service grid */}
-            <div className="flex-1 overflow-y-auto">
-              {filteredServices.length === 0 ? (
-                <EmptyState
-                  icon={<Search size={48} />}
-                  title="Tidak ada layanan"
-                  description={searchQuery ? 'Coba kata kunci lain' : 'Belum ada layanan untuk kategori ini.'}
-                />
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 p-4">
-                  {filteredServices.map((service) => (
-                    <ServiceCard
-                      key={service.id}
-                      service={service}
-                      categoryName={categories?.find((c) => c.id === service.categoryId)?.name ?? ''}
-                      cartQuantity={cartItems.find((ci) => ci.serviceId === service.id)?.quantity}
-                      onSelect={handleSelectService}
-                    />
+            {/* Category pills (mobile) + Service grid */}
+            <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+              {/* Mobile category pills */}
+              {categories && categories.length > 0 && (
+                <div className="flex gap-2 px-4 py-2 overflow-x-auto scrollbar-hide md:hidden">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCategoryId(null)}
+                    className={cn(
+                      'px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors',
+                      'min-h-[36px] touch-manipulation',
+                      selectedCategoryId === null
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground hover:bg-accent',
+                    )}
+                  >
+                    Semua
+                  </button>
+                  {categories.map((cat) => (
+                    <button
+                      type="button"
+                      key={cat.id}
+                      onClick={() => setSelectedCategoryId(cat.id)}
+                      className={cn(
+                        'px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors',
+                        'min-h-[36px] touch-manipulation',
+                        selectedCategoryId === cat.id
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted text-muted-foreground hover:bg-accent',
+                      )}
+                    >
+                      {cat.name}
+                    </button>
                   ))}
                 </div>
               )}
+
+              {/* Service grid */}
+              <div className="flex-1 overflow-y-auto md:overflow-y-auto">
+                {filteredServices.length === 0 ? (
+                  <EmptyState
+                    icon={<Search size={48} />}
+                    title="Tidak ada layanan"
+                    description={
+                      searchQuery ? 'Coba kata kunci lain' : 'Belum ada layanan untuk kategori ini.'
+                    }
+                  />
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-2 lg:gap-3 p-3 md:p-3 lg:p-4">
+                    {filteredServices.map((service) => (
+                      <ServiceCard
+                        key={service.id}
+                        service={service}
+                        categoryName={
+                          categories?.find((c) => c.id === service.categoryId)?.name ?? ''
+                        }
+                        cartQuantity={cartItems.find((ci) => ci.serviceId === service.id)?.quantity}
+                        compact={true}
+                        onSelect={handleSelectService}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
+
+          {/* Sticky cart bar (desktop) */}
+          {itemCount > 0 && (
+            <div className="hidden md:flex items-center justify-between px-4 py-3 border-t border-border bg-card">
+              <div className="flex items-center gap-2">
+                <ShoppingCart size={20} className="text-primary" />
+                <span className="text-sm font-medium">{itemCount} item</span>
+              </div>
+              <span className="text-base font-bold">{formatCurrency(total)}</span>
+            </div>
+          )}
         </div>
 
-        {/* Sticky cart bar (desktop) */}
-        {itemCount > 0 && (
-          <div className="hidden md:flex items-center justify-between px-4 py-3 border-t border-border bg-card">
-            <div className="flex items-center gap-2">
-              <ShoppingCart size={20} className="text-primary" />
-              <span className="text-sm font-medium">{itemCount} item</span>
-            </div>
-            <span className="text-base font-bold">{formatCurrency(total)}</span>
-          </div>
-        )}
-      </div>
+        {/* Right: Cart (tablet+) */}
+        <div className="hidden md:flex md:w-[280px] lg:w-[340px] xl:w-[400px] border-l border-border bg-card flex-col">
+          <CartPanel onTransactionComplete={handleTransactionComplete} />
+        </div>
 
-      {/* Right: Cart (tablet+) */}
-      <div className="hidden md:flex md:w-[360px] lg:w-[400px] border-l border-border bg-card flex-col">
-        <CartPanel />
-      </div>
-
-      {/* Mobile: floating cart bar */}
-      {itemCount > 0 && (
-        <button
-          type="button"
-          onClick={() => setCartSheetOpen(true)}
-          className={cn(
-            'md:hidden fixed bottom-20 left-4 right-4 z-30',
-            'bg-primary text-primary-foreground rounded-[var(--radius)]',
-            'flex items-center justify-between px-5 py-4 shadow-lg',
-            'active:scale-[0.98] transition-transform touch-manipulation'
+        {/* Mobile: floating cart bar */}
+        <AnimatePresence>
+          {itemCount > 0 && (
+            <motion.button
+              type="button"
+              key="cart-bar"
+              initial={{ y: 100, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 100, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              onClick={() => setCartSheetOpen(true)}
+              className={cn(
+                'md:hidden fixed bottom-20 left-4 right-4 z-30',
+                'bg-primary text-primary-foreground rounded-[var(--radius)]',
+                'flex items-center justify-between px-5 py-4 shadow-lg',
+                'active:scale-[0.98] transition-transform touch-manipulation',
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <ShoppingCart size={24} />
+                  <motion.span
+                    key={itemCount}
+                    initial={{ scale: 0.5 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                    className="absolute -top-2 -right-2 bg-white text-primary text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center"
+                  >
+                    {itemCount}
+                  </motion.span>
+                </div>
+                <span className="font-semibold">Lihat Keranjang</span>
+              </div>
+              <span className="font-bold text-lg">{formatCurrency(total)}</span>
+            </motion.button>
           )}
-        >
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <ShoppingCart size={24} />
-              <span className="absolute -top-2 -right-2 bg-white text-primary text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                {itemCount}
-              </span>
-            </div>
-            <span className="font-semibold">Lihat Keranjang</span>
-          </div>
-          <span className="font-bold text-lg">{formatCurrency(total)}</span>
-        </button>
-      )}
+        </AnimatePresence>
 
-      {/* Mobile cart sheet */}
-      <Sheet open={cartSheetOpen} onOpenChange={setCartSheetOpen}>
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>Keranjang</SheetTitle>
-          </SheetHeader>
-          <CartPanel />
-        </SheetContent>
-      </Sheet>
+        {/* Mobile cart sheet */}
+        <Sheet open={cartSheetOpen} onOpenChange={setCartSheetOpen}>
+          <SheetContent>
+            <SheetHeader>
+              <SheetTitle>Keranjang</SheetTitle>
+            </SheetHeader>
+            <CartPanel onTransactionComplete={handleTransactionComplete} />
+          </SheetContent>
+        </Sheet>
 
-      {/* Quantity input dialog */}
-      {quantityService && (
-        <QuantityInput
-          open={!!quantityService}
-          onOpenChange={(open) => {
-            if (!open) setQuantityService(null)
-          }}
-          serviceName={quantityService.name}
-          unit={quantityService.unit}
-          pricePerUnit={quantityService.pricePerUnit}
-          currentCartQuantity={cartItems.find((ci) => ci.serviceId === quantityService.id)?.quantity}
-          onConfirm={handleConfirmQuantity}
+        {/* Quantity input dialog */}
+        {quantityService && (
+          <QuantityInput
+            open={!!quantityService}
+            onOpenChange={(open) => {
+              if (!open) setQuantityService(null)
+            }}
+            serviceName={quantityService.name}
+            unit={quantityService.unit}
+            pricePerUnit={quantityService.pricePerUnit}
+            currentCartQuantity={
+              cartItems.find((ci) => ci.serviceId === quantityService.id)?.quantity
+            }
+            onConfirm={handleConfirmQuantity}
+          />
+        )}
+
+        {/* Success celebration overlay */}
+        <SuccessOverlay
+          open={!!successTx}
+          transaction={successTx}
+          onNewTransaction={() => setSuccessTx(null)}
+          onClose={() => setSuccessTx(null)}
         />
-      )}
       </div>
     </div>
   )
