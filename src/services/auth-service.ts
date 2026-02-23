@@ -1,6 +1,6 @@
-import { apiClient } from './api-client'
-import { useAuthStore, type AuthUser } from '@/stores/auth-store'
 import { db } from '@/db'
+import { type AuthUser, useAuthStore } from '@/stores/auth-store'
+import { apiClient } from './api-client'
 
 interface APILoginResponse {
   data: {
@@ -55,11 +55,7 @@ export async function refresh(): Promise<void> {
 
   const user = useAuthStore.getState().user
   if (user) {
-    useAuthStore.getState().login(
-      response.data.access_token,
-      response.data.refresh_token,
-      user
-    )
+    useAuthStore.getState().login(response.data.access_token, response.data.refresh_token, user)
   }
 }
 

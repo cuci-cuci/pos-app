@@ -1,15 +1,15 @@
-import { CheckCircle, Clock, RefreshCw, AlertTriangle } from 'lucide-react'
+import { ArrowsClockwise, CheckCircle, Clock, WarningCircle } from '@phosphor-icons/react'
 import type { SyncStatus } from '@/db/schema'
 
 export function SyncStatusIcon({ status }: { status: SyncStatus }) {
   switch (status) {
     case 'synced':
-      return <CheckCircle size={14} className="text-success" />
+      return <CheckCircle size={14} weight="fill" className="text-success" />
     case 'pending':
-      return <Clock size={14} className="text-muted-foreground" />
+      return <Clock size={14} weight="fill" className="text-muted-foreground" />
     case 'syncing':
-      return <RefreshCw size={14} className="text-primary animate-spin" />
+      return <ArrowsClockwise size={14} weight="bold" className="text-primary animate-spin" />
     case 'failed':
-      return <AlertTriangle size={14} className="text-destructive" />
+      return <WarningCircle size={14} weight="fill" className="text-destructive" />
   }
 }

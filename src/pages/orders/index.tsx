@@ -1,16 +1,14 @@
-import { useState, useEffect, useCallback } from 'react'
+import { ArrowsClockwise, Package } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
-import { useDeviceStore } from '@/stores/device-store'
+import { useCallback, useEffect, useState } from 'react'
+import { EmptyState } from '@/components/shared/empty-state'
+import { InlineError } from '@/components/shared/inline-error'
+import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
 import { formatCurrency, formatTime } from '@/lib/format'
 import { cn } from '@/lib/utils'
-import { EmptyState } from '@/components/shared/empty-state'
-import { LoadingSpinner } from '@/components/shared/loading-spinner'
-import { orderApi } from '@/services/order-api'
 import type { Order, OrderStatus } from '@/services/order-api'
-import {
-  Package,
-  RefreshCw,
-} from 'lucide-react'
+import { orderApi } from '@/services/order-api'
+import { useDeviceStore } from '@/stores/device-store'
 
 type FilterTab = 'all' | OrderStatus
 
@@ -52,7 +50,12 @@ const statusLabels: Record<OrderStatus, string> = {
 function StatusBadge({ status }: { status: OrderStatus }) {
   const style = statusStyles[status]
   return (
-    <span className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold', style.className)}>
+    <span
+      className={cn(
+        'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold',
+        style.className,
+      )}
+    >
       {statusLabels[status]}
     </span>
   )
@@ -64,10 +67,12 @@ export function OrdersPage() {
   const [activeTab, setActiveTab] = useState<FilterTab>('all')
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
 
   const fetchOrders = useCallback(async () => {
     try {
+      setError(false)
       const params: Record<string, string> = {}
       if (outletId) {
         params.outlet_id = outletId
@@ -79,7 +84,7 @@ export function OrdersPage() {
       const response = await orderApi.list(params)
       setOrders(response.data)
     } catch {
-      // silently handle error
+      setError(true)
     } finally {
       setLoading(false)
       setRefreshing(false)
@@ -106,9 +111,7 @@ export function OrdersPage() {
       <div className="px-4 pt-4 pb-2 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold">Pesanan</h1>
-          <p className="text-sm text-muted-foreground">
-            Kelola pesanan laundry
-          </p>
+          <p className="text-sm text-muted-foreground">Kelola pesanan laundry</p>
         </div>
         <button
           type="button"
@@ -116,12 +119,10 @@ export function OrdersPage() {
           disabled={refreshing}
           className="p-2 rounded-[var(--radius)] hover:bg-muted transition-colors touch-manipulation"
         >
-          <RefreshCw
+          <ArrowsClockwise
             size={22}
-            className={cn(
-              'text-muted-foreground',
-              refreshing && 'animate-spin'
-            )}
+            weight="bold"
+            className={cn('text-muted-foreground', refreshing && 'animate-spin')}
           />
         </button>
       </div>
@@ -139,7 +140,7 @@ export function OrdersPage() {
                 'min-h-[36px] touch-manipulation whitespace-nowrap',
                 activeTab === tab.id
                   ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-muted-foreground'
+                  : 'bg-muted text-muted-foreground',
               )}
             >
               {tab.label}
@@ -151,10 +152,12 @@ export function OrdersPage() {
       {/* Order list */}
       <div className="flex-1 overflow-y-auto px-4 pb-4">
         {loading ? (
-          <LoadingSpinner />
+          <ManageListSkeleton />
+        ) : error ? (
+          <InlineError message="Gagal memuat pesanan." onRetry={fetchOrders} />
         ) : orders.length === 0 ? (
           <EmptyState
-            icon={<Package size={48} />}
+            icon={<Package size={48} weight="fill" />}
             title="Tidak ada pesanan"
             description="Belum ada pesanan untuk filter ini."
           />
@@ -182,12 +185,8 @@ export function OrdersPage() {
                     )}
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-sm font-semibold">
-                      {formatCurrency(order.total_amount)}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatTime(order.created_at)}
-                    </p>
+                    <p className="text-sm font-semibold">{formatCurrency(order.total_amount)}</p>
+                    <p className="text-xs text-muted-foreground">{formatTime(order.created_at)}</p>
                   </div>
                 </div>
               </button>

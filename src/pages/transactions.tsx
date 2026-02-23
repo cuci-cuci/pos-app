@@ -1,9 +1,15 @@
+import {
+  ArrowsClockwise,
+  CheckCircle,
+  MagnifyingGlass,
+  Receipt,
+  XCircle,
+} from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { CheckCircle, Receipt, RefreshCw, Search, XCircle } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { EmptyState } from '@/components/shared/empty-state'
-import { LoadingSpinner } from '@/components/shared/loading-spinner'
+import { TransactionListSkeleton } from '@/components/shared/skeleton-loaders'
 import { SyncStatusIcon } from '@/components/shared/sync-status-icon'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -27,21 +33,21 @@ function getStatusBadge(status: TransactionStatus) {
     case 'completed':
       return (
         <Badge variant="success" className="gap-1">
-          <CheckCircle size={12} />
+          <CheckCircle size={12} weight="fill" />
           Selesai
         </Badge>
       )
     case 'cancelled':
       return (
         <Badge variant="destructive" className="gap-1">
-          <XCircle size={12} />
+          <XCircle size={12} weight="fill" />
           Batal
         </Badge>
       )
     case 'refunded':
       return (
         <Badge variant="secondary" className="gap-1">
-          <RefreshCw size={12} />
+          <ArrowsClockwise size={12} weight="bold" />
           Refund
         </Badge>
       )
@@ -102,7 +108,7 @@ export function TransactionsPage() {
   }
 
   if (transactions === undefined) {
-    return <LoadingSpinner />
+    return <TransactionListSkeleton />
   }
 
   return (
@@ -135,8 +141,9 @@ export function TransactionsPage() {
       {/* Search */}
       <div className="px-4 pb-2">
         <div className="relative">
-          <Search
+          <MagnifyingGlass
             size={18}
+            weight="bold"
             className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
           />
           <Input
@@ -152,7 +159,7 @@ export function TransactionsPage() {
       <div className="flex-1 overflow-y-auto px-4 pb-4">
         {filtered.length === 0 ? (
           <EmptyState
-            icon={<Receipt size={48} />}
+            icon={<Receipt size={48} weight="fill" />}
             title="Tidak ada transaksi"
             description={
               search

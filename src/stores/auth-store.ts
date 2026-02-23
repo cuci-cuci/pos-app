@@ -42,6 +42,6 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'laundry-pos-auth',
-    }
-  )
+    },
+  ),
 )

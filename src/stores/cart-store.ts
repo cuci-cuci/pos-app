@@ -63,7 +63,7 @@ export const useCartStore = create<CartState>()(
             items: get().items.map((i) =>
               i.serviceId === item.serviceId
                 ? { ...i, quantity: newQty, subtotal: Math.round(newQty * i.pricePerUnit) }
-                : i
+                : i,
             ),
           })
         } else {
@@ -84,9 +84,7 @@ export const useCartStore = create<CartState>()(
         }
         set({
           items: get().items.map((i) =>
-            i.id === id
-              ? { ...i, quantity, subtotal: Math.round(quantity * i.pricePerUnit) }
-              : i
+            i.id === id ? { ...i, quantity, subtotal: Math.round(quantity * i.pricePerUnit) } : i,
           ),
         })
       },
@@ -151,6 +149,6 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: 'laundry-pos-cart',
-    }
-  )
+    },
+  ),
 )

@@ -1,34 +1,34 @@
-import { useState, useCallback } from 'react'
+import {
+  CircleNotch,
+  Crown,
+  CurrencyCircleDollar,
+  MagnifyingGlass,
+  Tag,
+  UserCircle,
+  UserPlus,
+  X,
+} from '@phosphor-icons/react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { db } from '@/db'
-import type { Customer, MemberTier } from '@/db/schema'
-import { useCartStore } from '@/stores/cart-store'
-import { useAuthStore } from '@/stores/auth-store'
-import { memberApi } from '@/services/member-api'
-import { formatCurrency } from '@/lib/format'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
+import { useCallback, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Separator } from '@/components/ui/separator'
 import { showToast } from '@/components/ui/toast'
-import {
-  CircleUser,
-  X,
-  Search,
-  UserPlus,
-  Crown,
-  Tag,
-  CircleDollarSign,
-  Loader2,
-} from 'lucide-react'
+import { db } from '@/db'
+import type { Customer, MemberTier } from '@/db/schema'
+import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
+import { memberApi } from '@/services/member-api'
+import { useAuthStore } from '@/stores/auth-store'
+import { useCartStore } from '@/stores/cart-store'
 
 const TIER_CONFIG: Record<MemberTier, { label: string; color: string; bg: string }> = {
   bronze: { label: 'Bronze', color: 'text-orange-700', bg: 'bg-orange-100' },
@@ -61,52 +61,42 @@ export function CustomerSearch() {
   const [isRegistering, setIsRegistering] = useState(false)
 
   const tenantId = useAuthStore((s) => s.user?.tenantId)
-  const { customerId, customerName, memberInfo, setMember, setCustomer } =
-    useCartStore()
+  const { customerId, customerName, memberInfo, setMember, setCustomer } = useCartStore()
 
-  const customers = useLiveQuery(
-    () => {
-      if (!tenantId || query.length < 2) return [] as Customer[]
-      const q = query.toLowerCase()
-      return db.customers
-        .where('tenantId')
-        .equals(tenantId)
-        .filter(
-          (c) =>
-            c.name.toLowerCase().includes(q) || c.phone.includes(q)
-        )
-        .limit(10)
-        .toArray()
-    },
-    [tenantId, query]
-  )
+  const customers = useLiveQuery(() => {
+    if (!tenantId || query.length < 2) return [] as Customer[]
+    const q = query.toLowerCase()
+    return db.customers
+      .where('tenantId')
+      .equals(tenantId)
+      .filter((c) => c.name.toLowerCase().includes(q) || c.phone.includes(q))
+      .limit(10)
+      .toArray()
+  }, [tenantId, query])
 
-  const handleSearchApi = useCallback(
-    async (phone: string) => {
-      if (phone.length < 4) return
-      setIsSearchingApi(true)
-      try {
-        const response = await memberApi.search(phone)
-        setApiResults(
-          response.data.map((m) => ({
-            id: m.id,
-            name: m.name,
-            phone: m.phone,
-            email: m.email,
-            tier: m.tier,
-            totalSpending: m.total_spending,
-            discountPercent: m.discount_percent,
-          }))
-        )
-      } catch {
-        // API unavailable, fall back to offline data only
-        setApiResults([])
-      } finally {
-        setIsSearchingApi(false)
-      }
-    },
-    []
-  )
+  const handleSearchApi = useCallback(async (phone: string) => {
+    if (phone.length < 4) return
+    setIsSearchingApi(true)
+    try {
+      const response = await memberApi.search(phone)
+      setApiResults(
+        response.data.map((m) => ({
+          id: m.id,
+          name: m.name,
+          phone: m.phone,
+          email: m.email,
+          tier: m.tier,
+          totalSpending: m.total_spending,
+          discountPercent: m.discount_percent,
+        })),
+      )
+    } catch {
+      // API unavailable, fall back to offline data only
+      setApiResults([])
+    } finally {
+      setIsSearchingApi(false)
+    }
+  }, [])
 
   const handleQueryChange = useCallback(
     (value: string) => {
@@ -119,7 +109,7 @@ export function CustomerSearch() {
         setApiResults([])
       }
     },
-    [handleSearchApi]
+    [handleSearchApi],
   )
 
   const handleSelectMember = useCallback(
@@ -145,7 +135,7 @@ export function CustomerSearch() {
       setShowResults(false)
       setApiResults([])
     },
-    [setMember]
+    [setMember],
   )
 
   const handleSelectCustomer = useCallback(
@@ -167,7 +157,7 @@ export function CustomerSearch() {
       setShowResults(false)
       setApiResults([])
     },
-    [setMember, setCustomer]
+    [setMember, setCustomer],
   )
 
   const handleClear = useCallback(() => {
@@ -207,10 +197,7 @@ export function CustomerSearch() {
       setQuery('')
       showToast('Member berhasil didaftarkan!', 'success')
     } catch (error) {
-      showToast(
-        error instanceof Error ? error.message : 'Gagal mendaftarkan member',
-        'error'
-      )
+      showToast(error instanceof Error ? error.message : 'Gagal mendaftarkan member', 'error')
     } finally {
       setIsRegistering(false)
     }
@@ -222,27 +209,21 @@ export function CustomerSearch() {
     return (
       <div className="space-y-2">
         <div className="flex items-start gap-3 bg-accent rounded-[var(--radius)] px-3 py-3">
-          <CircleUser size={28} className="text-primary shrink-0 mt-0.5" />
+          <UserCircle size={28} className="text-primary shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm font-semibold">{memberInfo.name}</span>
               <Badge
-                className={cn(
-                  'text-[10px] px-2 py-0 border-0',
-                  tierConfig.bg,
-                  tierConfig.color
-                )}
+                className={cn('text-[10px] px-2 py-0 border-0', tierConfig.bg, tierConfig.color)}
               >
                 <Crown size={10} className="mr-0.5" />
                 {tierConfig.label}
               </Badge>
             </div>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {memberInfo.phone}
-            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">{memberInfo.phone}</p>
             <div className="flex items-center gap-3 mt-1.5 flex-wrap">
               <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                <CircleDollarSign size={12} />
+                <CurrencyCircleDollar size={12} />
                 {formatCurrency(memberInfo.totalSpending)}
               </span>
               <span className="flex items-center gap-1 text-xs text-primary font-medium">
@@ -256,7 +237,7 @@ export function CustomerSearch() {
             onClick={handleClear}
             className="p-1 rounded hover:bg-background shrink-0"
           >
-            <X size={16} />
+            <X size={16} weight="bold" />
           </button>
         </div>
       </div>
@@ -267,14 +248,10 @@ export function CustomerSearch() {
   if (customerId) {
     return (
       <div className="flex items-center gap-2 bg-accent rounded-[var(--radius)] px-3 py-2">
-        <CircleUser size={20} className="text-primary" />
+        <UserCircle size={20} className="text-primary" />
         <span className="text-sm font-medium flex-1">{customerName}</span>
-        <button
-          type="button"
-          onClick={handleClear}
-          className="p-1 rounded hover:bg-background"
-        >
-          <X size={16} />
+        <button type="button" onClick={handleClear} className="p-1 rounded hover:bg-background">
+          <X size={16} weight="bold" />
         </button>
       </div>
     )
@@ -329,8 +306,9 @@ export function CustomerSearch() {
       <div className="relative">
         <div className="flex gap-2">
           <div className="relative flex-1">
-            <Search
+            <MagnifyingGlass
               size={16}
+              weight="bold"
               className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
             />
             <Input
@@ -342,8 +320,9 @@ export function CustomerSearch() {
               className="h-10 pl-9"
             />
             {isSearchingApi && (
-              <Loader2
+              <CircleNotch
                 size={16}
+                weight="bold"
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground animate-spin"
               />
             )}
@@ -354,7 +333,7 @@ export function CustomerSearch() {
             className="h-10 shrink-0 gap-1 text-xs"
             onClick={handleOpenRegister}
           >
-            <UserPlus size={16} />
+            <UserPlus size={16} weight="bold" />
             <span className="hidden sm:inline">Daftar Member</span>
           </Button>
         </div>
@@ -362,9 +341,7 @@ export function CustomerSearch() {
         {showResults && mergedResults.length > 0 && (
           <div className="absolute top-full left-0 right-0 mt-1 bg-card border rounded-[var(--radius)] shadow-lg z-20 max-h-64 overflow-y-auto">
             {mergedResults.map((result) => {
-              const tierConfig = result.tier
-                ? TIER_CONFIG[result.tier]
-                : null
+              const tierConfig = result.tier ? TIER_CONFIG[result.tier] : null
               return (
                 <button
                   type="button"
@@ -396,44 +373,40 @@ export function CustomerSearch() {
                   className={cn(
                     'w-full flex items-center gap-3 px-3 py-2.5 text-left',
                     'hover:bg-accent active:bg-accent transition-colors',
-                    'min-h-[44px]'
+                    'min-h-[44px]',
                   )}
                 >
-                  <CircleUser
+                  <UserCircle
                     size={24}
                     className={cn(
                       'shrink-0',
-                      result.isMember
-                        ? 'text-primary'
-                        : 'text-muted-foreground'
+                      result.isMember ? 'text-primary' : 'text-muted-foreground',
                     )}
-                    strokeWidth={result.isMember ? 2.5 : 1.5}
+                    weight={result.isMember ? 'fill' : 'regular'}
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <p className="text-sm font-medium truncate">
-                        {result.name}
-                      </p>
+                      <p className="text-sm font-medium truncate">{result.name}</p>
                       {tierConfig && (
                         <span
                           className={cn(
                             'text-[10px] font-semibold px-1.5 py-0 rounded-full',
                             tierConfig.bg,
-                            tierConfig.color
+                            tierConfig.color,
                           )}
                         >
                           {tierConfig.label}
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      {result.phone}
-                    </p>
-                    {result.isMember && result.discountPercent !== undefined && result.discountPercent > 0 && (
-                      <p className="text-xs text-primary font-medium mt-0.5">
-                        Diskon {result.discountPercent}%
-                      </p>
-                    )}
+                    <p className="text-xs text-muted-foreground">{result.phone}</p>
+                    {result.isMember &&
+                      result.discountPercent !== undefined &&
+                      result.discountPercent > 0 && (
+                        <p className="text-xs text-primary font-medium mt-0.5">
+                          Diskon {result.discountPercent}%
+                        </p>
+                      )}
                   </div>
                 </button>
               )
@@ -441,25 +414,15 @@ export function CustomerSearch() {
           </div>
         )}
 
-        {showResults &&
-          mergedResults.length === 0 &&
-          query.length >= 2 &&
-          !isSearchingApi && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-card border rounded-[var(--radius)] shadow-lg z-20 p-4 text-center">
-              <p className="text-sm text-muted-foreground mb-2">
-                Tidak ditemukan
-              </p>
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1"
-                onClick={handleOpenRegister}
-              >
-                <UserPlus size={14} />
-                Daftar Member Baru
-              </Button>
-            </div>
-          )}
+        {showResults && mergedResults.length === 0 && query.length >= 2 && !isSearchingApi && (
+          <div className="absolute top-full left-0 right-0 mt-1 bg-card border rounded-[var(--radius)] shadow-lg z-20 p-4 text-center">
+            <p className="text-sm text-muted-foreground mb-2">Tidak ditemukan</p>
+            <Button variant="outline" size="sm" className="gap-1" onClick={handleOpenRegister}>
+              <UserPlus size={14} weight="bold" />
+              Daftar Member Baru
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Registration dialog */}
@@ -498,10 +461,7 @@ export function CustomerSearch() {
             </div>
             <div>
               <label htmlFor="reg-email" className="text-sm font-medium mb-1 block">
-                Email{' '}
-                <span className="text-muted-foreground font-normal">
-                  (opsional)
-                </span>
+                Email <span className="text-muted-foreground font-normal">(opsional)</span>
               </label>
               <Input
                 id="reg-email"
@@ -527,13 +487,11 @@ export function CustomerSearch() {
             </Button>
             <Button
               onClick={() => void handleRegister()}
-              disabled={
-                !regName.trim() || !regPhone.trim() || isRegistering
-              }
+              disabled={!regName.trim() || !regPhone.trim() || isRegistering}
             >
               {isRegistering ? (
                 <>
-                  <Loader2 size={16} className="animate-spin mr-1" />
+                  <CircleNotch size={16} weight="bold" className="animate-spin mr-1" />
                   Mendaftar...
                 </>
               ) : (

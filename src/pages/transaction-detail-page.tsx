@@ -1,20 +1,20 @@
-import { useParams, useRouter } from '@tanstack/react-router'
-import { useLiveQuery } from 'dexie-react-hooks'
 import {
   ArrowLeft,
-  Ban,
+  ArrowsClockwise,
   CheckCircle,
   Clock,
   CloudCheck,
-  CloudOff,
+  CloudSlash,
+  Prohibit,
   Receipt,
-  RefreshCw,
   XCircle,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
+import { useParams, useRouter } from '@tanstack/react-router'
+import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 import { ReceiptActions } from '@/components/receipt/receipt-actions'
 import { EmptyState } from '@/components/shared/empty-state'
-import { LoadingSpinner } from '@/components/shared/loading-spinner'
+import { DetailSkeleton } from '@/components/shared/skeleton-loaders'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -29,24 +29,59 @@ import { useShiftStore } from '@/stores/shift-store'
 function statusLabel(status: TransactionStatus) {
   switch (status) {
     case 'completed':
-      return { label: 'Selesai', variant: 'success' as const, icon: CheckCircle }
+      return {
+        label: 'Selesai',
+        variant: 'success' as const,
+        icon: CheckCircle,
+        weight: 'fill' as const,
+      }
     case 'cancelled':
-      return { label: 'Dibatalkan', variant: 'destructive' as const, icon: XCircle }
+      return {
+        label: 'Dibatalkan',
+        variant: 'destructive' as const,
+        icon: XCircle,
+        weight: 'fill' as const,
+      }
     case 'refunded':
-      return { label: 'Refund', variant: 'secondary' as const, icon: RefreshCw }
+      return {
+        label: 'Refund',
+        variant: 'secondary' as const,
+        icon: ArrowsClockwise,
+        weight: 'bold' as const,
+      }
   }
 }
 
 function syncStatusInfo(syncStatus: SyncStatus) {
   switch (syncStatus) {
     case 'synced':
-      return { label: 'Tersinkron', color: 'text-success', icon: CloudCheck }
+      return {
+        label: 'Tersinkron',
+        color: 'text-success',
+        icon: CloudCheck,
+        weight: 'fill' as const,
+      }
     case 'pending':
-      return { label: 'Menunggu sinkronisasi', color: 'text-muted-foreground', icon: Clock }
+      return {
+        label: 'Menunggu sinkronisasi',
+        color: 'text-muted-foreground',
+        icon: Clock,
+        weight: 'fill' as const,
+      }
     case 'syncing':
-      return { label: 'Sedang sinkronisasi...', color: 'text-primary', icon: RefreshCw }
+      return {
+        label: 'Sedang sinkronisasi...',
+        color: 'text-primary',
+        icon: ArrowsClockwise,
+        weight: 'bold' as const,
+      }
     case 'failed':
-      return { label: 'Gagal sinkron', color: 'text-destructive', icon: CloudOff }
+      return {
+        label: 'Gagal sinkron',
+        color: 'text-destructive',
+        icon: CloudSlash,
+        weight: 'fill' as const,
+      }
   }
 }
 
@@ -67,7 +102,7 @@ export function TransactionDetailPage() {
   const tenantConfig = useLiveQuery(() => db.tenantConfig.toCollection().first(), [])
 
   if (transaction === undefined) {
-    return <LoadingSpinner />
+    return <DetailSkeleton />
   }
 
   if (!transaction) {
@@ -78,10 +113,10 @@ export function TransactionDetailPage() {
           size="icon"
           onClick={() => router.navigate({ to: '/transactions' })}
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={20} weight="bold" />
         </Button>
         <EmptyState
-          icon={<Receipt size={48} />}
+          icon={<Receipt size={48} weight="fill" />}
           title="Transaksi tidak ditemukan"
           description="Transaksi yang Anda cari tidak ada di database lokal."
         />
@@ -155,7 +190,7 @@ export function TransactionDetailPage() {
           size="icon"
           onClick={() => router.navigate({ to: '/transactions' })}
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={20} weight="bold" />
         </Button>
         <h1 className="text-lg font-semibold">Detail Transaksi</h1>
       </div>
@@ -202,7 +237,7 @@ export function TransactionDetailPage() {
             <div className="flex justify-between items-center text-xs mt-1">
               <span className="text-muted-foreground">Status</span>
               <Badge variant={status.variant} className="gap-1">
-                <StatusIcon size={12} />
+                <StatusIcon size={12} weight={status.weight} />
                 {status.label}
               </Badge>
             </div>
@@ -295,6 +330,7 @@ export function TransactionDetailPage() {
             <div className="flex items-center justify-center gap-2">
               <SyncIcon
                 size={16}
+                weight={sync.weight}
                 className={cn(sync.color, transaction.syncStatus === 'syncing' && 'animate-spin')}
               />
               <span className={cn('text-xs font-medium', sync.color)}>{sync.label}</span>
@@ -325,7 +361,7 @@ export function TransactionDetailPage() {
               className="w-full h-11 text-destructive border-destructive/30 hover:bg-destructive/10 gap-2"
               onClick={() => setShowCancelConfirm(true)}
             >
-              <Ban size={18} />
+              <Prohibit size={18} weight="fill" />
               Batalkan Transaksi
             </Button>
           </div>
@@ -348,7 +384,7 @@ export function TransactionDetailPage() {
           <div className="bg-card rounded-[var(--radius)] p-6 max-w-sm w-full shadow-xl">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
-                <Ban size={20} className="text-destructive" />
+                <Prohibit size={20} className="text-destructive" weight="fill" />
               </div>
               <h3 className="text-lg font-bold">Batalkan Transaksi?</h3>
             </div>

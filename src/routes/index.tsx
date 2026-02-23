@@ -1,30 +1,25 @@
-import {
-  createRouter,
-  createRootRoute,
-  createRoute,
-  redirect,
-} from '@tanstack/react-router'
+import { createRootRoute, createRoute, createRouter, redirect } from '@tanstack/react-router'
 import { AppShell } from '@/components/layout/app-shell'
-import { LoginPage } from '@/pages/login'
-import { RegisterPage } from '@/pages/register'
-import { OnboardingPage } from '@/pages/onboarding'
-import { SetupPage } from '@/pages/setup'
-import { PosPage } from '@/pages/pos'
 import { DashboardPage } from '@/pages/dashboard'
-import { TransactionsPage } from '@/pages/transactions'
-import { TransactionDetailPage } from '@/pages/transaction-detail-page'
-import { SettingsPage } from '@/pages/settings'
+import { LoginPage } from '@/pages/login'
 import { ManagePage } from '@/pages/manage'
-import { ManageOutletsPage } from '@/pages/manage/outlets'
-import { ManagePricingPage } from '@/pages/manage/pricing'
-import { ManageCashiersPage } from '@/pages/manage/cashiers'
-import { ManagePaymentMethodsPage } from '@/pages/manage/payment-methods'
-import { ManageMembersPage } from '@/pages/manage/members'
 import { ManageAnalyticsPage } from '@/pages/manage/analytics'
+import { ManageCashiersPage } from '@/pages/manage/cashiers'
+import { ManageMembersPage } from '@/pages/manage/members'
+import { ManageOutletsPage } from '@/pages/manage/outlets'
+import { ManagePaymentMethodsPage } from '@/pages/manage/payment-methods'
+import { ManagePricingPage } from '@/pages/manage/pricing'
+import { OnboardingPage } from '@/pages/onboarding'
 import { OrdersPage } from '@/pages/orders'
 import { OrderDetailPage } from '@/pages/orders/detail'
-import { ShiftsPage } from '@/pages/shifts/index'
+import { PosPage } from '@/pages/pos'
+import { RegisterPage } from '@/pages/register'
+import { SettingsPage } from '@/pages/settings'
+import { SetupPage } from '@/pages/setup'
 import { ShiftDetailPage } from '@/pages/shifts/detail'
+import { ShiftsPage } from '@/pages/shifts/index'
+import { TransactionDetailPage } from '@/pages/transaction-detail-page'
+import { TransactionsPage } from '@/pages/transactions'
 import { useAuthStore } from '@/stores/auth-store'
 import { useDeviceStore } from '@/stores/device-store'
 
@@ -83,10 +78,7 @@ const authenticatedRoute = createRoute({
       throw redirect({ to: '/login' })
     }
 
-    if (
-      authState.user?.role === 'tenant_owner' &&
-      !authState.onboardingComplete
-    ) {
+    if (authState.user?.role === 'tenant_owner' && !authState.onboardingComplete) {
       throw redirect({ to: '/onboarding' })
     }
 

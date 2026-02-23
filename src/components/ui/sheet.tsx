@@ -1,4 +1,12 @@
-import { useRef, useEffect, useCallback, type ReactNode, type HTMLAttributes, type MouseEvent, type KeyboardEvent } from 'react'
+import {
+  type HTMLAttributes,
+  type KeyboardEvent,
+  type MouseEvent,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+} from 'react'
 import { cn } from '@/lib/utils'
 
 interface SheetProps {
@@ -39,7 +47,7 @@ function Sheet({ open, onOpenChange, children }: SheetProps) {
         onOpenChange(false)
       }
     },
-    [onOpenChange]
+    [onOpenChange],
   )
 
   const handleKeyDown = useCallback(
@@ -48,7 +56,7 @@ function Sheet({ open, onOpenChange, children }: SheetProps) {
         onOpenChange(false)
       }
     },
-    [onOpenChange]
+    [onOpenChange],
   )
 
   return (
@@ -56,7 +64,7 @@ function Sheet({ open, onOpenChange, children }: SheetProps) {
       ref={dialogRef}
       className={cn(
         'fixed inset-0 m-0 p-0 bg-transparent backdrop:bg-black/50 max-w-full max-h-full w-full h-full',
-        open ? 'flex items-end justify-center' : ''
+        open ? 'flex items-end justify-center' : '',
       )}
       onClick={handleBackdropClick}
       onKeyDown={handleKeyDown}
@@ -72,7 +80,7 @@ function SheetContent({ className, children, ...props }: HTMLAttributes<HTMLDivE
     <div
       className={cn(
         'bg-card rounded-t-[var(--radius)] w-full max-h-[85vh] overflow-y-auto p-6 shadow-lg border-t animate-slide-up',
-        className
+        className,
       )}
       style={{
         animation: 'slideUp 0.3s ease-out',

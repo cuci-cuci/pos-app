@@ -1,14 +1,14 @@
-import { formatCurrency, formatDate, formatTime } from '@/lib/format'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import {
+  ArrowsLeftRight,
   Clock,
-  CircleUser,
-  Store,
+  CurrencyDollar,
   Receipt,
-  DollarSign,
-  ArrowLeftRight,
-} from 'lucide-react'
+  Storefront,
+  UserCircle,
+} from '@phosphor-icons/react'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { formatCurrency, formatDate, formatTime } from '@/lib/format'
 import type { ShiftSummary as ShiftSummaryType } from '@/services/shift-api'
 
 interface ShiftSummaryProps {
@@ -25,7 +25,7 @@ export function ShiftSummary({ summary }: ShiftSummaryProps) {
         <CardHeader>
           <CardTitle className="text-sm flex items-center justify-between">
             <span className="flex items-center gap-2">
-              <Clock size={18} />
+              <Clock size={18} weight="fill" />
               Detail Shift
             </span>
             <Badge variant={summary.status === 'open' ? 'success' : 'secondary'}>
@@ -36,14 +36,14 @@ export function ShiftSummary({ summary }: ShiftSummaryProps) {
         <CardContent className="space-y-2 text-sm">
           <div className="flex justify-between">
             <span className="text-muted-foreground flex items-center gap-1.5">
-              <CircleUser size={14} />
+              <UserCircle size={14} />
               Kasir
             </span>
             <span className="font-medium">{summary.cashier_name}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground flex items-center gap-1.5">
-              <Store size={14} />
+              <Storefront size={14} />
               Outlet
             </span>
             <span className="font-medium text-xs text-muted-foreground">
@@ -77,7 +77,7 @@ export function ShiftSummary({ summary }: ShiftSummaryProps) {
       <Card>
         <CardHeader>
           <CardTitle className="text-sm flex items-center gap-2">
-            <Receipt size={18} />
+            <Receipt size={18} weight="fill" />
             Pendapatan
           </CardTitle>
         </CardHeader>
@@ -98,7 +98,7 @@ export function ShiftSummary({ summary }: ShiftSummaryProps) {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2">
-              <DollarSign size={18} />
+              <CurrencyDollar size={18} weight="fill" />
               Breakdown Pembayaran
             </CardTitle>
           </CardHeader>
@@ -120,7 +120,7 @@ export function ShiftSummary({ summary }: ShiftSummaryProps) {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2">
-              <ArrowLeftRight size={18} />
+              <ArrowsLeftRight size={18} />
               Rekonsiliasi Kas
             </CardTitle>
           </CardHeader>

@@ -1,50 +1,59 @@
-import { useState, useEffect } from 'react'
+import { CaretLeft, CaretRight, ClockCounterClockwise } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
-import { shiftApi } from '@/services/shift-api'
-import { formatCurrency, formatDate, formatTime } from '@/lib/format'
+import { useCallback, useEffect, useState } from 'react'
+import { EmptyState } from '@/components/shared/empty-state'
+import { InlineError } from '@/components/shared/inline-error'
+import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { LoadingSpinner } from '@/components/shared/loading-spinner'
-import { EmptyState } from '@/components/shared/empty-state'
-import { History, ChevronLeft, ChevronRight } from 'lucide-react'
+import { formatCurrency, formatDate, formatTime } from '@/lib/format'
 import type { Shift } from '@/services/shift-api'
+import { shiftApi } from '@/services/shift-api'
 
 export function ShiftsPage() {
   const router = useRouter()
   const [shifts, setShifts] = useState<Shift[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
 
-  useEffect(() => {
+  const fetchShifts = useCallback(() => {
     setLoading(true)
+    setError(false)
     shiftApi
       .list(page)
       .then((res) => {
         setShifts(res.data)
         setTotalPages(res.meta.total_pages)
       })
-      .catch(() => setShifts([]))
+      .catch(() => setError(true))
       .finally(() => setLoading(false))
   }, [page])
 
+  useEffect(() => {
+    fetchShifts()
+  }, [fetchShifts])
+
   if (loading) {
-    return <LoadingSpinner />
+    return <ManageListSkeleton />
+  }
+
+  if (error) {
+    return <InlineError message="Gagal memuat riwayat shift." onRetry={fetchShifts} />
   }
 
   return (
     <div className="flex flex-col h-full">
       <div className="px-4 pt-4 pb-2">
         <h1 className="text-xl font-bold">Riwayat Shift</h1>
-        <p className="text-sm text-muted-foreground">
-          Lihat semua shift yang pernah dibuka.
-        </p>
+        <p className="text-sm text-muted-foreground">Lihat semua shift yang pernah dibuka.</p>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 pb-4">
         {shifts.length === 0 ? (
           <EmptyState
-            icon={<History size={48} />}
+            icon={<ClockCounterClockwise size={48} weight="fill" />}
             title="Belum ada shift"
             description="Shift akan muncul di sini setelah Anda membuka shift pertama."
           />
@@ -65,12 +74,8 @@ export function ShiftsPage() {
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold">
-                        {formatDate(shift.opened_at)}
-                      </span>
-                      <Badge
-                        variant={shift.status === 'open' ? 'success' : 'secondary'}
-                      >
+                      <span className="text-sm font-semibold">{formatDate(shift.opened_at)}</span>
+                      <Badge variant={shift.status === 'open' ? 'success' : 'secondary'}>
                         {shift.status === 'open' ? 'Aktif' : 'Ditutup'}
                       </Badge>
                     </div>
@@ -80,9 +85,7 @@ export function ShiftsPage() {
                     </p>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-sm font-semibold">
-                      {formatCurrency(shift.opening_cash)}
-                    </p>
+                    <p className="text-sm font-semibold">{formatCurrency(shift.opening_cash)}</p>
                     <p className="text-xs text-muted-foreground">kas awal</p>
                   </div>
                 </div>
@@ -117,7 +120,7 @@ export function ShiftsPage() {
             disabled={page <= 1}
             onClick={() => setPage((p) => p - 1)}
           >
-            <ChevronLeft size={16} />
+            <CaretLeft size={16} weight="bold" />
           </Button>
           <span className="text-sm text-muted-foreground">
             {page} / {totalPages}
@@ -128,7 +131,7 @@ export function ShiftsPage() {
             disabled={page >= totalPages}
             onClick={() => setPage((p) => p + 1)}
           >
-            <ChevronRight size={16} />
+            <CaretRight size={16} weight="bold" />
           </Button>
         </div>
       )}

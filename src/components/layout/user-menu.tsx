@@ -1,13 +1,13 @@
+import { Gear, Monitor, SignOut, Storefront } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { logout } from '@/services/auth-service'
 import { useAuthStore } from '@/stores/auth-store'
 import { useDeviceStore } from '@/stores/device-store'
 import { syncEngine } from '@/sync/sync-engine'
-import { logout } from '@/services/auth-service'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { Settings, LogOut, Store, Monitor } from 'lucide-react'
 
 interface UserMenuProps {
   open: boolean
@@ -67,14 +67,14 @@ export function UserMenu({ open, onOpenChange }: UserMenuProps) {
         {/* Device info */}
         <div className="space-y-3 mb-4">
           <div className="flex items-center gap-3 text-sm">
-            <Store size={18} className="text-muted-foreground shrink-0" />
+            <Storefront size={18} weight="fill" className="text-muted-foreground shrink-0" />
             <div className="min-w-0">
               <p className="text-muted-foreground text-xs">Outlet</p>
               <p className="font-medium truncate">{outletName || '-'}</p>
             </div>
           </div>
           <div className="flex items-center gap-3 text-sm">
-            <Monitor size={18} className="text-muted-foreground shrink-0" />
+            <Monitor size={18} weight="fill" className="text-muted-foreground shrink-0" />
             <div className="min-w-0">
               <p className="text-muted-foreground text-xs">Perangkat</p>
               <p className="font-medium truncate">{deviceName || '-'}</p>
@@ -90,7 +90,7 @@ export function UserMenu({ open, onOpenChange }: UserMenuProps) {
             className="w-full justify-start gap-3 h-11"
             onClick={handleSettings}
           >
-            <Settings size={20} />
+            <Gear size={20} weight="fill" />
             Pengaturan
           </Button>
           <Button
@@ -98,7 +98,7 @@ export function UserMenu({ open, onOpenChange }: UserMenuProps) {
             className="w-full justify-start gap-3 h-11 text-destructive hover:text-destructive"
             onClick={() => void handleLogout()}
           >
-            <LogOut size={20} />
+            <SignOut size={20} weight="fill" />
             Keluar
           </Button>
         </div>

@@ -1,19 +1,19 @@
+import { CurrencyDollar, LockOpen } from '@phosphor-icons/react'
 import { useState } from 'react'
-import { useDeviceStore } from '@/stores/device-store'
-import { useShiftStore } from '@/stores/shift-store'
-import { formatCurrency } from '@/lib/format'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { showToast } from '@/components/ui/toast'
-import { LockOpen, DollarSign } from 'lucide-react'
+import { formatCurrency } from '@/lib/format'
+import { useDeviceStore } from '@/stores/device-store'
+import { useShiftStore } from '@/stores/shift-store'
 
 interface OpenShiftDialogProps {
   open: boolean
@@ -56,7 +56,7 @@ export function OpenShiftDialog({ open, onOpenChange }: OpenShiftDialogProps) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <LockOpen size={20} />
+            <LockOpen size={20} weight="fill" />
             Buka Shift
           </DialogTitle>
           <DialogDescription>
@@ -70,8 +70,9 @@ export function OpenShiftDialog({ open, onOpenChange }: OpenShiftDialogProps) {
               Kas Awal
             </label>
             <div className="relative">
-              <DollarSign
+              <CurrencyDollar
                 size={18}
+                weight="fill"
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
               />
               <Input
@@ -86,9 +87,7 @@ export function OpenShiftDialog({ open, onOpenChange }: OpenShiftDialogProps) {
               />
             </div>
             {cashValue > 0 && (
-              <p className="text-xs text-muted-foreground mt-1">
-                {formatCurrency(cashValue)}
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">{formatCurrency(cashValue)}</p>
             )}
           </div>
 
@@ -107,11 +106,7 @@ export function OpenShiftDialog({ open, onOpenChange }: OpenShiftDialogProps) {
         </div>
 
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={loading}
-          >
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
             Batal
           </Button>
           <Button onClick={handleOpen} disabled={loading}>

@@ -1,8 +1,8 @@
 import { db } from '@/db'
 import type { Transaction } from '@/db/schema'
+import { MAX_RETRY_ATTEMPTS } from '@/lib/constants'
 import { apiClient } from '@/services/api-client'
 import { useDeviceStore } from '@/stores/device-store'
-import { MAX_RETRY_ATTEMPTS } from '@/lib/constants'
 
 export async function pushPendingTransactions(tenantId: string): Promise<number> {
   const pending = await db.transactions
@@ -14,10 +14,7 @@ export async function pushPendingTransactions(tenantId: string): Promise<number>
 
   const ids = pending.map((t: Transaction) => t.id)
 
-  await db.transactions
-    .where('id')
-    .anyOf(ids)
-    .modify({ syncStatus: 'syncing' })
+  await db.transactions.where('id').anyOf(ids).modify({ syncStatus: 'syncing' })
 
   const deviceState = useDeviceStore.getState()
   const transactionsWithOutlet = pending.map((t: Transaction) => ({
@@ -35,10 +32,7 @@ export async function pushPendingTransactions(tenantId: string): Promise<number>
       .json()
 
     const now = new Date().toISOString()
-    await db.transactions
-      .where('id')
-      .anyOf(ids)
-      .modify({ syncStatus: 'synced', syncedAt: now })
+    await db.transactions.where('id').anyOf(ids).modify({ syncStatus: 'synced', syncedAt: now })
 
     await db.syncLogs.add({
       direction: 'push',

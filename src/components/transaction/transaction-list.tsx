@@ -1,13 +1,13 @@
-import { useLiveQuery } from 'dexie-react-hooks'
-import { db } from '@/db'
-import { useAuthStore } from '@/stores/auth-store'
-import { formatCurrency, formatDate, formatTime } from '@/lib/format'
-import { Badge } from '@/components/ui/badge'
-import { EmptyState } from '@/components/shared/empty-state'
-import { Receipt } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { Receipt } from '@phosphor-icons/react'
 import { startOfDay } from 'date-fns'
-import type { Transaction, SyncStatus } from '@/db/schema'
+import { useLiveQuery } from 'dexie-react-hooks'
+import { EmptyState } from '@/components/shared/empty-state'
+import { Badge } from '@/components/ui/badge'
+import { db } from '@/db'
+import type { SyncStatus, Transaction } from '@/db/schema'
+import { formatCurrency, formatDate, formatTime } from '@/lib/format'
+import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/stores/auth-store'
 
 interface TransactionListProps {
   filter: 'today' | 'pending' | 'all'
@@ -31,41 +31,35 @@ const syncLabel: Record<SyncStatus, string> = {
 export function TransactionList({ filter, onSelect }: TransactionListProps) {
   const tenantId = useAuthStore((s) => s.user?.tenantId)
 
-  const transactions = useLiveQuery(
-    () => {
-      if (!tenantId) return [] as Transaction[]
+  const transactions = useLiveQuery(() => {
+    if (!tenantId) return [] as Transaction[]
 
-      if (filter === 'pending') {
-        return db.transactions
-          .where('[tenantId+syncStatus]')
-          .anyOf(
-            [tenantId, 'pending'],
-            [tenantId, 'failed']
-          )
-          .reverse()
-          .toArray()
-      }
-
+    if (filter === 'pending') {
       return db.transactions
-        .where('[tenantId+status]')
-        .equals([tenantId, 'completed'])
+        .where('[tenantId+syncStatus]')
+        .anyOf([tenantId, 'pending'], [tenantId, 'failed'])
         .reverse()
         .toArray()
-        .then((txs: Transaction[]) => {
-          if (filter === 'today') {
-            const todayStart = startOfDay(new Date()).toISOString()
-            return txs.filter((tx: Transaction) => tx.createdAt >= todayStart)
-          }
-          return txs
-        })
-    },
-    [tenantId, filter]
-  )
+    }
+
+    return db.transactions
+      .where('[tenantId+status]')
+      .equals([tenantId, 'completed'])
+      .reverse()
+      .toArray()
+      .then((txs: Transaction[]) => {
+        if (filter === 'today') {
+          const todayStart = startOfDay(new Date()).toISOString()
+          return txs.filter((tx: Transaction) => tx.createdAt >= todayStart)
+        }
+        return txs
+      })
+  }, [tenantId, filter])
 
   if (!transactions || transactions.length === 0) {
     return (
       <EmptyState
-        icon={<Receipt size={48} />}
+        icon={<Receipt size={48} weight="fill" />}
         title="Belum ada transaksi"
         description={
           filter === 'pending'
@@ -86,21 +80,19 @@ export function TransactionList({ filter, onSelect }: TransactionListProps) {
           className={cn(
             'w-full flex items-center justify-between p-4 text-left',
             'hover:bg-accent active:bg-accent transition-colors',
-            'min-h-[64px]'
+            'min-h-[64px]',
           )}
         >
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold">{tx.orderNumber}</p>
             <p className="text-xs text-muted-foreground truncate">
-              {tx.customerName ?? 'Tanpa pelanggan'} &middot;{' '}
-              {formatDate(tx.createdAt)} {formatTime(tx.createdAt)}
+              {tx.customerName ?? 'Tanpa pelanggan'} &middot; {formatDate(tx.createdAt)}{' '}
+              {formatTime(tx.createdAt)}
             </p>
           </div>
           <div className="flex flex-col items-end gap-1 ml-3">
             <span className="text-sm font-bold">{formatCurrency(tx.totalAmount)}</span>
-            <Badge variant={syncBadgeVariant[tx.syncStatus]}>
-              {syncLabel[tx.syncStatus]}
-            </Badge>
+            <Badge variant={syncBadgeVariant[tx.syncStatus]}>{syncLabel[tx.syncStatus]}</Badge>
           </div>
         </button>
       ))}

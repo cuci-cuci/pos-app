@@ -78,9 +78,7 @@ export interface ActiveOrdersResponse {
 
 export const orderApi = {
   list: (params: Record<string, string>) =>
-    apiClient
-      .get('pos/orders', { searchParams: params })
-      .json<OrderListResponse>(),
+    apiClient.get('pos/orders', { searchParams: params }).json<OrderListResponse>(),
 
   listActive: (outletId?: string) =>
     apiClient
@@ -89,14 +87,11 @@ export const orderApi = {
       })
       .json<ActiveOrdersResponse>(),
 
-  getById: (id: string) =>
-    apiClient.get(`pos/orders/${id}`).json<OrderDetailResponse>(),
+  getById: (id: string) => apiClient.get(`pos/orders/${id}`).json<OrderDetailResponse>(),
 
   create: (data: Record<string, unknown>) =>
     apiClient.post('pos/orders', { json: data }).json<OrderResponse>(),
 
   updateStatus: (id: string, data: { status: string; notes?: string }) =>
-    apiClient
-      .put(`pos/orders/${id}/status`, { json: data })
-      .json<OrderResponse>(),
+    apiClient.put(`pos/orders/${id}/status`, { json: data }).json<OrderResponse>(),
 }

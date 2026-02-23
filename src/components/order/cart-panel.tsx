@@ -1,5 +1,5 @@
+import { CaretDown, CaretUp, Crown, ShoppingCart, Trash } from '@phosphor-icons/react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { ChevronDown, ChevronUp, Crown, ShoppingCart, Trash } from 'lucide-react'
 import { useState } from 'react'
 import { CustomerSearch } from '@/components/customer/customer-search'
 import { PaymentDialog } from '@/components/payment/payment-dialog'
@@ -45,7 +45,7 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
     return (
       <div className="flex flex-col h-full justify-center p-4">
         <EmptyState
-          icon={<ShoppingCart size={48} />}
+          icon={<ShoppingCart size={40} weight="fill" />}
           title="Keranjang kosong"
           description="Pilih layanan untuk memulai transaksi"
         />
@@ -64,7 +64,7 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
           className="text-muted-foreground hover:text-destructive p-2 rounded-lg"
           aria-label="Kosongkan keranjang"
         >
-          <Trash size={20} />
+          <Trash size={20} weight="fill" />
         </button>
       </div>
 
@@ -96,7 +96,11 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
           onClick={() => setNotesExpanded(!notesExpanded)}
           className="flex items-center gap-1 text-sm text-muted-foreground w-full"
         >
-          {notesExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          {notesExpanded ? (
+            <CaretUp size={14} weight="bold" />
+          ) : (
+            <CaretDown size={14} weight="bold" />
+          )}
           <span>Catatan pesanan</span>
           {notes && !notesExpanded && (
             <span className="text-xs text-primary ml-auto truncate max-w-[120px]">{notes}</span>
@@ -117,7 +121,7 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
         {/* Discount input */}
         {memberInfo ? (
           <div className="flex items-center gap-2 text-sm">
-            <Crown size={14} className="text-primary" />
+            <Crown size={14} weight="fill" className="text-primary" />
             <span className="text-primary font-medium">
               Diskon Member ({memberInfo.tier.charAt(0).toUpperCase() + memberInfo.tier.slice(1)})
             </span>

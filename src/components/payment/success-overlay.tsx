@@ -1,5 +1,5 @@
+import { Plus, Printer, ShareNetwork } from '@phosphor-icons/react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Plus, Printer, Share2 } from 'lucide-react'
 import { useCallback, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -349,7 +349,7 @@ export function SuccessOverlay({
           >
             <div className="flex gap-2 mb-2">
               <Button variant="outline" className="flex-1 h-11 gap-2" onClick={handlePrint}>
-                <Printer size={18} />
+                <Printer size={18} weight="fill" />
                 Cetak Struk
               </Button>
               <Button
@@ -357,7 +357,7 @@ export function SuccessOverlay({
                 className="flex-1 h-11 gap-2"
                 onClick={() => void handleShare()}
               >
-                <Share2 size={18} />
+                <ShareNetwork size={18} weight="fill" />
                 Bagikan
               </Button>
             </div>
@@ -369,7 +369,7 @@ export function SuccessOverlay({
                 onClose()
               }}
             >
-              <Plus size={20} />
+              <Plus size={20} weight="bold" />
               Transaksi Baru
             </Button>
           </motion.div>

@@ -1,6 +1,6 @@
 import { create } from 'zustand'
-import { shiftApi } from '@/services/shift-api'
 import type { Shift } from '@/services/shift-api'
+import { shiftApi } from '@/services/shift-api'
 
 interface ShiftState {
   currentShift: Shift | null

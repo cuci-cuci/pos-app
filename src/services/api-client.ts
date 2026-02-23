@@ -31,7 +31,7 @@ export const apiClient = ky.create({
                 state.login(
                   refreshResponse.data.access_token,
                   refreshResponse.data.refresh_token,
-                  state.user
+                  state.user,
                 )
               }
             } catch {

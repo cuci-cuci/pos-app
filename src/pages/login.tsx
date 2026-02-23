@@ -1,16 +1,16 @@
+import { zodResolver } from '@hookform/resolvers/zod'
+import { CircleNotch, Drop, WarningCircle } from '@phosphor-icons/react'
+import { Link, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
-import { useRouter, Link } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { login } from '@/services/auth-service'
-import { syncEngine } from '@/sync/sync-engine'
-import { useDeviceStore } from '@/stores/device-store'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
 import { APP_NAME } from '@/lib/constants'
-import { Droplet, Loader2, AlertCircle } from 'lucide-react'
+import { login } from '@/services/auth-service'
+import { useDeviceStore } from '@/stores/device-store'
+import { syncEngine } from '@/sync/sync-engine'
 
 const loginSchema = z.object({
   email: z.string().email('Email tidak valid'),
@@ -92,12 +92,10 @@ export function LoginPage() {
         {/* Logo and app name */}
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-3">
-            <Droplet size={36} className="text-primary-foreground" />
+            <Drop size={36} weight="fill" className="text-primary-foreground" />
           </div>
           <h1 className="text-2xl font-bold">{APP_NAME}</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Sistem POS Laundry
-          </p>
+          <p className="text-sm text-muted-foreground mt-1">Sistem POS Laundry</p>
         </div>
 
         <Card>
@@ -108,7 +106,7 @@ export function LoginPage() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {error && (
                 <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/20 text-destructive text-sm rounded-[var(--radius)] p-3">
-                  <AlertCircle size={18} className="shrink-0 mt-0.5" />
+                  <WarningCircle size={18} weight="fill" className="shrink-0 mt-0.5" />
                   <span>{error}</span>
                 </div>
               )}
@@ -125,9 +123,7 @@ export function LoginPage() {
                   disabled={isLoading}
                   {...register('email')}
                 />
-                {errors.email && (
-                  <p className="text-xs text-destructive">{errors.email.message}</p>
-                )}
+                {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
               </div>
 
               <div className="space-y-2">
@@ -147,15 +143,10 @@ export function LoginPage() {
                 )}
               </div>
 
-              <Button
-                type="submit"
-                size="lg"
-                className="w-full h-12"
-                disabled={isLoading}
-              >
+              <Button type="submit" size="lg" className="w-full h-12" disabled={isLoading}>
                 {isLoading ? (
                   <span className="flex items-center gap-2">
-                    <Loader2 size={20} className="animate-spin" />
+                    <CircleNotch size={20} weight="bold" className="animate-spin" />
                     {stateMessages[loginState]}
                   </span>
                 ) : (

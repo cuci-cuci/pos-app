@@ -1,17 +1,15 @@
-import { useState, useEffect, useCallback } from 'react'
+import { ArrowLeft } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
+import { useCallback, useEffect, useState } from 'react'
+import { ReceiptActions } from '@/components/receipt/receipt-actions'
+import { ReceiptTemplate } from '@/components/receipt/receipt-template'
+import { InlineError } from '@/components/shared/inline-error'
+import { DetailSkeleton } from '@/components/shared/skeleton-loaders'
+import { Button } from '@/components/ui/button'
 import { formatCurrency, formatDate, formatTime } from '@/lib/format'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { LoadingSpinner } from '@/components/shared/loading-spinner'
-import { ReceiptTemplate } from '@/components/receipt/receipt-template'
-import { ReceiptActions } from '@/components/receipt/receipt-actions'
-import { orderApi } from '@/services/order-api'
 import type { OrderDetail, OrderStatus } from '@/services/order-api'
-import {
-  ArrowLeft,
-  AlertTriangle,
-} from 'lucide-react'
+import { orderApi } from '@/services/order-api'
 
 const statusColors: Record<OrderStatus, { bg: string; text: string }> = {
   received: {
@@ -87,9 +85,7 @@ function getStatusActions(status: OrderStatus): StatusAction[] {
     case 'ironing':
       return [{ label: 'Selesai', nextStatus: 'done', variant: 'default' }]
     case 'done':
-      return [
-        { label: 'Sudah Diambil', nextStatus: 'picked_up', variant: 'default' },
-      ]
+      return [{ label: 'Sudah Diambil', nextStatus: 'picked_up', variant: 'default' }]
     default:
       return []
   }
@@ -102,7 +98,7 @@ function StatusBadge({ status }: { status: OrderStatus }) {
       className={cn(
         'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold',
         colors.bg,
-        colors.text
+        colors.text,
       )}
     >
       {statusLabels[status]}
@@ -114,6 +110,7 @@ export function OrderDetailPage() {
   const router = useRouter()
   const [order, setOrder] = useState<OrderDetail | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
   const [updating, setUpdating] = useState(false)
   const [confirmAction, setConfirmAction] = useState<StatusAction | null>(null)
   const [showCancelConfirm, setShowCancelConfirm] = useState(false)
@@ -124,10 +121,11 @@ export function OrderDetailPage() {
   const fetchOrder = useCallback(async () => {
     if (!orderId) return
     try {
+      setError(false)
       const response = await orderApi.getById(orderId)
       setOrder(response.data)
     } catch {
-      // handle error silently
+      setError(true)
     } finally {
       setLoading(false)
     }
@@ -169,17 +167,19 @@ export function OrderDetailPage() {
   }
 
   if (loading) {
-    return <LoadingSpinner />
+    return <DetailSkeleton />
   }
 
-  if (!order) {
+  if (error || !order) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-4">
-        <AlertTriangle size={48} className="text-muted-foreground mb-4" />
-        <p className="text-base font-semibold">Pesanan tidak ditemukan</p>
+        <InlineError
+          message={error ? 'Gagal memuat pesanan.' : 'Pesanan tidak ditemukan.'}
+          onRetry={error ? fetchOrder : undefined}
+        />
         <Button
           variant="outline"
-          className="mt-4"
+          className="mt-2"
           onClick={() => router.navigate({ to: '/orders' })}
         >
           Kembali ke Pesanan
@@ -189,8 +189,7 @@ export function OrderDetailPage() {
   }
 
   const actions = getStatusActions(order.status)
-  const canCancel =
-    order.status !== 'picked_up' && order.status !== 'cancelled'
+  const canCancel = order.status !== 'picked_up' && order.status !== 'cancelled'
 
   return (
     <div className="flex flex-col h-full">
@@ -201,7 +200,7 @@ export function OrderDetailPage() {
           onClick={() => router.navigate({ to: '/orders' })}
           className="p-1.5 rounded-[var(--radius)] hover:bg-muted transition-colors touch-manipulation"
         >
-          <ArrowLeft size={22} />
+          <ArrowLeft size={22} weight="bold" />
         </button>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
@@ -218,15 +217,11 @@ export function OrderDetailPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs text-muted-foreground">Pelanggan</p>
-              <p className="text-sm font-semibold mt-0.5">
-                {order.customer_name || '-'}
-              </p>
+              <p className="text-sm font-semibold mt-0.5">{order.customer_name || '-'}</p>
             </div>
             <div className="text-right">
               <p className="text-xs text-muted-foreground">Total</p>
-              <p className="text-lg font-bold mt-0.5">
-                {formatCurrency(order.total_amount)}
-              </p>
+              <p className="text-lg font-bold mt-0.5">{formatCurrency(order.total_amount)}</p>
             </div>
           </div>
         </div>
@@ -244,9 +239,7 @@ export function OrderDetailPage() {
                       {item.quantity} {item.unit} x {formatCurrency(item.price)}
                     </p>
                   </div>
-                  <p className="text-sm font-medium shrink-0">
-                    {formatCurrency(item.subtotal)}
-                  </p>
+                  <p className="text-sm font-medium shrink-0">{formatCurrency(item.subtotal)}</p>
                 </div>
               ))}
             </div>
@@ -283,19 +276,14 @@ export function OrderDetailPage() {
             <div className="relative">
               {order.status_logs.map((log, index) => {
                 const isLast = index === order.status_logs.length - 1
-                const dotColor =
-                  timelineDotColors[log.status as OrderStatus] ?? 'bg-gray-400'
+                const dotColor = timelineDotColors[log.status as OrderStatus] ?? 'bg-gray-400'
 
                 return (
                   <div key={log.id} className="flex gap-3">
                     {/* Timeline line and dot */}
                     <div className="flex flex-col items-center">
-                      <div
-                        className={cn('w-3 h-3 rounded-full shrink-0 mt-0.5', dotColor)}
-                      />
-                      {!isLast && (
-                        <div className="w-0.5 flex-1 bg-border min-h-[24px]" />
-                      )}
+                      <div className={cn('w-3 h-3 rounded-full shrink-0 mt-0.5', dotColor)} />
+                      {!isLast && <div className="w-0.5 flex-1 bg-border min-h-[24px]" />}
                     </div>
 
                     {/* Content */}
@@ -307,14 +295,10 @@ export function OrderDetailPage() {
                         {formatDate(log.created_at)} {formatTime(log.created_at)}
                       </p>
                       {log.notes && (
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {log.notes}
-                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{log.notes}</p>
                       )}
                       {log.created_by_name && (
-                        <p className="text-xs text-muted-foreground">
-                          oleh {log.created_by_name}
-                        </p>
+                        <p className="text-xs text-muted-foreground">oleh {log.created_by_name}</p>
                       )}
                     </div>
                   </div>

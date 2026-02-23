@@ -1,9 +1,9 @@
+import { Check, Printer, ShareNetwork } from '@phosphor-icons/react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { useDeviceStore } from '@/stores/device-store'
 import { formatCurrency } from '@/lib/format'
-import { Printer, Share2, Check } from 'lucide-react'
 import type { OrderDetail } from '@/services/order-api'
+import { useDeviceStore } from '@/stores/device-store'
 
 interface ReceiptActionsProps {
   order: OrderDetail
@@ -21,7 +21,7 @@ function buildShareText(order: OrderDetail, outletName: string): string {
   if (order.transaction) {
     for (const item of order.transaction.items) {
       lines.push(
-        `${item.service_name} - ${item.quantity} ${item.unit} x ${formatCurrency(item.price)} = ${formatCurrency(item.subtotal)}`
+        `${item.service_name} - ${item.quantity} ${item.unit} x ${formatCurrency(item.price)} = ${formatCurrency(item.subtotal)}`,
       )
     }
     lines.push('')
@@ -74,20 +74,12 @@ export function ReceiptActions({ order }: ReceiptActionsProps) {
 
   return (
     <div className="flex gap-2">
-      <Button
-        variant="outline"
-        className="flex-1 gap-2"
-        onClick={handlePrint}
-      >
-        <Printer size={18} />
+      <Button variant="outline" className="flex-1 gap-2" onClick={handlePrint}>
+        <Printer size={18} weight="fill" />
         Cetak Struk
       </Button>
-      <Button
-        variant="outline"
-        className="flex-1 gap-2"
-        onClick={() => void handleShare()}
-      >
-        {copied ? <Check size={18} /> : <Share2 size={18} />}
+      <Button variant="outline" className="flex-1 gap-2" onClick={() => void handleShare()}>
+        {copied ? <Check size={18} weight="bold" /> : <ShareNetwork size={18} weight="fill" />}
         {copied ? 'Tersalin!' : 'Bagikan'}
       </Button>
     </div>

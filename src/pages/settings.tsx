@@ -1,52 +1,41 @@
-import { useState } from 'react'
+import {
+  ArrowsClockwise,
+  CloudCheck,
+  DeviceMobile,
+  Info,
+  SignOut,
+  Storefront,
+  Trash,
+  UserCircle,
+  WarningCircle,
+  WifiHigh,
+  WifiSlash,
+  Wrench,
+} from '@phosphor-icons/react'
+import { useRouter } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
+import { useState } from 'react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import { showToast } from '@/components/ui/toast'
 import { db } from '@/db'
+import { APP_NAME, ROLE_TENANT_OWNER } from '@/lib/constants'
+import { formatDate, formatTime } from '@/lib/format'
+import { logout } from '@/services/auth-service'
 import { useAuthStore } from '@/stores/auth-store'
 import { useDeviceStore } from '@/stores/device-store'
 import { useSyncStore } from '@/stores/sync-store'
 import { syncEngine } from '@/sync/sync-engine'
-import { logout } from '@/services/auth-service'
-import { useRouter } from '@tanstack/react-router'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { showToast } from '@/components/ui/toast'
-import { APP_NAME, ROLE_TENANT_OWNER } from '@/lib/constants'
-import { formatDate, formatTime } from '@/lib/format'
-import {
-  RefreshCw,
-  LogOut,
-  Wifi,
-  WifiOff,
-  CloudCheck,
-  AlertTriangle,
-  Smartphone,
-  Store,
-  CircleUser,
-  Wrench,
-  Trash,
-  Info,
-} from 'lucide-react'
 
 export function SettingsPage() {
   const router = useRouter()
   const user = useAuthStore((s) => s.user)
-  const {
-    isOnline,
-    isSyncing,
-    lastSyncAt,
-    pendingCount,
-    failedCount,
-    configVersion,
-  } = useSyncStore()
+  const { isOnline, isSyncing, lastSyncAt, pendingCount, failedCount, configVersion } =
+    useSyncStore()
 
-  const {
-    deviceId,
-    deviceName,
-    outletName,
-    setupCompletedAt,
-  } = useDeviceStore()
+  const { deviceId, deviceName, outletName, setupCompletedAt } = useDeviceStore()
 
   const [syncing, setSyncing] = useState(false)
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
@@ -54,10 +43,7 @@ export function SettingsPage() {
 
   const isOwner = user?.role === ROLE_TENANT_OWNER
 
-  const tenantConfig = useLiveQuery(
-    () => db.tenantConfig.toCollection().first(),
-    []
-  )
+  const tenantConfig = useLiveQuery(() => db.tenantConfig.toCollection().first(), [])
 
   const handleSync = async () => {
     setSyncing(true)
@@ -105,7 +91,7 @@ export function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2">
-              <Smartphone size={18} />
+              <DeviceMobile size={18} weight="fill" />
               Perangkat
             </CardTitle>
           </CardHeader>
@@ -127,9 +113,7 @@ export function SettingsPage() {
             {setupCompletedAt && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Setup Selesai</span>
-                <span className="text-muted-foreground">
-                  {formatDate(setupCompletedAt)}
-                </span>
+                <span className="text-muted-foreground">{formatDate(setupCompletedAt)}</span>
               </div>
             )}
           </CardContent>
@@ -139,7 +123,7 @@ export function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2">
-              <RefreshCw size={18} />
+              <ArrowsClockwise size={18} weight="bold" />
               Sinkronisasi
             </CardTitle>
           </CardHeader>
@@ -149,12 +133,12 @@ export function SettingsPage() {
               <div className="flex items-center gap-1.5">
                 {isOnline ? (
                   <>
-                    <Wifi size={16} className="text-success" />
+                    <WifiHigh size={16} className="text-success" weight="fill" />
                     <span className="text-sm text-success">Online</span>
                   </>
                 ) : (
                   <>
-                    <WifiOff size={16} className="text-destructive" />
+                    <WifiSlash size={16} className="text-destructive" weight="fill" />
                     <span className="text-sm text-destructive">Offline</span>
                   </>
                 )}
@@ -175,7 +159,7 @@ export function SettingsPage() {
               <Badge variant={pendingCount > 0 ? 'secondary' : 'success'}>
                 {pendingCount > 0 ? (
                   <span className="flex items-center gap-1">
-                    <CloudCheck size={12} /> {pendingCount}
+                    <CloudCheck size={12} weight="fill" /> {pendingCount}
                   </span>
                 ) : (
                   'Semua tersinkron'
@@ -188,7 +172,7 @@ export function SettingsPage() {
                 <span className="text-sm">Transaksi Gagal</span>
                 <Badge variant="destructive">
                   <span className="flex items-center gap-1">
-                    <AlertTriangle size={12} /> {failedCount}
+                    <WarningCircle size={12} weight="fill" /> {failedCount}
                   </span>
                 </Badge>
               </div>
@@ -205,8 +189,9 @@ export function SettingsPage() {
               onClick={handleSync}
               disabled={syncing || isSyncing || !isOnline}
             >
-              <RefreshCw
+              <ArrowsClockwise
                 size={18}
+                weight="bold"
                 className={syncing || isSyncing ? 'animate-spin mr-2' : 'mr-2'}
               />
               {syncing || isSyncing ? 'Menyinkronkan...' : 'Sinkronkan Sekarang'}
@@ -219,7 +204,7 @@ export function SettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-sm flex items-center gap-2">
-                <Store size={18} />
+                <Storefront size={18} weight="fill" />
                 Toko
               </CardTitle>
             </CardHeader>
@@ -230,9 +215,7 @@ export function SettingsPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Alamat</span>
-                <span className="font-medium text-right max-w-[200px]">
-                  {tenantConfig.address}
-                </span>
+                <span className="font-medium text-right max-w-[200px]">{tenantConfig.address}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Telepon</span>
@@ -250,7 +233,7 @@ export function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2">
-              <CircleUser size={18} />
+              <UserCircle size={18} weight="fill" />
               Akun
             </CardTitle>
           </CardHeader>
@@ -275,19 +258,17 @@ export function SettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-sm flex items-center gap-2">
-                <Wrench size={18} />
+                <Wrench size={18} weight="fill" />
                 Lanjutan
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Info size={16} className="text-muted-foreground" />
+                  <Info size={16} className="text-muted-foreground" weight="fill" />
                   <span className="text-sm">Versi Aplikasi</span>
                 </div>
-                <span className="text-sm text-muted-foreground">
-                  {APP_NAME} v1.0.0
-                </span>
+                <span className="text-sm text-muted-foreground">{APP_NAME} v1.0.0</span>
               </div>
 
               <Button
@@ -296,7 +277,7 @@ export function SettingsPage() {
                 onClick={handleClearCache}
                 disabled={clearing}
               >
-                <Trash size={18} className="mr-2" />
+                <Trash size={18} className="mr-2" weight="fill" />
                 {clearing ? 'Membersihkan...' : 'Bersihkan Cache'}
               </Button>
             </CardContent>
@@ -320,12 +301,8 @@ export function SettingsPage() {
                 >
                   Batal
                 </Button>
-                <Button
-                  variant="destructive"
-                  className="flex-1 h-11"
-                  onClick={handleLogout}
-                >
-                  <LogOut size={18} className="mr-2" />
+                <Button variant="destructive" className="flex-1 h-11" onClick={handleLogout}>
+                  <SignOut size={18} className="mr-2" weight="fill" />
                   Keluar
                 </Button>
               </div>
@@ -337,7 +314,7 @@ export function SettingsPage() {
             className="w-full h-12"
             onClick={() => setShowLogoutConfirm(true)}
           >
-            <LogOut size={20} className="mr-2" />
+            <SignOut size={20} className="mr-2" weight="fill" />
             Keluar
           </Button>
         )}

@@ -24,13 +24,18 @@ export const useDeviceStore = create<DeviceState>()(
       isSetupComplete: false,
       setupCompletedAt: null,
       setDevice: (config) => set({ ...config }),
-      completeSetup: () => set({ isSetupComplete: true, setupCompletedAt: new Date().toISOString() }),
-      resetDevice: () => set({
-        deviceName: '', outletId: '', outletName: '',
-        isSetupComplete: false, setupCompletedAt: null,
-      }),
+      completeSetup: () =>
+        set({ isSetupComplete: true, setupCompletedAt: new Date().toISOString() }),
+      resetDevice: () =>
+        set({
+          deviceName: '',
+          outletId: '',
+          outletName: '',
+          isSetupComplete: false,
+          setupCompletedAt: null,
+        }),
       isDeviceReady: () => get().isSetupComplete && get().outletId !== '',
     }),
-    { name: 'laundry-pos-device' }
-  )
+    { name: 'laundry-pos-device' },
+  ),
 )

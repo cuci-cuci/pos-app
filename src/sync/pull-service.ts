@@ -1,5 +1,12 @@
 import { db } from '@/db'
-import type { ServiceCategory, Service, PaymentMethod, TenantConfig, Customer, Outlet } from '@/db/schema'
+import type {
+  Customer,
+  Outlet,
+  PaymentMethod,
+  Service,
+  ServiceCategory,
+  TenantConfig,
+} from '@/db/schema'
 import { apiClient } from '@/services/api-client'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -98,19 +105,17 @@ function mapConfig(tenantId: string, c: any): TenantConfig {
   }
 }
 
-export async function pullConfig(
-  tenantId: string,
-  currentVersion: number
-): Promise<number> {
+export async function pullConfig(tenantId: string, currentVersion: number): Promise<number> {
   const raw = await apiClient
     .get('pos/sync/download', {
       searchParams: { current_config_version: currentVersion },
     })
     .json<{ data: PullResponse } | PullResponse>()
 
-  const response: PullResponse = 'data' in raw && raw.data && typeof raw.data === 'object' && 'config_version' in raw.data
-    ? raw.data as PullResponse
-    : raw as PullResponse
+  const response: PullResponse =
+    'data' in raw && raw.data && typeof raw.data === 'object' && 'config_version' in raw.data
+      ? (raw.data as PullResponse)
+      : (raw as PullResponse)
 
   if (response.config_version <= currentVersion) {
     return currentVersion
@@ -118,7 +123,14 @@ export async function pullConfig(
 
   await db.transaction(
     'rw',
-    [db.tenantConfig, db.serviceCategories, db.services, db.paymentMethods, db.customers, db.outlets],
+    [
+      db.tenantConfig,
+      db.serviceCategories,
+      db.services,
+      db.paymentMethods,
+      db.customers,
+      db.outlets,
+    ],
     async () => {
       if (response.config) {
         await db.tenantConfig.clear()
@@ -142,13 +154,15 @@ export async function pullConfig(
 
       if (response.payment_methods?.length) {
         await db.paymentMethods.clear()
-        await db.paymentMethods.bulkPut(response.payment_methods.map((pm) => mapPaymentMethod(tenantId, pm)))
+        await db.paymentMethods.bulkPut(
+          response.payment_methods.map((pm) => mapPaymentMethod(tenantId, pm)),
+        )
       }
 
       if (response.members?.length) {
         await db.customers.bulkPut(response.members.map((m) => mapMember(tenantId, m)))
       }
-    }
+    },
   )
 
   await db.syncState.put({
