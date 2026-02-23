@@ -176,7 +176,7 @@ export function PosPage() {
                   Semua
                 </button>
                 {categories.map((cat) => {
-                  const IconComp = getCategoryIcon(cat.name)
+                  const IconComp = getCategoryIcon(cat.name, cat.icon)
                   return (
                     <button
                       type="button"
@@ -257,6 +257,7 @@ export function PosPage() {
                         categoryName={
                           categories?.find((c) => c.id === service.categoryId)?.name ?? ''
                         }
+                        categoryIcon={categories?.find((c) => c.id === service.categoryId)?.icon}
                         cartQuantity={cartItems.find((ci) => ci.serviceId === service.id)?.quantity}
                         compact={true}
                         onSelect={handleSelectService}
