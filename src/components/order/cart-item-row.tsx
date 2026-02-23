@@ -1,6 +1,6 @@
 import type { CartItem } from '@/stores/cart-store'
 import { formatCurrency } from '@/lib/format'
-import { Trash } from 'lucide-react'
+import { Trash } from '@phosphor-icons/react'
 
 interface CartItemRowProps {
   item: CartItem
@@ -47,7 +47,7 @@ export function CartItemRow({ item, onRemove, onUpdateQuantity }: CartItemRowPro
           className="p-1.5 rounded-full hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
           aria-label="Hapus item"
         >
-          <Trash size={16} />
+          <Trash size={16} weight="fill" />
         </button>
       </div>
     </div>

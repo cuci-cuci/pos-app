@@ -1,19 +1,19 @@
 import { useRouter } from '@tanstack/react-router'
 import {
-  Store,
+  Storefront,
   Tag,
-  CircleUser,
+  UserCircle,
   CreditCard,
   Users,
-  BarChart3,
-  ChevronRight,
-} from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
+  ChartBar,
+  CaretRight,
+} from '@phosphor-icons/react'
+import type { Icon } from '@phosphor-icons/react'
 
 interface ManageMenuItem {
   label: string
   description: string
-  icon: LucideIcon
+  icon: Icon
   iconBg: string
   iconColor: string
   path: string
@@ -23,7 +23,7 @@ const menuItems: ManageMenuItem[] = [
   {
     label: 'Outlet',
     description: 'Kelola outlet dan cabang',
-    icon: Store,
+    icon: Storefront,
     iconBg: 'bg-primary/10',
     iconColor: 'text-primary',
     path: '/manage/outlets',
@@ -39,7 +39,7 @@ const menuItems: ManageMenuItem[] = [
   {
     label: 'Kasir',
     description: 'Kelola akun kasir',
-    icon: CircleUser,
+    icon: UserCircle,
     iconBg: 'bg-primary/10',
     iconColor: 'text-primary',
     path: '/manage/cashiers',
@@ -63,7 +63,7 @@ const menuItems: ManageMenuItem[] = [
   {
     label: 'Analitik',
     description: 'Lihat laporan dan statistik',
-    icon: BarChart3,
+    icon: ChartBar,
     iconBg: 'bg-primary/10',
     iconColor: 'text-primary',
     path: '/manage/analytics',
@@ -88,7 +88,7 @@ function MenuCard({
         <div
           className={`shrink-0 w-10 h-10 rounded-[var(--radius)] flex items-center justify-center ${item.iconBg}`}
         >
-          <IconComponent size={22} className={item.iconColor} />
+          <IconComponent size={22} weight="fill" className={item.iconColor} />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold">{item.label}</p>
@@ -96,8 +96,9 @@ function MenuCard({
             {item.description}
           </p>
         </div>
-        <ChevronRight
+        <CaretRight
           size={18}
+          weight="bold"
           className="shrink-0 text-muted-foreground"
         />
       </div>

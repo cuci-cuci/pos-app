@@ -15,19 +15,19 @@ import { showToast } from '@/components/ui/toast'
 import { APP_NAME, ROLE_TENANT_OWNER } from '@/lib/constants'
 import { formatDate, formatTime } from '@/lib/format'
 import {
-  RefreshCw,
-  LogOut,
-  Wifi,
-  WifiOff,
+  ArrowsClockwise,
+  SignOut,
+  WifiHigh,
+  WifiSlash,
   CloudCheck,
-  AlertTriangle,
-  Smartphone,
-  Store,
-  CircleUser,
+  WarningCircle,
+  DeviceMobile,
+  Storefront,
+  UserCircle,
   Wrench,
   Trash,
   Info,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 
 export function SettingsPage() {
   const router = useRouter()
@@ -105,7 +105,7 @@ export function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2">
-              <Smartphone size={18} />
+              <DeviceMobile size={18} weight="fill" />
               Perangkat
             </CardTitle>
           </CardHeader>
@@ -139,7 +139,7 @@ export function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2">
-              <RefreshCw size={18} />
+              <ArrowsClockwise size={18} weight="bold" />
               Sinkronisasi
             </CardTitle>
           </CardHeader>
@@ -149,12 +149,12 @@ export function SettingsPage() {
               <div className="flex items-center gap-1.5">
                 {isOnline ? (
                   <>
-                    <Wifi size={16} className="text-success" />
+                    <WifiHigh size={16} className="text-success" weight="fill" />
                     <span className="text-sm text-success">Online</span>
                   </>
                 ) : (
                   <>
-                    <WifiOff size={16} className="text-destructive" />
+                    <WifiSlash size={16} className="text-destructive" weight="fill" />
                     <span className="text-sm text-destructive">Offline</span>
                   </>
                 )}
@@ -175,7 +175,7 @@ export function SettingsPage() {
               <Badge variant={pendingCount > 0 ? 'secondary' : 'success'}>
                 {pendingCount > 0 ? (
                   <span className="flex items-center gap-1">
-                    <CloudCheck size={12} /> {pendingCount}
+                    <CloudCheck size={12} weight="fill" /> {pendingCount}
                   </span>
                 ) : (
                   'Semua tersinkron'
@@ -188,7 +188,7 @@ export function SettingsPage() {
                 <span className="text-sm">Transaksi Gagal</span>
                 <Badge variant="destructive">
                   <span className="flex items-center gap-1">
-                    <AlertTriangle size={12} /> {failedCount}
+                    <WarningCircle size={12} weight="fill" /> {failedCount}
                   </span>
                 </Badge>
               </div>
@@ -205,8 +205,9 @@ export function SettingsPage() {
               onClick={handleSync}
               disabled={syncing || isSyncing || !isOnline}
             >
-              <RefreshCw
+              <ArrowsClockwise
                 size={18}
+                weight="bold"
                 className={syncing || isSyncing ? 'animate-spin mr-2' : 'mr-2'}
               />
               {syncing || isSyncing ? 'Menyinkronkan...' : 'Sinkronkan Sekarang'}
@@ -219,7 +220,7 @@ export function SettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-sm flex items-center gap-2">
-                <Store size={18} />
+                <Storefront size={18} weight="fill" />
                 Toko
               </CardTitle>
             </CardHeader>
@@ -250,7 +251,7 @@ export function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2">
-              <CircleUser size={18} />
+              <UserCircle size={18} weight="fill" />
               Akun
             </CardTitle>
           </CardHeader>
@@ -275,14 +276,14 @@ export function SettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-sm flex items-center gap-2">
-                <Wrench size={18} />
+                <Wrench size={18} weight="fill" />
                 Lanjutan
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Info size={16} className="text-muted-foreground" />
+                  <Info size={16} className="text-muted-foreground" weight="fill" />
                   <span className="text-sm">Versi Aplikasi</span>
                 </div>
                 <span className="text-sm text-muted-foreground">
@@ -296,7 +297,7 @@ export function SettingsPage() {
                 onClick={handleClearCache}
                 disabled={clearing}
               >
-                <Trash size={18} className="mr-2" />
+                <Trash size={18} className="mr-2" weight="fill" />
                 {clearing ? 'Membersihkan...' : 'Bersihkan Cache'}
               </Button>
             </CardContent>
@@ -325,7 +326,7 @@ export function SettingsPage() {
                   className="flex-1 h-11"
                   onClick={handleLogout}
                 >
-                  <LogOut size={18} className="mr-2" />
+                  <SignOut size={18} className="mr-2" weight="fill" />
                   Keluar
                 </Button>
               </div>
@@ -337,7 +338,7 @@ export function SettingsPage() {
             className="w-full h-12"
             onClick={() => setShowLogoutConfirm(true)}
           >
-            <LogOut size={20} className="mr-2" />
+            <SignOut size={20} className="mr-2" weight="fill" />
             Keluar
           </Button>
         )}

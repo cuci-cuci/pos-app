@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from '@tanstack/react-router'
-import { ArrowLeft, Plus, CreditCard, Trash } from 'lucide-react'
+import { ArrowLeft, Plus, CreditCard, Trash } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog'
-import { LoadingSpinner } from '@/components/shared/loading-spinner'
+import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
 import { EmptyState } from '@/components/shared/empty-state'
 import { ownerApi } from '@/services/owner-api'
 import { showToast } from '@/components/ui/toast'
@@ -120,7 +120,7 @@ export function ManagePaymentMethodsPage() {
           size="icon"
           onClick={() => router.navigate({ to: '/manage' })}
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={20} weight="bold" />
         </Button>
         <div className="flex-1">
           <h1 className="text-xl font-bold">Metode Pembayaran</h1>
@@ -129,17 +129,17 @@ export function ManagePaymentMethodsPage() {
           </p>
         </div>
         <Button size="sm" onClick={openCreate}>
-          <Plus size={16} className="mr-1" />
+          <Plus size={16} weight="bold" className="mr-1" />
           Tambah
         </Button>
       </div>
 
       <div className="px-4 pb-6">
         {loading ? (
-          <LoadingSpinner />
+          <ManageListSkeleton />
         ) : methods.length === 0 ? (
           <EmptyState
-            icon={<CreditCard size={48} />}
+            icon={<CreditCard size={48} weight="fill" />}
             title="Belum Ada Metode Pembayaran"
             description="Tambahkan metode pembayaran untuk digunakan di kasir."
           />
@@ -184,7 +184,7 @@ export function ManagePaymentMethodsPage() {
                       className="h-8 w-8 text-destructive"
                       onClick={() => setDeletingMethod(method)}
                     >
-                      <Trash size={16} />
+                      <Trash size={16} weight="fill" />
                     </Button>
                   </div>
                 </div>

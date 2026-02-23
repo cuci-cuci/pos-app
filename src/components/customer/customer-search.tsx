@@ -19,15 +19,15 @@ import {
 } from '@/components/ui/dialog'
 import { showToast } from '@/components/ui/toast'
 import {
-  CircleUser,
+  UserCircle,
   X,
-  Search,
+  MagnifyingGlass,
   UserPlus,
   Crown,
   Tag,
-  CircleDollarSign,
-  Loader2,
-} from 'lucide-react'
+  CurrencyCircleDollar,
+  CircleNotch,
+} from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 
 const TIER_CONFIG: Record<MemberTier, { label: string; color: string; bg: string }> = {
@@ -222,7 +222,7 @@ export function CustomerSearch() {
     return (
       <div className="space-y-2">
         <div className="flex items-start gap-3 bg-accent rounded-[var(--radius)] px-3 py-3">
-          <CircleUser size={28} className="text-primary shrink-0 mt-0.5" />
+          <UserCircle size={28} className="text-primary shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm font-semibold">{memberInfo.name}</span>
@@ -242,7 +242,7 @@ export function CustomerSearch() {
             </p>
             <div className="flex items-center gap-3 mt-1.5 flex-wrap">
               <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                <CircleDollarSign size={12} />
+                <CurrencyCircleDollar size={12} />
                 {formatCurrency(memberInfo.totalSpending)}
               </span>
               <span className="flex items-center gap-1 text-xs text-primary font-medium">
@@ -256,7 +256,7 @@ export function CustomerSearch() {
             onClick={handleClear}
             className="p-1 rounded hover:bg-background shrink-0"
           >
-            <X size={16} />
+            <X size={16} weight="bold" />
           </button>
         </div>
       </div>
@@ -267,14 +267,14 @@ export function CustomerSearch() {
   if (customerId) {
     return (
       <div className="flex items-center gap-2 bg-accent rounded-[var(--radius)] px-3 py-2">
-        <CircleUser size={20} className="text-primary" />
+        <UserCircle size={20} className="text-primary" />
         <span className="text-sm font-medium flex-1">{customerName}</span>
         <button
           type="button"
           onClick={handleClear}
           className="p-1 rounded hover:bg-background"
         >
-          <X size={16} />
+          <X size={16} weight="bold" />
         </button>
       </div>
     )
@@ -329,8 +329,9 @@ export function CustomerSearch() {
       <div className="relative">
         <div className="flex gap-2">
           <div className="relative flex-1">
-            <Search
+            <MagnifyingGlass
               size={16}
+              weight="bold"
               className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
             />
             <Input
@@ -342,8 +343,9 @@ export function CustomerSearch() {
               className="h-10 pl-9"
             />
             {isSearchingApi && (
-              <Loader2
+              <CircleNotch
                 size={16}
+                weight="bold"
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground animate-spin"
               />
             )}
@@ -354,7 +356,7 @@ export function CustomerSearch() {
             className="h-10 shrink-0 gap-1 text-xs"
             onClick={handleOpenRegister}
           >
-            <UserPlus size={16} />
+            <UserPlus size={16} weight="bold" />
             <span className="hidden sm:inline">Daftar Member</span>
           </Button>
         </div>
@@ -399,7 +401,7 @@ export function CustomerSearch() {
                     'min-h-[44px]'
                   )}
                 >
-                  <CircleUser
+                  <UserCircle
                     size={24}
                     className={cn(
                       'shrink-0',
@@ -407,7 +409,7 @@ export function CustomerSearch() {
                         ? 'text-primary'
                         : 'text-muted-foreground'
                     )}
-                    strokeWidth={result.isMember ? 2.5 : 1.5}
+                    weight={result.isMember ? 'fill' : 'regular'}
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
@@ -455,7 +457,7 @@ export function CustomerSearch() {
                 className="gap-1"
                 onClick={handleOpenRegister}
               >
-                <UserPlus size={14} />
+                <UserPlus size={14} weight="bold" />
                 Daftar Member Baru
               </Button>
             </div>
@@ -533,7 +535,7 @@ export function CustomerSearch() {
             >
               {isRegistering ? (
                 <>
-                  <Loader2 size={16} className="animate-spin mr-1" />
+                  <CircleNotch size={16} weight="bold" className="animate-spin mr-1" />
                   Mendaftar...
                 </>
               ) : (

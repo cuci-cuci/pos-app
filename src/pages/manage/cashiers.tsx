@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from '@tanstack/react-router'
-import { ArrowLeft, Plus, CircleUser } from 'lucide-react'
+import { ArrowLeft, Plus, UserCircle } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog'
-import { LoadingSpinner } from '@/components/shared/loading-spinner'
+import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
 import { EmptyState } from '@/components/shared/empty-state'
 import { ownerApi } from '@/services/owner-api'
 import { showToast } from '@/components/ui/toast'
@@ -116,7 +116,7 @@ export function ManageCashiersPage() {
           size="icon"
           onClick={() => router.navigate({ to: '/manage' })}
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={20} weight="bold" />
         </Button>
         <div className="flex-1">
           <h1 className="text-xl font-bold">Kasir</h1>
@@ -125,17 +125,17 @@ export function ManageCashiersPage() {
           </p>
         </div>
         <Button size="sm" onClick={openCreate}>
-          <Plus size={16} className="mr-1" />
+          <Plus size={16} weight="bold" className="mr-1" />
           Tambah
         </Button>
       </div>
 
       <div className="px-4 pb-6">
         {loading ? (
-          <LoadingSpinner />
+          <ManageListSkeleton />
         ) : cashiers.length === 0 ? (
           <EmptyState
-            icon={<CircleUser size={48} />}
+            icon={<UserCircle size={48} weight="fill" />}
             title="Belum Ada Kasir"
             description="Tambahkan kasir untuk membantu operasional."
           />

@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from '@tanstack/react-router'
 import { shiftApi } from '@/services/shift-api'
 import { ShiftSummary } from '@/components/shift/shift-summary'
-import { LoadingSpinner } from '@/components/shared/loading-spinner'
+import { DetailSkeleton } from '@/components/shared/skeleton-loaders'
 import { EmptyState } from '@/components/shared/empty-state'
 import { Button } from '@/components/ui/button'
-import { ChevronLeft, AlertTriangle } from 'lucide-react'
+import { CaretLeft, WarningCircle } from '@phosphor-icons/react'
 import type { ShiftSummary as ShiftSummaryType } from '@/services/shift-api'
 
 export function ShiftDetailPage() {
@@ -26,14 +26,14 @@ export function ShiftDetailPage() {
   }, [id])
 
   if (loading) {
-    return <LoadingSpinner />
+    return <DetailSkeleton />
   }
 
   if (error || !summary) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-4">
         <EmptyState
-          icon={<AlertTriangle size={48} />}
+          icon={<WarningCircle size={48} weight="fill" />}
           title="Gagal memuat"
           description="Tidak dapat memuat detail shift."
         />
@@ -42,7 +42,7 @@ export function ShiftDetailPage() {
           className="mt-4"
           onClick={() => router.navigate({ to: '/shifts' })}
         >
-          <ChevronLeft size={16} className="mr-1" />
+          <CaretLeft size={16} className="mr-1" weight="bold" />
           Kembali
         </Button>
       </div>
@@ -57,7 +57,7 @@ export function ShiftDetailPage() {
           onClick={() => router.navigate({ to: '/shifts' })}
           className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-2"
         >
-          <ChevronLeft size={16} />
+          <CaretLeft size={16} weight="bold" />
           Kembali
         </button>
         <h1 className="text-xl font-bold">Detail Shift</h1>

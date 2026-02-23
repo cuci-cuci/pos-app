@@ -13,7 +13,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { showToast } from '@/components/ui/toast'
-import { Lock, DollarSign, Receipt, AlertTriangle } from 'lucide-react'
+import { Lock, CurrencyDollar, Receipt, WarningCircle } from '@phosphor-icons/react'
 import type { ShiftSummary } from '@/services/shift-api'
 
 interface CloseShiftDialogProps {
@@ -72,7 +72,7 @@ export function CloseShiftDialog({ open, onOpenChange }: CloseShiftDialogProps) 
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Lock size={20} />
+            <Lock size={20} weight="fill" />
             Tutup Shift
           </DialogTitle>
           <DialogDescription>
@@ -91,7 +91,7 @@ export function CloseShiftDialog({ open, onOpenChange }: CloseShiftDialogProps) 
               <div className="bg-muted rounded-[var(--radius)] p-3 space-y-2 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-1.5 text-muted-foreground">
-                    <Receipt size={14} />
+                    <Receipt size={14} weight="fill" />
                     Total Transaksi
                   </span>
                   <span className="font-semibold">{summary.transaction_count}</span>
@@ -119,8 +119,9 @@ export function CloseShiftDialog({ open, onOpenChange }: CloseShiftDialogProps) 
                 Kas Akhir (Aktual)
               </label>
               <div className="relative">
-                <DollarSign
+                <CurrencyDollar
                   size={18}
+                  weight="fill"
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                 />
                 <Input
@@ -153,7 +154,7 @@ export function CloseShiftDialog({ open, onOpenChange }: CloseShiftDialogProps) 
                 }`}
               >
                 <span className="flex items-center gap-1.5">
-                  {difference !== 0 && <AlertTriangle size={16} />}
+                  {difference !== 0 && <WarningCircle size={16} weight="fill" />}
                   Selisih
                 </span>
                 <span className="font-bold">{formatCurrency(difference)}</span>

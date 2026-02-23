@@ -4,9 +4,9 @@ import {
   ArrowLeft,
   Plus,
   Users,
-  Search,
+  MagnifyingGlass,
   Phone,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -16,7 +16,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog'
-import { LoadingSpinner } from '@/components/shared/loading-spinner'
+import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
 import { EmptyState } from '@/components/shared/empty-state'
 import { ownerApi } from '@/services/owner-api'
 import { showToast } from '@/components/ui/toast'
@@ -115,7 +115,7 @@ export function ManageMembersPage() {
           size="icon"
           onClick={() => router.navigate({ to: '/manage' })}
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={20} weight="bold" />
         </Button>
         <div className="flex-1">
           <h1 className="text-xl font-bold">Member</h1>
@@ -124,15 +124,16 @@ export function ManageMembersPage() {
           </p>
         </div>
         <Button size="sm" onClick={openCreate}>
-          <Plus size={16} className="mr-1" />
+          <Plus size={16} weight="bold" className="mr-1" />
           Tambah
         </Button>
       </div>
 
       <div className="px-4 pb-3">
         <div className="relative">
-          <Search
+          <MagnifyingGlass
             size={16}
+            weight="bold"
             className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
           />
           <Input
@@ -146,10 +147,10 @@ export function ManageMembersPage() {
 
       <div className="px-4 pb-6">
         {loading ? (
-          <LoadingSpinner />
+          <ManageListSkeleton />
         ) : filteredMembers.length === 0 ? (
           <EmptyState
-            icon={<Users size={48} />}
+            icon={<Users size={48} weight="fill" />}
             title={search ? 'Tidak Ditemukan' : 'Belum Ada Member'}
             description={
               search
@@ -171,7 +172,7 @@ export function ManageMembersPage() {
                     <p className="text-sm font-semibold">{member.name}</p>
                     {member.phone && (
                       <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                        <Phone size={12} />
+                        <Phone size={12} weight="fill" />
                         {member.phone}
                       </p>
                     )}

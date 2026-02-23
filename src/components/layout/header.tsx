@@ -4,7 +4,7 @@ import { useAuthStore } from '@/stores/auth-store'
 import { useSyncStore } from '@/stores/sync-store'
 import { useShiftStore } from '@/stores/shift-store'
 import { CloseShiftDialog } from '@/components/shift/close-shift-dialog'
-import { Store, Clock } from 'lucide-react'
+import { Storefront, Clock } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 import { UserMenu } from './user-menu'
 
@@ -33,7 +33,7 @@ export function Header() {
       <header className="sticky top-0 z-40 bg-card border-b border-border px-4 h-14 flex items-center justify-between">
         {/* Left: outlet + device */}
         <div className="flex items-center gap-2 min-w-0">
-          <Store size={22} className="text-primary shrink-0" />
+          <Storefront size={22} weight="fill" className="text-primary shrink-0" />
           <div className="min-w-0">
             <p className="text-sm font-semibold leading-tight truncate">{outletName || 'LaundryPOS'}</p>
             {deviceName && (
@@ -51,7 +51,7 @@ export function Header() {
               onClick={() => setCloseShiftDialogOpen(true)}
               className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-success/15 text-success text-xs font-medium hover:bg-success/20 transition-colors"
             >
-              <Clock size={12} />
+              <Clock size={12} weight="fill" />
               Shift
             </button>
           )}

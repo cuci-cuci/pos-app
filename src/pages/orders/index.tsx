@@ -4,13 +4,14 @@ import { useDeviceStore } from '@/stores/device-store'
 import { formatCurrency, formatTime } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { EmptyState } from '@/components/shared/empty-state'
-import { LoadingSpinner } from '@/components/shared/loading-spinner'
+import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
+import { InlineError } from '@/components/shared/inline-error'
 import { orderApi } from '@/services/order-api'
 import type { Order, OrderStatus } from '@/services/order-api'
 import {
   Package,
-  RefreshCw,
-} from 'lucide-react'
+  ArrowsClockwise,
+} from '@phosphor-icons/react'
 
 type FilterTab = 'all' | OrderStatus
 
@@ -64,10 +65,12 @@ export function OrdersPage() {
   const [activeTab, setActiveTab] = useState<FilterTab>('all')
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
 
   const fetchOrders = useCallback(async () => {
     try {
+      setError(false)
       const params: Record<string, string> = {}
       if (outletId) {
         params.outlet_id = outletId
@@ -79,7 +82,7 @@ export function OrdersPage() {
       const response = await orderApi.list(params)
       setOrders(response.data)
     } catch {
-      // silently handle error
+      setError(true)
     } finally {
       setLoading(false)
       setRefreshing(false)
@@ -116,8 +119,9 @@ export function OrdersPage() {
           disabled={refreshing}
           className="p-2 rounded-[var(--radius)] hover:bg-muted transition-colors touch-manipulation"
         >
-          <RefreshCw
+          <ArrowsClockwise
             size={22}
+            weight="bold"
             className={cn(
               'text-muted-foreground',
               refreshing && 'animate-spin'
@@ -151,10 +155,12 @@ export function OrdersPage() {
       {/* Order list */}
       <div className="flex-1 overflow-y-auto px-4 pb-4">
         {loading ? (
-          <LoadingSpinner />
+          <ManageListSkeleton />
+        ) : error ? (
+          <InlineError message="Gagal memuat pesanan." onRetry={fetchOrders} />
         ) : orders.length === 0 ? (
           <EmptyState
-            icon={<Package size={48} />}
+            icon={<Package size={48} weight="fill" />}
             title="Tidak ada pesanan"
             description="Belum ada pesanan untuk filter ini."
           />

@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { create } from 'zustand'
 import { cn } from '@/lib/utils'
-import { X } from 'lucide-react'
+import { X } from '@phosphor-icons/react'
 
 type ToastType = 'success' | 'error' | 'info'
 
@@ -52,7 +52,7 @@ function ToastItem({ toast }: { toast: Toast }) {
         onClick={() => removeToast(toast.id)}
         className="shrink-0 p-1 rounded hover:opacity-80"
       >
-        <X size={16} />
+        <X size={16} weight="bold" />
       </button>
     </div>
   )

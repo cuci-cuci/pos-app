@@ -3,15 +3,15 @@ import { useRouter } from '@tanstack/react-router'
 import { formatCurrency, formatDate, formatTime } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { LoadingSpinner } from '@/components/shared/loading-spinner'
+import { DetailSkeleton } from '@/components/shared/skeleton-loaders'
+import { InlineError } from '@/components/shared/inline-error'
 import { ReceiptTemplate } from '@/components/receipt/receipt-template'
 import { ReceiptActions } from '@/components/receipt/receipt-actions'
 import { orderApi } from '@/services/order-api'
 import type { OrderDetail, OrderStatus } from '@/services/order-api'
 import {
   ArrowLeft,
-  AlertTriangle,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 
 const statusColors: Record<OrderStatus, { bg: string; text: string }> = {
   received: {
@@ -114,6 +114,7 @@ export function OrderDetailPage() {
   const router = useRouter()
   const [order, setOrder] = useState<OrderDetail | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
   const [updating, setUpdating] = useState(false)
   const [confirmAction, setConfirmAction] = useState<StatusAction | null>(null)
   const [showCancelConfirm, setShowCancelConfirm] = useState(false)
@@ -124,10 +125,11 @@ export function OrderDetailPage() {
   const fetchOrder = useCallback(async () => {
     if (!orderId) return
     try {
+      setError(false)
       const response = await orderApi.getById(orderId)
       setOrder(response.data)
     } catch {
-      // handle error silently
+      setError(true)
     } finally {
       setLoading(false)
     }
@@ -169,17 +171,19 @@ export function OrderDetailPage() {
   }
 
   if (loading) {
-    return <LoadingSpinner />
+    return <DetailSkeleton />
   }
 
-  if (!order) {
+  if (error || !order) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-4">
-        <AlertTriangle size={48} className="text-muted-foreground mb-4" />
-        <p className="text-base font-semibold">Pesanan tidak ditemukan</p>
+        <InlineError
+          message={error ? 'Gagal memuat pesanan.' : 'Pesanan tidak ditemukan.'}
+          onRetry={error ? fetchOrder : undefined}
+        />
         <Button
           variant="outline"
-          className="mt-4"
+          className="mt-2"
           onClick={() => router.navigate({ to: '/orders' })}
         >
           Kembali ke Pesanan
@@ -201,7 +205,7 @@ export function OrderDetailPage() {
           onClick={() => router.navigate({ to: '/orders' })}
           className="p-1.5 rounded-[var(--radius)] hover:bg-muted transition-colors touch-manipulation"
         >
-          <ArrowLeft size={22} />
+          <ArrowLeft size={22} weight="bold" />
         </button>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">

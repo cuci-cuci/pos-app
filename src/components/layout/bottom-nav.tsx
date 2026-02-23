@@ -1,30 +1,29 @@
 import { useRouter, useMatches } from '@tanstack/react-router'
-import { Store, Receipt, BarChart3, MoreHorizontal, Wrench, Package, Clock } from 'lucide-react'
+import { Storefront, Package, Receipt, Clock, DotsThreeOutline, ChartBar, Wrench, type Icon } from '@phosphor-icons/react'
 import { useAuthStore } from '@/stores/auth-store'
 import { ROLE_TENANT_OWNER } from '@/lib/constants'
 import { cn } from '@/lib/utils'
-import type { LucideIcon } from 'lucide-react'
 
 interface NavItem {
   label: string
-  icon: LucideIcon
+  icon: Icon
   path: string
 }
 
 const cashierNavItems: NavItem[] = [
-  { label: 'Kasir', icon: Store, path: '/' },
+  { label: 'Kasir', icon: Storefront, path: '/' },
   { label: 'Pesanan', icon: Package, path: '/orders' },
   { label: 'Riwayat', icon: Receipt, path: '/transactions' },
   { label: 'Shift', icon: Clock, path: '/shifts' },
-  { label: 'Lainnya', icon: MoreHorizontal, path: '/settings' },
+  { label: 'Lainnya', icon: DotsThreeOutline, path: '/settings' },
 ]
 
 const ownerNavItems: NavItem[] = [
-  { label: 'Dashboard', icon: BarChart3, path: '/dashboard' },
-  { label: 'Kasir', icon: Store, path: '/' },
+  { label: 'Dashboard', icon: ChartBar, path: '/dashboard' },
+  { label: 'Kasir', icon: Storefront, path: '/' },
   { label: 'Pesanan', icon: Package, path: '/orders' },
   { label: 'Kelola', icon: Wrench, path: '/manage' },
-  { label: 'Lainnya', icon: MoreHorizontal, path: '/settings' },
+  { label: 'Lainnya', icon: DotsThreeOutline, path: '/settings' },
 ]
 
 export function BottomNav() {
@@ -59,7 +58,7 @@ export function BottomNav() {
               {isActive && (
                 <div className="absolute top-0 left-2 right-2 h-0.5 bg-primary rounded-b" />
               )}
-              <item.icon size={22} strokeWidth={isActive ? 2.5 : 1.5} />
+              <item.icon size={22} weight={isActive ? 'fill' : 'regular'} />
               <span className="text-xs font-medium">{item.label}</span>
             </button>
           )

@@ -1,4 +1,4 @@
-import { Loader2 } from 'lucide-react'
+import { CircleNotch } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 
 interface LoadingSpinnerProps {
@@ -9,7 +9,7 @@ interface LoadingSpinnerProps {
 export function LoadingSpinner({ className, size = 32 }: LoadingSpinnerProps) {
   return (
     <div className={cn('flex items-center justify-center py-12', className)}>
-      <Loader2 size={size} className="animate-spin text-primary" />
+      <CircleNotch size={size} weight="bold" className="animate-spin text-primary" />
     </div>
   )
 }

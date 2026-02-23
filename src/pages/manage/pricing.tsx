@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from '@tanstack/react-router'
-import { ArrowLeft, Tag, Save } from 'lucide-react'
+import { ArrowLeft, Tag, FloppyDisk } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { LoadingSpinner } from '@/components/shared/loading-spinner'
+import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
 import { EmptyState } from '@/components/shared/empty-state'
 import { formatCurrency } from '@/lib/format'
 import { ownerApi } from '@/services/owner-api'
@@ -83,7 +83,7 @@ export function ManagePricingPage() {
           size="icon"
           onClick={() => router.navigate({ to: '/manage' })}
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={20} weight="bold" />
         </Button>
         <div className="flex-1">
           <h1 className="text-xl font-bold">Harga Layanan</h1>
@@ -93,7 +93,7 @@ export function ManagePricingPage() {
         </div>
         {hasChanges && (
           <Button size="sm" onClick={handleSaveAll} disabled={saving}>
-            <Save size={16} className="mr-1" />
+            <FloppyDisk size={16} weight="fill" className="mr-1" />
             {saving ? 'Menyimpan...' : 'Simpan'}
           </Button>
         )}
@@ -101,10 +101,10 @@ export function ManagePricingPage() {
 
       <div className="px-4 pb-6">
         {loading ? (
-          <LoadingSpinner />
+          <ManageListSkeleton />
         ) : services.length === 0 ? (
           <EmptyState
-            icon={<Tag size={48} />}
+            icon={<Tag size={48} weight="fill" />}
             title="Belum Ada Layanan"
             description="Belum ada template layanan yang tersedia."
           />

@@ -4,7 +4,7 @@ import { useAuthStore } from '@/stores/auth-store'
 import { formatCurrency, formatDate, formatTime } from '@/lib/format'
 import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/shared/empty-state'
-import { Receipt } from 'lucide-react'
+import { Receipt } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 import { startOfDay } from 'date-fns'
 import type { Transaction, SyncStatus } from '@/db/schema'
@@ -65,7 +65,7 @@ export function TransactionList({ filter, onSelect }: TransactionListProps) {
   if (!transactions || transactions.length === 0) {
     return (
       <EmptyState
-        icon={<Receipt size={48} />}
+        icon={<Receipt size={48} weight="fill" />}
         title="Belum ada transaksi"
         description={
           filter === 'pending'

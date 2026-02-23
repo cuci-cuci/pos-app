@@ -10,7 +10,7 @@ import { syncEngine } from '@/sync/sync-engine'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Store, MapPin, Phone, CheckCircle } from 'lucide-react'
+import { Storefront, MapPin, Phone, CheckCircle } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 
 export function SetupPage() {
@@ -95,7 +95,7 @@ export function SetupPage() {
             <CardContent className="p-8 text-center">
               <div className="flex justify-center mb-6">
                 <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Store size={48} className="text-primary" />
+                  <Storefront size={48} weight="fill" className="text-primary" />
                 </div>
               </div>
               <h1 className="text-2xl font-bold mb-2">Selamat datang di LaundryPOS</h1>
@@ -154,25 +154,25 @@ export function SetupPage() {
                             ? 'bg-primary text-primary-foreground'
                             : 'bg-muted text-muted-foreground'
                         )}>
-                          <Store size={20} />
+                          <Storefront size={20} weight="fill" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-sm">{outlet.name}</p>
                           {outlet.address && (
                             <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                              <MapPin size={12} className="shrink-0" />
+                              <MapPin size={12} weight="fill" className="shrink-0" />
                               <span className="truncate">{outlet.address}</span>
                             </p>
                           )}
                           {outlet.phone && (
                             <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
-                              <Phone size={12} className="shrink-0" />
+                              <Phone size={12} weight="fill" className="shrink-0" />
                               {outlet.phone}
                             </p>
                           )}
                         </div>
                         {selectedOutletId === outlet.id && (
-                          <CheckCircle size={24} className="text-primary shrink-0" />
+                          <CheckCircle size={24} weight="fill" className="text-primary shrink-0" />
                         )}
                       </div>
                     </button>

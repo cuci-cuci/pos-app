@@ -5,10 +5,10 @@ import {
   ArrowRight,
   CheckCircle,
   CreditCard,
-  DollarSign,
-  Store,
+  CurrencyDollar,
+  Storefront,
   UserPlus,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
@@ -213,15 +213,15 @@ export function OnboardingPage() {
               <CardContent className="p-8 text-center">
                 <div className="flex justify-center mb-6">
                   <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Store
+                    <Storefront
                       size={48}
                       className="text-primary"
-                     
+                      weight="fill"
                     />
                   </div>
                 </div>
                 <h1 className="text-2xl font-bold mb-2">
-                  Selamat datang di CuciPOS!
+                  Selamat datang di LaundryPOS!
                 </h1>
                 <p className="text-muted-foreground mb-2">
                   {user?.name}
@@ -235,7 +235,7 @@ export function OnboardingPage() {
                   onClick={() => setStep(1)}
                 >
                   Berikutnya
-                  <ArrowRight size={18} className="ml-2" />
+                  <ArrowRight size={18} className="ml-2" weight="bold" />
                 </Button>
               </CardContent>
             </Card>
@@ -252,7 +252,7 @@ export function OnboardingPage() {
                     className="shrink-0 -ml-2"
                     onClick={() => setStep(0)}
                   >
-                    <ArrowLeft size={20} />
+                    <ArrowLeft size={20} weight="bold" />
                   </Button>
                   <div>
                     <h2 className="text-xl font-bold">Harga Layanan</h2>
@@ -266,9 +266,10 @@ export function OnboardingPage() {
                   <LoadingSpinner />
                 ) : services.length === 0 ? (
                   <div className="text-center py-8">
-                    <DollarSign
+                    <CurrencyDollar
                       size={48}
                       className="mx-auto text-muted-foreground mb-3"
+                      weight="fill"
                     />
                     <p className="text-sm text-muted-foreground">
                       Belum ada template layanan tersedia.
@@ -333,7 +334,7 @@ export function OnboardingPage() {
                       : Object.keys(editingPrices).length > 0
                         ? 'Simpan & Lanjutkan'
                         : 'Lanjutkan'}
-                    {!savingPrices && <ArrowRight size={18} className="ml-2" />}
+                    {!savingPrices && <ArrowRight size={18} className="ml-2" weight="bold" />}
                   </Button>
                   {Object.keys(editingPrices).length === 0 &&
                     services.length > 0 && (
@@ -361,7 +362,7 @@ export function OnboardingPage() {
                     className="shrink-0 -ml-2"
                     onClick={() => setStep(1)}
                   >
-                    <ArrowLeft size={20} />
+                    <ArrowLeft size={20} weight="bold" />
                   </Button>
                   <div>
                     <h2 className="text-xl font-bold">Tambah Kasir</h2>
@@ -376,7 +377,7 @@ export function OnboardingPage() {
                     <CheckCircle
                       size={48}
                       className="mx-auto text-emerald-500 mb-3"
-                     
+                      weight="fill"
                     />
                     <p className="text-sm font-semibold mb-1">
                       Kasir berhasil ditambahkan!
@@ -442,7 +443,7 @@ export function OnboardingPage() {
                       onClick={() => setStep(3)}
                     >
                       Lanjutkan
-                      <ArrowRight size={18} className="ml-2" />
+                      <ArrowRight size={18} className="ml-2" weight="bold" />
                     </Button>
                   ) : (
                     <>
@@ -457,7 +458,7 @@ export function OnboardingPage() {
                           !cashierPassword
                         }
                       >
-                        <UserPlus size={18} className="mr-2" />
+                        <UserPlus size={18} className="mr-2" weight="fill" />
                         {addingCashier ? 'Menambahkan...' : 'Tambah Kasir'}
                       </Button>
                       <Button
@@ -485,7 +486,7 @@ export function OnboardingPage() {
                     className="shrink-0 -ml-2"
                     onClick={() => setStep(2)}
                   >
-                    <ArrowLeft size={20} />
+                    <ArrowLeft size={20} weight="bold" />
                   </Button>
                   <div>
                     <h2 className="text-xl font-bold">Metode Pembayaran</h2>
@@ -502,6 +503,7 @@ export function OnboardingPage() {
                     <CreditCard
                       size={48}
                       className="mx-auto text-muted-foreground mb-3"
+                      weight="fill"
                     />
                     <p className="text-sm text-muted-foreground">
                       Belum ada metode pembayaran tersedia.
@@ -552,7 +554,7 @@ export function OnboardingPage() {
                     onClick={() => setStep(4)}
                   >
                     Selesai
-                    <ArrowRight size={18} className="ml-2" />
+                    <ArrowRight size={18} className="ml-2" weight="bold" />
                   </Button>
                 </div>
               </CardContent>
@@ -568,7 +570,7 @@ export function OnboardingPage() {
                     <CheckCircle
                       size={48}
                       className="text-emerald-500"
-                     
+                      weight="fill"
                     />
                   </div>
                 </div>
@@ -585,7 +587,7 @@ export function OnboardingPage() {
                   onClick={handleFinish}
                 >
                   Mulai Gunakan POS
-                  <ArrowRight size={18} className="ml-2" />
+                  <ArrowRight size={18} className="ml-2" weight="bold" />
                 </Button>
               </CardContent>
             </Card>

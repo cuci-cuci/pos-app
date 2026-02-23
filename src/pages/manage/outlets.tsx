@@ -3,10 +3,10 @@ import { useRouter } from '@tanstack/react-router'
 import {
   ArrowLeft,
   Plus,
-  Store,
+  Storefront,
   MapPin,
   Phone,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -16,7 +16,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog'
-import { LoadingSpinner } from '@/components/shared/loading-spinner'
+import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
 import { EmptyState } from '@/components/shared/empty-state'
 import { ownerApi } from '@/services/owner-api'
 import { showToast } from '@/components/ui/toast'
@@ -103,7 +103,7 @@ export function ManageOutletsPage() {
           size="icon"
           onClick={() => router.navigate({ to: '/manage' })}
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={20} weight="bold" />
         </Button>
         <div className="flex-1">
           <h1 className="text-xl font-bold">Outlet</h1>
@@ -112,17 +112,17 @@ export function ManageOutletsPage() {
           </p>
         </div>
         <Button size="sm" onClick={openCreate}>
-          <Plus size={16} className="mr-1" />
+          <Plus size={16} weight="bold" className="mr-1" />
           Tambah
         </Button>
       </div>
 
       <div className="px-4 pb-6">
         {loading ? (
-          <LoadingSpinner />
+          <ManageListSkeleton />
         ) : outlets.length === 0 ? (
           <EmptyState
-            icon={<Store size={48} />}
+            icon={<Storefront size={48} weight="fill" />}
             title="Belum Ada Outlet"
             description="Tambahkan outlet pertama Anda untuk mulai."
           />
@@ -140,13 +140,13 @@ export function ManageOutletsPage() {
                     <p className="text-sm font-semibold">{outlet.name}</p>
                     {outlet.address && (
                       <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                        <MapPin size={12} />
+                        <MapPin size={12} weight="fill" />
                         {outlet.address}
                       </p>
                     )}
                     {outlet.phone && (
                       <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                        <Phone size={12} />
+                        <Phone size={12} weight="fill" />
                         {outlet.phone}
                       </p>
                     )}

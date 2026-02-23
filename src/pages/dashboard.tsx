@@ -9,23 +9,23 @@ import { formatCurrency, formatTime } from '@/lib/format'
 import { ROLE_TENANT_OWNER } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { LoadingSpinner } from '@/components/shared/loading-spinner'
+import { DashboardSkeleton } from '@/components/shared/skeleton-loaders'
 import { SyncStatusIcon } from '@/components/shared/sync-status-icon'
 import { OpenShiftDialog } from '@/components/shift/open-shift-dialog'
 import { CloseShiftDialog } from '@/components/shift/close-shift-dialog'
 import {
-  DollarSign,
+  CurrencyDollar,
   Receipt,
-  CloudUpload,
-  TrendingUp,
+  CloudArrowUp,
+  TrendUp,
   Plus,
-  History,
-  RefreshCw,
-  AlertTriangle,
+  ClockCounterClockwise,
+  ArrowsClockwise,
+  WarningCircle,
   Play,
-  Square,
-  ClipboardList,
-} from 'lucide-react'
+  Stop,
+  ClipboardText,
+} from '@phosphor-icons/react'
 import type { ReactNode } from 'react'
 
 type CardVariant = 'primary' | 'success' | 'warning' | 'info'
@@ -109,7 +109,7 @@ function ShiftStatusCard({ onOpenShift, onCloseShift }: ShiftStatusCardProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-success/15 flex items-center justify-center">
-              <Play size={16} className="text-success" />
+              <Play size={16} weight="fill" className="text-success" />
             </div>
             <div>
               <p className="text-sm font-semibold text-success">
@@ -127,7 +127,7 @@ function ShiftStatusCard({ onOpenShift, onCloseShift }: ShiftStatusCardProps) {
             className="border-success/30 text-success hover:bg-success/10"
             onClick={onCloseShift}
           >
-            <Square size={14} className="mr-1" />
+            <Stop size={14} weight="fill" className="mr-1" />
             Tutup Shift
           </Button>
         </div>
@@ -140,7 +140,7 @@ function ShiftStatusCard({ onOpenShift, onCloseShift }: ShiftStatusCardProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-warning/15 flex items-center justify-center">
-            <AlertTriangle size={16} className="text-warning" />
+            <WarningCircle size={16} weight="fill" className="text-warning" />
           </div>
           <div>
             <p className="text-sm font-semibold text-warning">
@@ -157,7 +157,7 @@ function ShiftStatusCard({ onOpenShift, onCloseShift }: ShiftStatusCardProps) {
           className="border-warning/30 text-warning hover:bg-warning/10"
           onClick={onOpenShift}
         >
-          <Play size={14} className="mr-1" />
+          <Play size={14} weight="fill" className="mr-1" />
           Buka Shift
         </Button>
       </div>
@@ -202,7 +202,7 @@ export function DashboardPage() {
   }, [user])
 
   if (todayTransactions === undefined || recentTransactions === undefined) {
-    return <LoadingSpinner />
+    return <DashboardSkeleton />
   }
 
   const todayRevenue = todayTransactions.reduce((sum, t) => sum + t.totalAmount, 0)
@@ -231,26 +231,26 @@ export function DashboardPage() {
         {/* Today's stats */}
         <div className="px-4 grid grid-cols-2 gap-3">
           <SummaryCard
-            icon={<Receipt size={22} />}
+            icon={<Receipt size={22} weight="fill" />}
             label="Transaksi Hari Ini"
             value={todayCount.toString()}
             variant="info"
           />
           <SummaryCard
-            icon={<DollarSign size={22} />}
+            icon={<CurrencyDollar size={22} weight="fill" />}
             label="Revenue Hari Ini"
             value={formatCurrency(todayRevenue)}
             variant="success"
           />
           <SummaryCard
-            icon={<CloudUpload size={22} />}
+            icon={<CloudArrowUp size={22} weight="fill" />}
             label="Pending Sync"
             value={pendingCount.toString()}
             subValue={pendingCount === 0 ? 'Semua tersinkron' : 'menunggu'}
             variant="warning"
           />
           <SummaryCard
-            icon={<TrendingUp size={22} />}
+            icon={<TrendUp size={22} weight="fill" />}
             label="Rata-rata"
             value={formatCurrency(avgTransaction)}
             subValue="per transaksi"
@@ -269,7 +269,7 @@ export function DashboardPage() {
               className="h-auto py-3 flex-col gap-1.5"
               onClick={() => router.navigate({ to: '/' })}
             >
-              <Plus size={20} />
+              <Plus size={20} weight="bold" />
               <span className="text-xs">Buat Transaksi</span>
             </Button>
             <Button
@@ -277,7 +277,7 @@ export function DashboardPage() {
               className="h-auto py-3 flex-col gap-1.5"
               onClick={() => router.navigate({ to: '/orders' })}
             >
-              <ClipboardList size={20} />
+              <ClipboardText size={20} weight="fill" />
               <span className="text-xs">Lihat Pesanan</span>
             </Button>
             <Button
@@ -285,7 +285,7 @@ export function DashboardPage() {
               className="h-auto py-3 flex-col gap-1.5"
               onClick={() => router.navigate({ to: '/transactions' })}
             >
-              <History size={20} />
+              <ClockCounterClockwise size={20} weight="fill" />
               <span className="text-xs">Riwayat</span>
             </Button>
           </div>
@@ -373,27 +373,27 @@ export function DashboardPage() {
       {/* Summary cards */}
       <div className="px-4 grid grid-cols-2 gap-3">
         <SummaryCard
-          icon={<DollarSign size={22} />}
+          icon={<CurrencyDollar size={22} weight="fill" />}
           label="Revenue Hari Ini"
           value={formatCurrency(todayRevenue)}
           variant="success"
         />
         <SummaryCard
-          icon={<Receipt size={22} />}
+          icon={<Receipt size={22} weight="fill" />}
           label="Total Transaksi"
           value={todayCount.toString()}
           subValue="hari ini"
           variant="info"
         />
         <SummaryCard
-          icon={<CloudUpload size={22} />}
+          icon={<CloudArrowUp size={22} weight="fill" />}
           label="Pending Sync"
           value={pendingCount.toString()}
           subValue={pendingCount === 0 ? 'Semua tersinkron' : 'menunggu'}
           variant="warning"
         />
         <SummaryCard
-          icon={<TrendingUp size={22} />}
+          icon={<TrendUp size={22} weight="fill" />}
           label="Rata-rata Transaksi"
           value={formatCurrency(avgTransaction)}
           subValue="per transaksi"
@@ -412,7 +412,7 @@ export function DashboardPage() {
             className="h-auto py-3 flex-col gap-1.5"
             onClick={() => router.navigate({ to: '/' })}
           >
-            <Plus size={20} />
+            <Plus size={20} weight="bold" />
             <span className="text-xs">Buat Transaksi</span>
           </Button>
           <Button
@@ -420,7 +420,7 @@ export function DashboardPage() {
             className="h-auto py-3 flex-col gap-1.5"
             onClick={() => router.navigate({ to: '/transactions' })}
           >
-            <History size={20} />
+            <ClockCounterClockwise size={20} weight="fill" />
             <span className="text-xs">Lihat Riwayat</span>
           </Button>
           <Button
@@ -428,7 +428,7 @@ export function DashboardPage() {
             className="h-auto py-3 flex-col gap-1.5"
             onClick={() => router.navigate({ to: '/settings' })}
           >
-            <RefreshCw size={20} />
+            <ArrowsClockwise size={20} weight="bold" />
             <span className="text-xs">Sinkronisasi</span>
           </Button>
         </div>

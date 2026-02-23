@@ -3,6 +3,8 @@ export const API_BASE_URL =
 
 export const APP_NAME = 'LaundryPOS'
 
+export const APP_VERSION = '1.0.0'
+
 export const SYNC_INTERVAL_MS = 30_000
 
 export const MAX_RETRY_ATTEMPTS = 4

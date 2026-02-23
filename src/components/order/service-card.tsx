@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import type { Service } from '@/db/schema'
-import { getCategoryIcon } from '@/lib/category-icons'
+import { getCategoryIcon, getCategoryColor } from '@/lib/category-icons'
 import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
@@ -42,6 +42,7 @@ export function ServiceCard({
   onSelect,
 }: ServiceCardProps) {
   const IconComp = getCategoryIcon(categoryName)
+  const iconColor = getCategoryColor(categoryName)
 
   if (compact) {
     return (
@@ -50,7 +51,7 @@ export function ServiceCard({
         onClick={() => onSelect(service)}
         whileTap={{ scale: 0.97 }}
         className={cn(
-          'relative flex flex-col p-2.5 rounded-xl shadow-sm border',
+          'relative flex flex-col p-2.5 rounded-[var(--radius)] border',
           'bg-card hover:bg-accent active:bg-accent',
           'min-h-[72px] transition-colors text-left no-select',
           'touch-manipulation',
@@ -58,7 +59,7 @@ export function ServiceCard({
         )}
       >
         <CartBadge quantity={cartQuantity ?? 0} size="sm" />
-        <IconComp size={14} className="text-muted-foreground mb-1" />
+        <IconComp size={14} weight="fill" className={cn(iconColor, 'mb-1')} />
         <span className="text-xs font-bold leading-tight line-clamp-2 mb-0.5">{service.name}</span>
         <span className="text-[10px] text-muted-foreground">per {service.unit}</span>
         <span className="text-primary font-semibold text-xs mt-auto">
@@ -74,7 +75,7 @@ export function ServiceCard({
       onClick={() => onSelect(service)}
       whileTap={{ scale: 0.97 }}
       className={cn(
-        'relative flex flex-col p-4 rounded-xl shadow-sm border',
+        'relative flex flex-col p-4 rounded-[var(--radius)] border',
         'bg-card hover:bg-accent active:bg-accent',
         'min-h-[100px] transition-colors text-left no-select',
         'touch-manipulation',
@@ -84,7 +85,7 @@ export function ServiceCard({
       <CartBadge quantity={cartQuantity ?? 0} />
 
       {/* Category icon */}
-      <IconComp size={18} className="text-muted-foreground mb-2" />
+      <IconComp size={18} weight="fill" className={cn(iconColor, 'mb-2')} />
 
       {/* Service name */}
       <span className="text-sm font-bold leading-tight line-clamp-2 mb-1">{service.name}</span>

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { useDeviceStore } from '@/stores/device-store'
 import { formatCurrency } from '@/lib/format'
-import { Printer, Share2, Check } from 'lucide-react'
+import { Printer, ShareNetwork, Check } from '@phosphor-icons/react'
 import type { OrderDetail } from '@/services/order-api'
 
 interface ReceiptActionsProps {
@@ -79,7 +79,7 @@ export function ReceiptActions({ order }: ReceiptActionsProps) {
         className="flex-1 gap-2"
         onClick={handlePrint}
       >
-        <Printer size={18} />
+        <Printer size={18} weight="fill" />
         Cetak Struk
       </Button>
       <Button
@@ -87,7 +87,7 @@ export function ReceiptActions({ order }: ReceiptActionsProps) {
         className="flex-1 gap-2"
         onClick={() => void handleShare()}
       >
-        {copied ? <Check size={18} /> : <Share2 size={18} />}
+        {copied ? <Check size={18} weight="bold" /> : <ShareNetwork size={18} weight="fill" />}
         {copied ? 'Tersalin!' : 'Bagikan'}
       </Button>
     </div>

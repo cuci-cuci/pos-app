@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Clock, Search, ShoppingCart } from 'lucide-react'
+import { Clock, MagnifyingGlass, ShoppingCart } from '@phosphor-icons/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { CartPanel } from '@/components/order/cart-panel'
 import { QuantityInput } from '@/components/order/quantity-input'
@@ -110,7 +110,7 @@ export function PosPage() {
       <div className="flex h-[calc(100vh-3.5rem-56px)] items-center justify-center">
         <div className="flex flex-col items-center gap-4 p-8 max-w-sm text-center">
           <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
-            <Clock size={32} className="text-muted-foreground" />
+            <Clock size={32} weight="fill" className="text-muted-foreground" />
           </div>
           <h2 className="text-lg font-semibold">Buka Shift Terlebih Dahulu</h2>
           <p className="text-sm text-muted-foreground">
@@ -132,7 +132,7 @@ export function PosPage() {
       {/* Shift info bar */}
       {currentShift && (
         <div className="flex items-center gap-2 px-4 py-1.5 bg-success/10 border-b border-success/20 text-sm text-success">
-          <Clock size={14} />
+          <Clock size={14} weight="fill" />
           <span>Shift aktif sejak {shiftOpenedTime}</span>
           <span className="text-success/60">|</span>
           <span>Kas awal: {formatCurrency(currentShift.opening_cash)}</span>
@@ -144,8 +144,9 @@ export function PosPage() {
           {/* Search bar */}
           <div className="p-4 pb-2">
             <div className="relative">
-              <Search
+              <MagnifyingGlass
                 size={18}
+                weight="bold"
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
               />
               <Input
@@ -189,7 +190,7 @@ export function PosPage() {
                           : 'text-muted-foreground border-l-transparent hover:bg-accent',
                       )}
                     >
-                      <IconComp size={16} strokeWidth={selectedCategoryId === cat.id ? 2.5 : 1.5} />
+                      <IconComp size={16} weight={selectedCategoryId === cat.id ? 'fill' : 'regular'} />
                       <span className="truncate">{cat.name}</span>
                     </button>
                   )
@@ -238,7 +239,7 @@ export function PosPage() {
               <div className="flex-1 overflow-y-auto md:overflow-y-auto">
                 {filteredServices.length === 0 ? (
                   <EmptyState
-                    icon={<Search size={48} />}
+                    icon={<MagnifyingGlass size={48} weight="bold" />}
                     title="Tidak ada layanan"
                     description={
                       searchQuery ? 'Coba kata kunci lain' : 'Belum ada layanan untuk kategori ini.'
@@ -268,7 +269,7 @@ export function PosPage() {
           {itemCount > 0 && (
             <div className="hidden md:flex items-center justify-between px-4 py-3 border-t border-border bg-card">
               <div className="flex items-center gap-2">
-                <ShoppingCart size={20} className="text-primary" />
+                <ShoppingCart size={20} weight="fill" className="text-primary" />
                 <span className="text-sm font-medium">{itemCount} item</span>
               </div>
               <span className="text-base font-bold">{formatCurrency(total)}</span>
@@ -301,7 +302,7 @@ export function PosPage() {
             >
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <ShoppingCart size={24} />
+                  <ShoppingCart size={24} weight="fill" />
                   <motion.span
                     key={itemCount}
                     initial={{ scale: 0.5 }}

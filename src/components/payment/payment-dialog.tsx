@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowLeft, Banknote, Landmark, Loader2, QrCode, Wallet } from 'lucide-react'
+import { ArrowLeft, Money, Bank, CircleNotch, QrCode, Wallet, type Icon } from '@phosphor-icons/react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,12 +23,20 @@ interface PaymentDialogProps {
 
 type Step = 'review' | 'method' | 'cash' | 'noncash'
 
-const methodIcons: Record<string, typeof Banknote> = {
-  cash: Banknote,
+const methodIcons: Record<string, Icon> = {
+  cash: Money,
   qris: QrCode,
-  bank_transfer: Landmark,
+  bank_transfer: Bank,
   ewallet: Wallet,
   other: Wallet,
+}
+
+const methodColors: Record<string, string> = {
+  cash: 'text-success',
+  qris: 'text-primary',
+  bank_transfer: 'text-info',
+  ewallet: 'text-purple-500',
+  other: 'text-muted-foreground',
 }
 
 export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: PaymentDialogProps) {
@@ -190,7 +198,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
                   onClick={() => setStep('review')}
                   className="p-1 rounded hover:bg-accent"
                 >
-                  <ArrowLeft size={20} />
+                  <ArrowLeft size={20} weight="bold" />
                 </button>
                 <h2 className="text-lg font-bold">Metode Pembayaran</h2>
               </div>
@@ -209,14 +217,15 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
                       key={method.id}
                       onClick={() => handleSelectMethod(method)}
                       className={cn(
-                        'w-full flex items-center gap-4 p-4 rounded-xl border',
+                        'w-full flex items-center gap-4 p-4 rounded-[var(--radius)] border',
                         'hover:bg-accent active:bg-accent transition-colors',
                         'min-h-[60px] touch-manipulation',
                       )}
                     >
                       <IconComp
                         size={28}
-                        className={method.type === 'cash' ? 'text-green-600' : 'text-primary'}
+                        weight="fill"
+                        className={methodColors[method.type] ?? 'text-muted-foreground'}
                       />
                       <span className="text-base font-medium">{method.name}</span>
                     </button>
@@ -242,7 +251,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
                   onClick={() => setStep('method')}
                   className="p-1 rounded hover:bg-accent"
                 >
-                  <ArrowLeft size={20} />
+                  <ArrowLeft size={20} weight="bold" />
                 </button>
                 <h2 className="text-lg font-bold">Pembayaran Tunai</h2>
               </div>
@@ -301,7 +310,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
                 disabled={cashAmount < total || isProcessing}
                 onClick={() => void handleConfirmPayment()}
               >
-                {isProcessing && <Loader2 size={18} className="animate-spin" />}
+                {isProcessing && <CircleNotch size={18} weight="bold" className="animate-spin" />}
                 {isProcessing ? 'Memproses...' : 'Konfirmasi Pembayaran'}
               </Button>
             </motion.div>
@@ -323,7 +332,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
                   onClick={() => setStep('method')}
                   className="p-1 rounded hover:bg-accent"
                 >
-                  <ArrowLeft size={20} />
+                  <ArrowLeft size={20} weight="bold" />
                 </button>
                 <h2 className="text-lg font-bold">{selectedMethod?.name}</h2>
               </div>
@@ -340,7 +349,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
                 disabled={isProcessing}
                 onClick={() => void handleConfirmPayment()}
               >
-                {isProcessing && <Loader2 size={18} className="animate-spin" />}
+                {isProcessing && <CircleNotch size={18} weight="bold" className="animate-spin" />}
                 {isProcessing ? 'Memproses...' : 'Konfirmasi Pembayaran Diterima'}
               </Button>
             </motion.div>
