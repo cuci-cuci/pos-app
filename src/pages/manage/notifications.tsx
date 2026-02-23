@@ -1,4 +1,4 @@
-import { ArrowLeft, WhatsappLogo } from '@phosphor-icons/react'
+import { ArrowLeft, ChartBar, WhatsappLogo } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
 import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
@@ -12,6 +12,9 @@ interface NotificationSettings {
   notify_on_received: boolean
   notify_on_done: boolean
   notify_on_picked_up: boolean
+  daily_summary_enabled: boolean
+  daily_summary_time: string
+  owner_phone: string | null
 }
 
 export function ManageNotificationsPage() {
@@ -20,6 +23,8 @@ export function ManageNotificationsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [token, setToken] = useState('')
+  const [ownerPhone, setOwnerPhone] = useState('')
+  const [summaryTime, setSummaryTime] = useState('20:00')
 
   const fetchSettings = useCallback(async () => {
     try {
@@ -28,6 +33,8 @@ export function ManageNotificationsPage() {
       const data = res.data ?? res
       setSettings(data)
       setToken(data.fonnte_api_token ?? '')
+      setOwnerPhone(data.owner_phone ?? '')
+      setSummaryTime(data.daily_summary_time || '20:00')
     } catch {
       showToast('Gagal memuat pengaturan notifikasi', 'error')
     } finally {
@@ -49,6 +56,9 @@ export function ManageNotificationsPage() {
         notify_on_received: settings.notify_on_received,
         notify_on_done: settings.notify_on_done,
         notify_on_picked_up: settings.notify_on_picked_up,
+        daily_summary_enabled: settings.daily_summary_enabled,
+        daily_summary_time: summaryTime,
+        owner_phone: ownerPhone || null,
       })
       setSettings(res.data ?? res)
       showToast('Pengaturan notifikasi berhasil disimpan', 'success')
@@ -164,6 +174,71 @@ export function ManageNotificationsPage() {
                     enabled={settings.notify_on_picked_up}
                     onToggle={() => toggle('notify_on_picked_up')}
                   />
+                </div>
+
+                {/* Daily Summary */}
+                <div className="bg-card border rounded-[var(--radius)] p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <ChartBar size={24} weight="fill" className="text-primary" />
+                      <div>
+                        <p className="font-semibold">Ringkasan Harian</p>
+                        <p className="text-xs text-muted-foreground">
+                          Kirim laporan pendapatan harian via WhatsApp
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => toggle('daily_summary_enabled')}
+                      className={`relative w-11 h-6 rounded-full transition-colors ${
+                        settings.daily_summary_enabled ? 'bg-primary' : 'bg-muted'
+                      }`}
+                    >
+                      <span
+                        className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
+                          settings.daily_summary_enabled ? 'translate-x-5' : ''
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {settings.daily_summary_enabled && (
+                    <div className="space-y-3 pt-2 border-t border-border">
+                      <div>
+                        <label htmlFor="owner-phone" className="text-sm font-medium mb-1 block">
+                          No. WhatsApp Pemilik
+                        </label>
+                        <input
+                          id="owner-phone"
+                          type="tel"
+                          inputMode="tel"
+                          value={ownerPhone}
+                          onChange={(e) => setOwnerPhone(e.target.value)}
+                          placeholder="08xxxxxxxxxx"
+                          className="w-full px-3 py-2 text-sm border rounded-[var(--radius)] bg-background"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Nomor WhatsApp untuk menerima ringkasan harian
+                        </p>
+                      </div>
+                      <div>
+                        <label htmlFor="summary-time" className="text-sm font-medium mb-1 block">
+                          Waktu Kirim
+                        </label>
+                        <input
+                          id="summary-time"
+                          type="time"
+                          value={summaryTime}
+                          onChange={(e) => setSummaryTime(e.target.value)}
+                          className="w-full px-3 py-2 text-sm border rounded-[var(--radius)] bg-background"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Ringkasan akan dikirim setiap hari pada jam ini
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </>
             )}

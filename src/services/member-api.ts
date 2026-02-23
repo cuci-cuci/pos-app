@@ -18,6 +18,7 @@ export interface MemberRegisterInput {
   name: string
   phone: string
   email?: string
+  referral_code?: string
 }
 
 export interface MemberRegisterResponse {

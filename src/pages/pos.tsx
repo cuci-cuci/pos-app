@@ -1,4 +1,4 @@
-import { ChartBar, Clock, MagnifyingGlass, ShoppingCart } from '@phosphor-icons/react'
+import { ChartBar, Clock, Lightning, MagnifyingGlass, ShoppingCart } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -83,6 +83,27 @@ export function PosPage() {
 
     return result
   }, [allServices, selectedCategoryId, searchQuery])
+
+  const quickAddServices = useMemo(() => {
+    if (!allServices) return []
+    return allServices.filter((s) => s.isQuickAdd)
+  }, [allServices])
+
+  const handleQuickAdd = useCallback(
+    (service: Service) => {
+      if (!categories) return
+      const cat = categories.find((c) => c.id === service.categoryId)
+      addItem({
+        serviceId: service.id,
+        serviceName: service.name,
+        categoryName: cat?.name ?? '',
+        unit: service.unit,
+        quantity: 1,
+        pricePerUnit: service.pricePerUnit,
+      })
+    },
+    [categories, addItem],
+  )
 
   const handleSelectService = useCallback((service: Service) => {
     setQuantityService(service)
@@ -174,6 +195,28 @@ export function PosPage() {
               />
             </div>
           </div>
+
+          {/* Quick-add strip */}
+          {quickAddServices.length > 0 && (
+            <div className="flex items-center gap-2 px-4 py-1.5 overflow-x-auto scrollbar-hide border-b border-border">
+              <Lightning size={14} weight="fill" className="text-amber-500 shrink-0" />
+              {quickAddServices.map((svc) => (
+                <button
+                  type="button"
+                  key={svc.id}
+                  onClick={() => handleQuickAdd(svc)}
+                  className={cn(
+                    'px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors',
+                    'bg-amber-50 text-amber-700 hover:bg-amber-100 active:bg-amber-200',
+                    'dark:bg-amber-900/20 dark:text-amber-300 dark:hover:bg-amber-900/30',
+                    'touch-manipulation',
+                  )}
+                >
+                  {svc.name}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="flex flex-1 min-h-0">
             {/* Category sidebar (desktop) */}

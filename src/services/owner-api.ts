@@ -14,6 +14,8 @@ export const ownerApi = {
     apiClient.put(`owner/service-prices/${templateId}`, { json: data }).json<any>(),
   bulkSetPrices: (data: Record<string, unknown>) =>
     apiClient.put('owner/service-prices/bulk', { json: data }).json<any>(),
+  setServiceQuickAdd: (templateId: string, quickAdd: boolean) =>
+    apiClient.put(`owner/service-prices/${templateId}/quick-add`, { json: { quick_add: quickAdd } }).json<any>(),
 
   // Payment Methods
   listPaymentMethods: (page = 1) =>

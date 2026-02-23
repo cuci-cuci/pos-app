@@ -29,6 +29,7 @@ export interface Service {
   pricePerUnit: number
   estimatedDuration: number
   isActive: boolean
+  isQuickAdd?: boolean
   sortOrder: number
   createdAt: string
   updatedAt: string

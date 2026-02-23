@@ -1,4 +1,4 @@
-import { ArrowLeft, FloppyDisk, Tag } from '@phosphor-icons/react'
+import { ArrowLeft, FloppyDisk, Lightning, Tag } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
 import { EmptyState } from '@/components/shared/empty-state'
@@ -16,6 +16,7 @@ interface Service {
   category: string
   base_price: number
   price: number | null
+  is_quick_add: boolean
 }
 
 export function ManagePricingPage() {
@@ -29,7 +30,17 @@ export function ManagePricingPage() {
     try {
       setLoading(true)
       const res = await ownerApi.listServices()
-      setServices(res.data ?? [])
+      // Map API response to local interface
+      const data = (res.data ?? []).map((s: any) => ({
+        id: s.id,
+        template_id: s.id,
+        name: s.name,
+        category: s.category_id ?? '',
+        base_price: s.base_price ?? 0,
+        price: s.tenant_price ?? null,
+        is_quick_add: s.is_quick_add ?? false,
+      }))
+      setServices(data)
     } catch {
       showToast('Gagal memuat data layanan', 'error')
     } finally {
@@ -73,6 +84,19 @@ export function ManagePricingPage() {
     }
   }
 
+  async function handleToggleQuickAdd(service: Service) {
+    try {
+      await ownerApi.setServiceQuickAdd(service.template_id, !service.is_quick_add)
+      setServices((prev) =>
+        prev.map((s) =>
+          s.template_id === service.template_id ? { ...s, is_quick_add: !s.is_quick_add } : s,
+        ),
+      )
+    } catch {
+      showToast('Gagal mengubah pengaturan quick add', 'error')
+    }
+  }
+
   const hasChanges = Object.keys(editingPrices).length > 0
 
   return (
@@ -111,14 +135,14 @@ export function ManagePricingPage() {
                     <th className="text-left p-3 font-semibold text-xs text-muted-foreground uppercase">
                       Layanan
                     </th>
-                    <th className="text-left p-3 font-semibold text-xs text-muted-foreground uppercase">
-                      Kategori
-                    </th>
                     <th className="text-right p-3 font-semibold text-xs text-muted-foreground uppercase">
                       Harga Dasar
                     </th>
                     <th className="text-right p-3 font-semibold text-xs text-muted-foreground uppercase">
                       Harga Anda
+                    </th>
+                    <th className="text-center p-3 font-semibold text-xs text-muted-foreground uppercase">
+                      <Lightning size={14} weight="fill" className="inline text-amber-500" />
                     </th>
                   </tr>
                 </thead>
@@ -129,7 +153,6 @@ export function ManagePricingPage() {
                       className="border-b border-border last:border-b-0"
                     >
                       <td className="p-3 font-medium">{service.name}</td>
-                      <td className="p-3 text-muted-foreground">{service.category}</td>
                       <td className="p-3 text-right text-muted-foreground">
                         {formatCurrency(service.base_price)}
                       </td>
@@ -141,6 +164,21 @@ export function ManagePricingPage() {
                           value={getDisplayPrice(service)}
                           onChange={(e) => handlePriceChange(service.template_id, e.target.value)}
                         />
+                      </td>
+                      <td className="p-3 text-center">
+                        <button
+                          type="button"
+                          onClick={() => void handleToggleQuickAdd(service)}
+                          className={`relative w-9 h-5 rounded-full transition-colors ${
+                            service.is_quick_add ? 'bg-amber-500' : 'bg-muted'
+                          }`}
+                        >
+                          <span
+                            className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
+                              service.is_quick_add ? 'translate-x-4' : ''
+                            }`}
+                          />
+                        </button>
                       </td>
                     </tr>
                   ))}

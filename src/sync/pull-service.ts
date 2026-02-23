@@ -57,6 +57,7 @@ function mapService(tenantId: string, s: any): Service {
     pricePerUnit: s.tenant_price ?? s.base_price ?? 0,
     estimatedDuration: s.estimated_duration_hours ?? 0,
     isActive: s.is_active ?? true,
+    isQuickAdd: s.is_quick_add ?? false,
     sortOrder: s.sort_order ?? 0,
     createdAt: s.created_at ?? '',
     updatedAt: s.updated_at ?? '',

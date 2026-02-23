@@ -58,6 +58,7 @@ export function CustomerSearch() {
   const [regName, setRegName] = useState('')
   const [regPhone, setRegPhone] = useState('')
   const [regEmail, setRegEmail] = useState('')
+  const [regReferralCode, setRegReferralCode] = useState('')
   const [isRegistering, setIsRegistering] = useState(false)
 
   const tenantId = useAuthStore((s) => s.user?.tenantId)
@@ -170,6 +171,7 @@ export function CustomerSearch() {
     setRegName('')
     setRegPhone(query.trim())
     setRegEmail('')
+    setRegReferralCode('')
     setRegisterOpen(true)
     setShowResults(false)
   }, [query])
@@ -182,6 +184,7 @@ export function CustomerSearch() {
         name: regName.trim(),
         phone: regPhone.trim(),
         email: regEmail.trim() || undefined,
+        referral_code: regReferralCode.trim() || undefined,
       })
       const m = response.data
       setMember({
@@ -201,7 +204,7 @@ export function CustomerSearch() {
     } finally {
       setIsRegistering(false)
     }
-  }, [regName, regPhone, regEmail, setMember])
+  }, [regName, regPhone, regEmail, regReferralCode, setMember])
 
   // Show selected member info
   if (customerId && memberInfo) {
@@ -471,6 +474,19 @@ export function CustomerSearch() {
                 value={regEmail}
                 onChange={(e) => setRegEmail(e.target.value)}
                 className="h-10"
+              />
+            </div>
+            <div>
+              <label htmlFor="reg-referral" className="text-sm font-medium mb-1 block">
+                Kode Referral <span className="text-muted-foreground font-normal">(opsional)</span>
+              </label>
+              <Input
+                id="reg-referral"
+                placeholder="Masukkan kode referral"
+                value={regReferralCode}
+                onChange={(e) => setRegReferralCode(e.target.value.toUpperCase())}
+                maxLength={8}
+                className="h-10 uppercase"
               />
             </div>
           </div>

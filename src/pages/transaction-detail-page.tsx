@@ -1,4 +1,5 @@
 import {
+  ArrowCounterClockwise,
   ArrowLeft,
   ArrowsClockwise,
   CheckCircle,
@@ -24,6 +25,7 @@ import { db } from '@/db'
 import type { SyncStatus, TransactionStatus } from '@/db/schema'
 import { formatCurrency, formatDate, formatTime } from '@/lib/format'
 import { cn } from '@/lib/utils'
+import { useCartStore } from '@/stores/cart-store'
 import { useShiftStore } from '@/stores/shift-store'
 
 function statusLabel(status: TransactionStatus) {
@@ -321,6 +323,35 @@ export function TransactionDetailPage() {
 
           {/* Actions: Print & Share */}
           <TransactionActions transaction={transaction} />
+
+          {/* Repeat order button */}
+          {transaction.status !== 'cancelled' && (
+            <Button
+              variant="outline"
+              className="w-full h-11 gap-2"
+              onClick={() => {
+                const cart = useCartStore.getState()
+                cart.clear()
+                for (const item of transaction.items) {
+                  cart.addItem({
+                    serviceId: item.serviceId,
+                    serviceName: item.serviceName,
+                    categoryName: item.categoryName,
+                    unit: item.unit,
+                    quantity: item.quantity,
+                    pricePerUnit: item.pricePerUnit,
+                  })
+                }
+                if (transaction.customerName) {
+                  cart.setCustomer(transaction.customerId ?? null, transaction.customerName)
+                }
+                void router.navigate({ to: '/' })
+              }}
+            >
+              <ArrowCounterClockwise size={18} weight="bold" />
+              Ulangi Pesanan
+            </Button>
+          )}
 
           {/* Cancel button */}
           {canCancel && (

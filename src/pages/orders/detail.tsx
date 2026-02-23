@@ -1,4 +1,4 @@
-import { ArrowLeft } from '@phosphor-icons/react'
+import { ArrowCounterClockwise, ArrowLeft } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
 import { ReceiptActions } from '@/components/receipt/receipt-actions'
@@ -6,10 +6,12 @@ import { ReceiptTemplate } from '@/components/receipt/receipt-template'
 import { InlineError } from '@/components/shared/inline-error'
 import { DetailSkeleton } from '@/components/shared/skeleton-loaders'
 import { Button } from '@/components/ui/button'
+import { db } from '@/db'
 import { formatCurrency, formatDate, formatTime } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import type { OrderDetail, OrderStatus } from '@/services/order-api'
 import { orderApi } from '@/services/order-api'
+import { useCartStore } from '@/stores/cart-store'
 
 const statusColors: Record<OrderStatus, { bg: string; text: string }> = {
   received: {
@@ -313,6 +315,39 @@ export function OrderDetailPage() {
 
         {/* Receipt actions */}
         <ReceiptActions order={order} />
+
+        {/* Repeat order button */}
+        {order.transaction && order.status !== 'cancelled' && (
+          <Button
+            variant="outline"
+            className="w-full gap-2"
+            onClick={async () => {
+              const cart = useCartStore.getState()
+              cart.clear()
+              const allServices = await db.services.toArray()
+              const allCategories = await db.serviceCategories.toArray()
+              for (const item of order.transaction.items) {
+                const match = allServices.find((s) => s.name === item.service_name)
+                const category = match ? allCategories.find((c: { id: string }) => c.id === match.categoryId) : null
+                cart.addItem({
+                  serviceId: match?.id ?? item.id,
+                  serviceName: item.service_name,
+                  categoryName: category?.name ?? '',
+                  unit: item.unit,
+                  quantity: item.quantity,
+                  pricePerUnit: item.price,
+                })
+              }
+              if (order.customer_name) {
+                cart.setCustomer(null, order.customer_name)
+              }
+              void router.navigate({ to: '/' })
+            }}
+          >
+            <ArrowCounterClockwise size={18} weight="bold" />
+            Ulangi Pesanan
+          </Button>
+        )}
 
         {/* Action buttons */}
         {actions.length > 0 && (
