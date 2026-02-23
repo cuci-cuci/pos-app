@@ -1,24 +1,18 @@
-import { useState, useMemo } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { db } from '@/db'
-import { useAuthStore } from '@/stores/auth-store'
-import { useSyncStore } from '@/stores/sync-store'
-import { formatCurrency, formatTime } from '@/lib/format'
-import { cn } from '@/lib/utils'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
+import { CheckCircle, Receipt, RefreshCw, Search, XCircle } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import { EmptyState } from '@/components/shared/empty-state'
 import { LoadingSpinner } from '@/components/shared/loading-spinner'
 import { SyncStatusIcon } from '@/components/shared/sync-status-icon'
-import {
-  Search,
-  Receipt,
-  CheckCircle,
-  XCircle,
-  RefreshCw,
-} from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
+import { db } from '@/db'
 import type { TransactionStatus } from '@/db/schema'
+import { formatCurrency, formatTime } from '@/lib/format'
+import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/stores/auth-store'
+import { useSyncStore } from '@/stores/sync-store'
 
 type FilterTab = 'today' | 'all' | 'failed'
 
@@ -99,9 +93,7 @@ export function TransactionsPage() {
 
     const q = search.toLowerCase()
     return transactions.filter(
-      (t) =>
-        t.orderNumber.toLowerCase().includes(q) ||
-        t.customerName?.toLowerCase().includes(q)
+      (t) => t.orderNumber.toLowerCase().includes(q) || t.customerName?.toLowerCase().includes(q),
     )
   }, [transactions, search])
 
@@ -127,7 +119,7 @@ export function TransactionsPage() {
               'min-h-[44px] touch-manipulation',
               activeTab === tab.id
                 ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-muted-foreground'
+                : 'bg-muted text-muted-foreground',
             )}
           >
             {tab.label}
@@ -194,17 +186,20 @@ export function TransactionsPage() {
                     )}
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-sm font-semibold">{formatCurrency(tx.totalAmount)}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatTime(tx.createdAt)}
+                    <p
+                      className={cn(
+                        'text-sm font-semibold',
+                        tx.status === 'cancelled' && 'line-through text-muted-foreground',
+                      )}
+                    >
+                      {formatCurrency(tx.totalAmount)}
                     </p>
+                    <p className="text-xs text-muted-foreground">{formatTime(tx.createdAt)}</p>
                   </div>
                 </div>
                 <div className="flex items-center justify-between mt-2">
                   {getStatusBadge(tx.status)}
-                  <span className="text-xs text-muted-foreground">
-                    {tx.items.length} item
-                  </span>
+                  <span className="text-xs text-muted-foreground">{tx.items.length} item</span>
                 </div>
               </button>
             ))}

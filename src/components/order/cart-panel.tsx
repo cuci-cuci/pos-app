@@ -1,18 +1,23 @@
-import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { db } from '@/db'
-import { useCartStore } from '@/stores/cart-store'
-import { formatCurrency } from '@/lib/format'
-import { CartItemRow } from './cart-item-row'
+import { ChevronDown, ChevronUp, Crown, ShoppingCart, Trash } from 'lucide-react'
+import { useState } from 'react'
 import { CustomerSearch } from '@/components/customer/customer-search'
 import { PaymentDialog } from '@/components/payment/payment-dialog'
+import { EmptyState } from '@/components/shared/empty-state'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
-import { ShoppingCart, Trash, ChevronDown, ChevronUp, Crown } from 'lucide-react'
-import { EmptyState } from '@/components/shared/empty-state'
+import { db } from '@/db'
+import type { Transaction } from '@/db/schema'
+import { formatCurrency } from '@/lib/format'
+import { useCartStore } from '@/stores/cart-store'
+import { CartItemRow } from './cart-item-row'
 
-export function CartPanel() {
+interface CartPanelProps {
+  onTransactionComplete?: (tx: Transaction) => void
+}
+
+export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
   const {
     items,
     discountPercent,
@@ -33,7 +38,7 @@ export function CartPanel() {
   const subtotal = getSubtotal()
   const discountAmount = Math.round(subtotal * (discountPercent / 100))
   const taxRate = tenantConfig?.taxRate ?? 0
-  const taxAmount = Math.round((subtotal - discountAmount) * taxRate / 100)
+  const taxAmount = Math.round(((subtotal - discountAmount) * taxRate) / 100)
   const total = subtotal - discountAmount + taxAmount
 
   if (items.length === 0) {
@@ -52,9 +57,7 @@ export function CartPanel() {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3">
-        <h2 className="font-semibold text-base">
-          Keranjang ({items.length})
-        </h2>
+        <h2 className="font-semibold text-base">Keranjang ({items.length})</h2>
         <button
           type="button"
           onClick={clear}
@@ -118,9 +121,7 @@ export function CartPanel() {
             <span className="text-primary font-medium">
               Diskon Member ({memberInfo.tier.charAt(0).toUpperCase() + memberInfo.tier.slice(1)})
             </span>
-            <span className="ml-auto font-semibold text-primary">
-              {discountPercent}%
-            </span>
+            <span className="ml-auto font-semibold text-primary">{discountPercent}%</span>
           </div>
         ) : (
           <div className="flex items-center gap-2">
@@ -131,7 +132,9 @@ export function CartPanel() {
               min={0}
               max={100}
               value={discountPercent || ''}
-              onChange={(e) => setDiscount(Math.min(100, Math.max(0, Number.parseInt(e.target.value, 10) || 0)))}
+              onChange={(e) =>
+                setDiscount(Math.min(100, Math.max(0, Number.parseInt(e.target.value, 10) || 0)))
+              }
               placeholder="0"
               className="h-8 w-16 text-center text-sm"
             />
@@ -174,7 +177,11 @@ export function CartPanel() {
         </Button>
       </div>
 
-      <PaymentDialog open={paymentOpen} onOpenChange={setPaymentOpen} />
+      <PaymentDialog
+        open={paymentOpen}
+        onOpenChange={setPaymentOpen}
+        onTransactionComplete={onTransactionComplete}
+      />
     </div>
   )
 }

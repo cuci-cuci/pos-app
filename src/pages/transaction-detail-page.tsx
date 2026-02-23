@@ -1,26 +1,30 @@
 import { useParams, useRouter } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { db } from '@/db'
-import { formatCurrency, formatDate, formatTime } from '@/lib/format'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { LoadingSpinner } from '@/components/shared/loading-spinner'
-import { EmptyState } from '@/components/shared/empty-state'
 import {
   ArrowLeft,
+  Ban,
   CheckCircle,
-  XCircle,
-  RefreshCw,
   Clock,
-  Receipt,
   CloudCheck,
   CloudOff,
+  Receipt,
+  RefreshCw,
+  XCircle,
 } from 'lucide-react'
+import { useState } from 'react'
 import { ReceiptActions } from '@/components/receipt/receipt-actions'
+import { EmptyState } from '@/components/shared/empty-state'
+import { LoadingSpinner } from '@/components/shared/loading-spinner'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import { showToast } from '@/components/ui/toast'
+import { db } from '@/db'
 import type { SyncStatus, TransactionStatus } from '@/db/schema'
+import { formatCurrency, formatDate, formatTime } from '@/lib/format'
+import { cn } from '@/lib/utils'
 import type { OrderDetail } from '@/services/order-api'
+import { useShiftStore } from '@/stores/shift-store'
 
 function statusLabel(status: TransactionStatus) {
   switch (status) {
@@ -49,6 +53,9 @@ function syncStatusInfo(syncStatus: SyncStatus) {
 export function TransactionDetailPage() {
   const { id } = useParams({ strict: false }) as { id: string }
   const router = useRouter()
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
+  const [isCancelling, setIsCancelling] = useState(false)
+  const { currentShift } = useShiftStore()
 
   const transaction = useLiveQuery(() => db.transactions.get(id), [id])
 
@@ -57,10 +64,7 @@ export function TransactionDetailPage() {
     return db.outlets.get(transaction.outletId) ?? null
   }, [transaction])
 
-  const tenantConfig = useLiveQuery(
-    () => db.tenantConfig.toCollection().first(),
-    []
-  )
+  const tenantConfig = useLiveQuery(() => db.tenantConfig.toCollection().first(), [])
 
   if (transaction === undefined) {
     return <LoadingSpinner />
@@ -90,6 +94,29 @@ export function TransactionDetailPage() {
   const StatusIcon = status.icon
   const SyncIcon = sync.icon
   const payment = transaction.payments[0]
+
+  // Can cancel if: completed, belongs to active shift or created today
+  const canCancel =
+    transaction.status === 'completed' &&
+    ((currentShift && transaction.shiftId === currentShift.id) ||
+      new Date(transaction.createdAt).toDateString() === new Date().toDateString())
+
+  const handleCancelTransaction = async () => {
+    setIsCancelling(true)
+    try {
+      await db.transactions.update(transaction.id, {
+        status: 'cancelled',
+        updatedAt: new Date().toISOString(),
+        syncStatus: transaction.syncStatus === 'synced' ? 'pending' : transaction.syncStatus,
+      })
+      showToast('Transaksi berhasil dibatalkan', 'success')
+      setShowCancelConfirm(false)
+    } catch {
+      showToast('Gagal membatalkan transaksi', 'error')
+    } finally {
+      setIsCancelling(false)
+    }
+  }
 
   const orderDetail: OrderDetail = {
     id: transaction.id,
@@ -138,14 +165,8 @@ export function TransactionDetailPage() {
         <div className="max-w-md mx-auto bg-card border rounded-[var(--radius)] overflow-hidden">
           {/* Outlet header */}
           <div className="text-center py-4 px-4 border-b border-dashed border-border">
-            <h2 className="font-bold text-base">
-              {tenantConfig?.tenantName ?? 'LaundryPOS'}
-            </h2>
-            {outlet && (
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {outlet.name}
-              </p>
-            )}
+            <h2 className="font-bold text-base">{tenantConfig?.tenantName ?? 'LaundryPOS'}</h2>
+            {outlet && <p className="text-xs text-muted-foreground mt-0.5">{outlet.name}</p>}
             {(tenantConfig?.address || outlet?.address) && (
               <p className="text-xs text-muted-foreground mt-0.5">
                 {outlet?.address || tenantConfig?.address}
@@ -168,7 +189,9 @@ export function TransactionDetailPage() {
             </div>
             <div className="flex justify-between text-xs text-muted-foreground mt-1">
               <span>Tanggal</span>
-              <span>{formatDate(transaction.createdAt)} {formatTime(transaction.createdAt)}</span>
+              <span>
+                {formatDate(transaction.createdAt)} {formatTime(transaction.createdAt)}
+              </span>
             </div>
             {transaction.customerName && (
               <div className="flex justify-between text-xs text-muted-foreground mt-1">
@@ -187,9 +210,7 @@ export function TransactionDetailPage() {
 
           {/* Items list */}
           <div className="px-4 py-3 border-b border-dashed border-border">
-            <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">
-              Item
-            </p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">Item</p>
             <div className="space-y-2">
               {transaction.items.map((item) => (
                 <div key={item.id} className="flex justify-between gap-2">
@@ -199,9 +220,7 @@ export function TransactionDetailPage() {
                       {item.quantity} {item.unit} x {formatCurrency(item.pricePerUnit)}
                     </p>
                   </div>
-                  <p className="text-sm font-medium shrink-0">
-                    {formatCurrency(item.subtotal)}
-                  </p>
+                  <p className="text-sm font-medium shrink-0">{formatCurrency(item.subtotal)}</p>
                 </div>
               ))}
             </div>
@@ -218,16 +237,12 @@ export function TransactionDetailPage() {
                 <span className="text-muted-foreground">
                   Diskon ({transaction.discountPercent}%)
                 </span>
-                <span className="text-success">
-                  -{formatCurrency(transaction.discountAmount)}
-                </span>
+                <span className="text-success">-{formatCurrency(transaction.discountAmount)}</span>
               </div>
             )}
             {transaction.taxAmount > 0 && (
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">
-                  Pajak ({transaction.taxRate}%)
-                </span>
+                <span className="text-muted-foreground">Pajak ({transaction.taxRate}%)</span>
                 <span>{formatCurrency(transaction.taxAmount)}</span>
               </div>
             )}
@@ -270,9 +285,7 @@ export function TransactionDetailPage() {
           {/* Notes */}
           {transaction.notes && (
             <div className="px-4 py-3 border-b border-dashed border-border">
-              <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">
-                Catatan
-              </p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Catatan</p>
               <p className="text-sm">{transaction.notes}</p>
             </div>
           )}
@@ -282,15 +295,9 @@ export function TransactionDetailPage() {
             <div className="flex items-center justify-center gap-2">
               <SyncIcon
                 size={16}
-                className={cn(
-                  sync.color,
-                  transaction.syncStatus === 'syncing' && 'animate-spin'
-                )}
-               
+                className={cn(sync.color, transaction.syncStatus === 'syncing' && 'animate-spin')}
               />
-              <span className={cn('text-xs font-medium', sync.color)}>
-                {sync.label}
-              </span>
+              <span className={cn('text-xs font-medium', sync.color)}>{sync.label}</span>
             </div>
             {transaction.syncedAt && (
               <p className="text-center text-xs text-muted-foreground mt-1">
@@ -309,7 +316,73 @@ export function TransactionDetailPage() {
         <div className="max-w-md mx-auto mt-4">
           <ReceiptActions order={orderDetail} />
         </div>
+
+        {/* Cancel button */}
+        {canCancel && (
+          <div className="max-w-md mx-auto mt-4">
+            <Button
+              variant="outline"
+              className="w-full h-11 text-destructive border-destructive/30 hover:bg-destructive/10 gap-2"
+              onClick={() => setShowCancelConfirm(true)}
+            >
+              <Ban size={18} />
+              Batalkan Transaksi
+            </Button>
+          </div>
+        )}
+
+        {/* Cancelled watermark indicator */}
+        {transaction.status === 'cancelled' && (
+          <div className="max-w-md mx-auto mt-4 bg-destructive/10 border border-destructive/20 rounded-[var(--radius)] p-3 text-center">
+            <p className="text-destructive font-bold text-sm">TRANSAKSI DIBATALKAN</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Transaksi ini telah dibatalkan dan tidak dihitung dalam laporan.
+            </p>
+          </div>
+        )}
       </div>
+
+      {/* Cancel confirmation dialog */}
+      {showCancelConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-card rounded-[var(--radius)] p-6 max-w-sm w-full shadow-xl">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
+                <Ban size={20} className="text-destructive" />
+              </div>
+              <h3 className="text-lg font-bold">Batalkan Transaksi?</h3>
+            </div>
+            <p className="text-sm text-muted-foreground mb-1">
+              Transaksi{' '}
+              <span className="font-semibold text-foreground">#{transaction.orderNumber}</span>{' '}
+              senilai{' '}
+              <span className="font-semibold text-foreground">
+                {formatCurrency(transaction.totalAmount)}
+              </span>{' '}
+              akan dibatalkan.
+            </p>
+            <p className="text-sm text-destructive mb-4">Tindakan ini tidak dapat dikembalikan.</p>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setShowCancelConfirm(false)}
+                disabled={isCancelling}
+              >
+                Kembali
+              </Button>
+              <Button
+                variant="destructive"
+                className="flex-1"
+                onClick={() => void handleCancelTransaction()}
+                disabled={isCancelling}
+              >
+                {isCancelling ? 'Membatalkan...' : 'Ya, Batalkan'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
