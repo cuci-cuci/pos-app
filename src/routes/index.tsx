@@ -1,6 +1,7 @@
 import { createRootRoute, createRoute, createRouter, redirect } from '@tanstack/react-router'
 import { AppShell } from '@/components/layout/app-shell'
 import { DashboardPage } from '@/pages/dashboard'
+import { ForgotPasswordPage } from '@/pages/forgot-password'
 import { LoginPage } from '@/pages/login'
 import { ManagePage } from '@/pages/manage'
 import { ManageAnalyticsPage } from '@/pages/manage/analytics'
@@ -10,11 +11,15 @@ import { ManageOutletsPage } from '@/pages/manage/outlets'
 import { ManagePaymentMethodsPage } from '@/pages/manage/payment-methods'
 import { ManagePricingPage } from '@/pages/manage/pricing'
 import { ManageStoreSettingsPage } from '@/pages/manage/store-settings'
+import { ManageNotificationsPage } from '@/pages/manage/notifications'
+import { ManageSubscriptionPage } from '@/pages/manage/subscription'
+import { OrderTrackingPage } from '@/pages/tracking'
 import { OnboardingPage } from '@/pages/onboarding'
 import { OrdersPage } from '@/pages/orders'
 import { OrderDetailPage } from '@/pages/orders/detail'
 import { PosPage } from '@/pages/pos'
 import { RegisterPage } from '@/pages/register'
+import { ResetPasswordPage } from '@/pages/reset-password'
 import { SettingsPage } from '@/pages/settings'
 import { SetupPage } from '@/pages/setup'
 import { ShiftDetailPage } from '@/pages/shifts/detail'
@@ -30,6 +35,24 @@ const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/login',
   component: LoginPage,
+})
+
+const trackingRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/track/$token',
+  component: OrderTrackingPage,
+})
+
+const forgotPasswordRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/forgot-password',
+  component: ForgotPasswordPage,
+})
+
+const resetPasswordRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/reset-password',
+  component: ResetPasswordPage,
 })
 
 const registerRoute = createRoute({
@@ -234,6 +257,30 @@ const manageStoreSettingsRoute = createRoute({
   },
 })
 
+const manageSubscriptionRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: '/manage/subscription',
+  component: ManageSubscriptionPage,
+  beforeLoad: () => {
+    const user = useAuthStore.getState().user
+    if (user?.role !== 'tenant_owner') {
+      throw redirect({ to: '/' })
+    }
+  },
+})
+
+const manageNotificationsRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: '/manage/notifications',
+  component: ManageNotificationsPage,
+  beforeLoad: () => {
+    const user = useAuthStore.getState().user
+    if (user?.role !== 'tenant_owner') {
+      throw redirect({ to: '/' })
+    }
+  },
+})
+
 const manageAnalyticsRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/manage/analytics',
@@ -248,6 +295,9 @@ const manageAnalyticsRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([
   loginRoute,
+  forgotPasswordRoute,
+  resetPasswordRoute,
+  trackingRoute,
   registerRoute,
   onboardingRoute,
   setupRoute,
@@ -266,6 +316,8 @@ const routeTree = rootRoute.addChildren([
     managePaymentMethodsRoute,
     manageMembersRoute,
     manageAnalyticsRoute,
+    manageNotificationsRoute,
+    manageSubscriptionRoute,
     manageStoreSettingsRoute,
     shiftsRoute,
     shiftDetailRoute,

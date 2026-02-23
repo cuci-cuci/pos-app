@@ -3,11 +3,13 @@ import {
   CaretRight,
   ChartBar,
   CreditCard,
+  CrownSimple,
   GearSix,
   Storefront,
   Tag,
   UserCircle,
   Users,
+  WhatsappLogo,
 } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 
@@ -68,6 +70,22 @@ const menuItems: ManageMenuItem[] = [
     iconBg: 'bg-primary/10',
     iconColor: 'text-primary',
     path: '/manage/analytics',
+  },
+  {
+    label: 'Notifikasi WhatsApp',
+    description: 'Kirim update otomatis ke pelanggan',
+    icon: WhatsappLogo,
+    iconBg: 'bg-green-500/10',
+    iconColor: 'text-green-500',
+    path: '/manage/notifications',
+  },
+  {
+    label: 'Langganan',
+    description: 'Paket, penggunaan, dan upgrade',
+    icon: CrownSimple,
+    iconBg: 'bg-amber-500/10',
+    iconColor: 'text-amber-500',
+    path: '/manage/subscription',
   },
   {
     label: 'Pengaturan Toko',

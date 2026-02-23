@@ -158,6 +158,12 @@ export function LoginPage() {
         </Card>
 
         <p className="text-center text-xs text-muted-foreground mt-4">
+          <Link to="/forgot-password" className="font-medium underline">
+            Lupa password?
+          </Link>
+        </p>
+
+        <p className="text-center text-xs text-muted-foreground mt-2">
           Belum punya akun bisnis?{' '}
           <Link to="/register" className="font-medium underline">
             Daftarkan bisnis Anda

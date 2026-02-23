@@ -44,6 +44,14 @@ export const ownerApi = {
   updateStoreSettings: (data: Record<string, unknown>) =>
     apiClient.put('owner/store-settings', { json: data }).json<any>(),
 
+  // Subscription & Billing
+  getSubscription: () => apiClient.get('owner/subscription').json<any>(),
+
+  // Notification Settings
+  getNotificationSettings: () => apiClient.get('owner/notification-settings').json<any>(),
+  updateNotificationSettings: (data: Record<string, unknown>) =>
+    apiClient.put('owner/notification-settings', { json: data }).json<any>(),
+
   // Analytics
   analyticsSummary: (params: Record<string, string>) =>
     apiClient.get('owner/analytics/summary', { searchParams: params }).json<any>(),
