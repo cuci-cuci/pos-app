@@ -1,4 +1,5 @@
-import { Plus, Printer, ShareNetwork } from '@phosphor-icons/react'
+import { Package, Plus, Printer, ShareNetwork } from '@phosphor-icons/react'
+import { useRouter } from '@tanstack/react-router'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useCallback, useEffect, useRef } from 'react'
 import { TransactionReceipt } from '@/components/receipt/transaction-receipt'
@@ -97,6 +98,7 @@ export function SuccessOverlay({
   onNewTransaction,
   onClose,
 }: SuccessOverlayProps) {
+  const router = useRouter()
   const outletName = useDeviceStore((s) => s.outletName)
 
   const handlePrint = useCallback(() => {
@@ -218,6 +220,20 @@ export function SuccessOverlay({
                   </>
                 )}
               </motion.div>
+
+              {/* Order info note */}
+              <motion.div
+                className="mt-3 bg-blue-50 dark:bg-blue-950/30 rounded-xl p-3 mx-4 w-full max-w-sm text-center"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.0 }}
+              >
+                <p className="text-xs text-blue-600 dark:text-blue-400">
+                  Pesanan laundry akan dibuat otomatis setelah sinkronisasi.
+                  {transaction.customerPhone &&
+                    ' Notifikasi WhatsApp akan dikirim ke pelanggan.'}
+                </p>
+              </motion.div>
             </div>
 
             {/* Receipt section */}
@@ -246,7 +262,7 @@ export function SuccessOverlay({
             <div className="flex gap-2 mb-2">
               <Button variant="outline" className="flex-1 h-11 gap-2" onClick={handlePrint}>
                 <Printer size={18} weight="fill" />
-                Cetak Struk
+                Cetak
               </Button>
               <Button
                 variant="outline"
@@ -255,6 +271,17 @@ export function SuccessOverlay({
               >
                 <ShareNetwork size={18} weight="fill" />
                 Bagikan
+              </Button>
+              <Button
+                variant="outline"
+                className="flex-1 h-11 gap-2"
+                onClick={() => {
+                  onClose()
+                  void router.navigate({ to: '/orders' })
+                }}
+              >
+                <Package size={18} weight="fill" />
+                Pesanan
               </Button>
             </div>
             <Button

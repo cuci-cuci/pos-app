@@ -23,15 +23,20 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
     discountPercent,
     memberInfo,
     notes,
+    customerPhone,
+    estimatedDurationHours,
     removeItem,
     updateQuantity,
     setDiscount,
     setNotes,
+    setCustomerPhone,
+    setEstimatedDuration,
     clear,
     getSubtotal,
   } = useCartStore()
   const [paymentOpen, setPaymentOpen] = useState(false)
   const [notesExpanded, setNotesExpanded] = useState(false)
+  const [orderDetailsExpanded, setOrderDetailsExpanded] = useState(false)
 
   const tenantConfig = useLiveQuery(() => db.tenantConfig.toCollection().first())
 
@@ -113,6 +118,61 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
             placeholder="Catatan pesanan..."
             className="mt-2 w-full rounded-[var(--radius)] border border-input bg-background px-3 py-2 text-sm resize-none h-20 focus:outline-none focus:ring-2 focus:ring-ring"
           />
+        )}
+      </div>
+
+      {/* Order details (collapsible) */}
+      <div className="px-4 py-2 border-t border-border">
+        <button
+          type="button"
+          onClick={() => setOrderDetailsExpanded(!orderDetailsExpanded)}
+          className="flex items-center gap-1 text-sm text-muted-foreground w-full"
+        >
+          {orderDetailsExpanded ? (
+            <CaretUp size={14} weight="bold" />
+          ) : (
+            <CaretDown size={14} weight="bold" />
+          )}
+          <span>Detail pesanan</span>
+          {(customerPhone || estimatedDurationHours) && !orderDetailsExpanded && (
+            <span className="text-xs text-primary ml-auto">Diisi</span>
+          )}
+        </button>
+        {orderDetailsExpanded && (
+          <div className="mt-2 space-y-2">
+            <div>
+              <label htmlFor="customer-phone" className="text-xs text-muted-foreground mb-1 block">
+                No. Telepon Pelanggan
+              </label>
+              <Input
+                id="customer-phone"
+                type="tel"
+                inputMode="tel"
+                placeholder="08xxxxxxxxxx"
+                value={customerPhone}
+                onChange={(e) => setCustomerPhone(e.target.value)}
+                className="h-9 text-sm"
+              />
+            </div>
+            <div>
+              <label htmlFor="estimated-duration" className="text-xs text-muted-foreground mb-1 block">
+                Estimasi selesai (jam, opsional)
+              </label>
+              <Input
+                id="estimated-duration"
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={72}
+                placeholder="Otomatis"
+                value={estimatedDurationHours ?? ''}
+                onChange={(e) =>
+                  setEstimatedDuration(e.target.value ? Number(e.target.value) : null)
+                }
+                className="h-9 text-sm"
+              />
+            </div>
+          </div>
         )}
       </div>
 

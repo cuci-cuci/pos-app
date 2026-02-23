@@ -66,6 +66,15 @@ export async function createTransaction(paymentInput: PaymentInput): Promise<Tra
     changeAmount,
   }
 
+  // Compute smart default duration from service estimated durations
+  let estimatedHours = cart.estimatedDurationHours
+  if (estimatedHours === null && cart.items.length > 0) {
+    const serviceIds = cart.items.map((i: CartItem) => i.serviceId)
+    const services = await db.services.where('id').anyOf(serviceIds).toArray()
+    const maxDuration = Math.max(...services.map((s) => s.estimatedDuration ?? 0))
+    if (maxDuration > 0) estimatedHours = maxDuration
+  }
+
   const now = new Date().toISOString()
 
   const transaction: Transaction = {
@@ -86,6 +95,8 @@ export async function createTransaction(paymentInput: PaymentInput): Promise<Tra
     totalAmount: priceResult.totalAmount,
     notes: cart.notes,
     shiftId: useShiftStore.getState().currentShift?.id,
+    customerPhone: cart.customerPhone || undefined,
+    estimatedDurationHours: estimatedHours ?? undefined,
     status: 'completed',
     syncStatus: 'pending',
     syncRetryCount: 0,

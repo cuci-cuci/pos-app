@@ -31,6 +31,8 @@ interface CartState {
   discountPercent: number
   taxRate: number
   notes: string
+  customerPhone: string
+  estimatedDurationHours: number | null
   addItem: (item: Omit<CartItem, 'id' | 'subtotal'>) => void
   removeItem: (id: string) => void
   updateQuantity: (id: string, quantity: number) => void
@@ -39,6 +41,8 @@ interface CartState {
   setDiscount: (percent: number) => void
   setTaxRate: (rate: number) => void
   setNotes: (notes: string) => void
+  setCustomerPhone: (phone: string) => void
+  setEstimatedDuration: (hours: number | null) => void
   clear: () => void
   getSubtotal: () => number
   getTotal: () => number
@@ -54,6 +58,8 @@ export const useCartStore = create<CartState>()(
       discountPercent: 0,
       taxRate: 0,
       notes: '',
+      customerPhone: '',
+      estimatedDurationHours: null,
 
       addItem: (item) => {
         const existing = get().items.find((i) => i.serviceId === item.serviceId)
@@ -100,6 +106,7 @@ export const useCartStore = create<CartState>()(
             customerName: member.name,
             memberInfo: member,
             discountPercent: member.discountPercent,
+            customerPhone: member.phone || '',
           })
         } else {
           set({
@@ -107,6 +114,7 @@ export const useCartStore = create<CartState>()(
             customerName: null,
             memberInfo: null,
             discountPercent: 0,
+            customerPhone: '',
           })
         }
       },
@@ -123,6 +131,14 @@ export const useCartStore = create<CartState>()(
         set({ notes })
       },
 
+      setCustomerPhone: (phone) => {
+        set({ customerPhone: phone })
+      },
+
+      setEstimatedDuration: (hours) => {
+        set({ estimatedDurationHours: hours })
+      },
+
       clear: () => {
         set({
           items: [],
@@ -132,6 +148,8 @@ export const useCartStore = create<CartState>()(
           discountPercent: 0,
           taxRate: 0,
           notes: '',
+          customerPhone: '',
+          estimatedDurationHours: null,
         })
       },
 

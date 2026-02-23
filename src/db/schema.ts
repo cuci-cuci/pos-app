@@ -119,6 +119,8 @@ export interface Transaction {
   syncRetryCount: number
   configVersion: number
   shiftId?: string
+  customerPhone?: string
+  estimatedDurationHours?: number
   createdAt: string
   updatedAt: string
   syncedAt?: string
