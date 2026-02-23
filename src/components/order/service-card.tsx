@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 interface ServiceCardProps {
   service: Service
   categoryName: string
+  categoryIcon?: string
   cartQuantity?: number
   compact?: boolean
   onSelect: (service: Service) => void
@@ -37,12 +38,13 @@ function CartBadge({ quantity, size = 'md' }: { quantity: number; size?: 'sm' | 
 export function ServiceCard({
   service,
   categoryName,
+  categoryIcon,
   cartQuantity,
   compact,
   onSelect,
 }: ServiceCardProps) {
-  const IconComp = getCategoryIcon(categoryName)
-  const iconColor = getCategoryColor(categoryName)
+  const IconComp = getCategoryIcon(categoryName, categoryIcon)
+  const iconColor = getCategoryColor(categoryName, categoryIcon)
 
   if (compact) {
     return (

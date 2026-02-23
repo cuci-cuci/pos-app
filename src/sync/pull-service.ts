@@ -37,6 +37,7 @@ function mapCategory(tenantId: string, c: any): ServiceCategory {
     id: c.id,
     tenantId: c.tenant_id ?? tenantId,
     name: c.name,
+    icon: c.icon ?? '',
     description: c.description ?? '',
     sortOrder: c.sort_order ?? 0,
     isActive: c.is_active ?? true,

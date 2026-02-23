@@ -11,6 +11,7 @@ export interface ServiceCategory {
   id: string
   tenantId: string
   name: string
+  icon: string
   description: string
   sortOrder: number
   isActive: boolean
