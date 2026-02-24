@@ -58,10 +58,15 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
   const [isProcessing, setIsProcessing] = useState(false)
 
   const tenantId = useAuthStore((s) => s.user?.tenantId)
-  const { items, discountPercent, getSubtotal, getTotal } = useCartStore()
-  const total = getTotal()
+  const { items, discountPercent, getSubtotal } = useCartStore()
   const subtotal = getSubtotal()
   const discountAmount = Math.round(subtotal * (discountPercent / 100))
+  const afterDiscount = subtotal - discountAmount
+
+  const tenantConfig = useLiveQuery(() => db.tenantConfig.toCollection().first(), [])
+  const taxRate = tenantConfig?.taxRate ?? 0
+  const taxAmount = Math.round(afterDiscount * (taxRate / 100))
+  const total = afterDiscount + taxAmount
 
   const paymentMethods = useLiveQuery(
     () =>
@@ -169,10 +174,12 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
                     <span className="text-destructive">-{formatCurrency(discountAmount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Pajak</span>
-                  <span>Rp 0</span>
-                </div>
+                {taxRate > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Pajak ({taxRate}%)</span>
+                    <span>{formatCurrency(taxAmount)}</span>
+                  </div>
+                )}
                 <Separator className="my-2" />
                 <div className="flex justify-between items-center">
                   <span className="font-bold text-lg">Total</span>

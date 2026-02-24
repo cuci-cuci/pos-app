@@ -2,6 +2,7 @@ import { db } from '@/db'
 import type { Transaction } from '@/db/schema'
 import { MAX_RETRY_ATTEMPTS } from '@/lib/constants'
 import { apiClient } from '@/services/api-client'
+import { useAuthStore } from '@/stores/auth-store'
 import { useDeviceStore } from '@/stores/device-store'
 
 export async function pushPendingTransactions(tenantId: string): Promise<number> {
@@ -17,10 +18,25 @@ export async function pushPendingTransactions(tenantId: string): Promise<number>
   await db.transactions.where('id').anyOf(ids).modify({ syncStatus: 'syncing' })
 
   const deviceState = useDeviceStore.getState()
+  const authUser = useAuthStore.getState().user
   const transactionsWithOutlet = pending.map((t: Transaction) => ({
-    ...t,
+    id: t.id,
     outlet_id: deviceState.outletId,
+    local_order_number: t.orderNumber,
+    customer_name: t.customerName ?? null,
     member_id: t.memberId ?? null,
+    items: t.items,
+    subtotal: t.subtotal,
+    discount_amount: t.discountAmount,
+    tax_amount: t.taxAmount,
+    total_amount: t.totalAmount,
+    payment_status: 'paid',
+    payments: t.payments,
+    status: t.status,
+    config_version_id: '00000000-0000-0000-0000-000000000000',
+    notes: t.notes || null,
+    created_by: authUser?.id ?? '00000000-0000-0000-0000-000000000000',
+    created_at: t.createdAt,
     shift_id: t.shiftId ?? null,
     customer_phone: t.customerPhone ?? null,
     estimated_duration_hours: t.estimatedDurationHours ?? null,

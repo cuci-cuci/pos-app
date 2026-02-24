@@ -35,15 +35,9 @@ function Sheet({ open, onOpenChange, children }: SheetProps) {
 
   const handleBackdropClick = useCallback(
     (e: MouseEvent<HTMLDialogElement>) => {
-      const dialog = dialogRef.current
-      if (!dialog) return
-      const rect = dialog.getBoundingClientRect()
-      const isInDialog =
-        e.clientX >= rect.left &&
-        e.clientX <= rect.right &&
-        e.clientY >= rect.top &&
-        e.clientY <= rect.bottom
-      if (!isInDialog) {
+      // Click directly on the <dialog> element means the backdrop was clicked
+      // (clicking content hits child elements, not the dialog itself)
+      if (e.target === dialogRef.current) {
         onOpenChange(false)
       }
     },

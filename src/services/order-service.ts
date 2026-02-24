@@ -7,6 +7,7 @@ import { type CartItem, useCartStore } from '@/stores/cart-store'
 import { useDeviceStore } from '@/stores/device-store'
 import { useShiftStore } from '@/stores/shift-store'
 import { useSyncStore } from '@/stores/sync-store'
+import { syncEngine } from '@/sync/sync-engine'
 
 interface PaymentInput {
   methodId: string
@@ -107,6 +108,9 @@ export async function createTransaction(paymentInput: PaymentInput): Promise<Tra
 
   await db.transactions.add(transaction)
   cart.clear()
+
+  // Trigger immediate sync so transaction appears on server quickly
+  void syncEngine.triggerSync()
 
   return transaction
 }
