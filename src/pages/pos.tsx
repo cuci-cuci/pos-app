@@ -460,10 +460,10 @@ export function PosPage() {
         >
           {/* Drag handle */}
           <div
-            className="absolute left-0 top-0 bottom-0 w-2 cursor-col-resize hover:bg-primary/10 active:bg-primary/20 transition-colors z-10 flex items-center justify-center"
+            className="absolute -left-2 top-0 bottom-0 w-5 cursor-col-resize hover:bg-primary/10 active:bg-primary/20 transition-colors z-10 flex items-center justify-center"
             onMouseDown={handleDragStart}
           >
-            <div className="w-0.5 h-8 rounded-full bg-border" />
+            <div className="w-1 h-12 rounded-full bg-gray-300" />
           </div>
           <CartPanel onTransactionComplete={handleTransactionComplete} />
         </div>
