@@ -75,11 +75,16 @@ function Dialog({ open, onOpenChange, children, className }: DialogProps) {
 
 function DialogContent({ className, children, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div
-      className={cn('bg-card rounded-[var(--radius)] border shadow-lg p-6', className)}
-      {...props}
-    >
-      {children}
+    <div className="relative">
+      {/* Stacked layers behind the dialog */}
+      <div className="absolute inset-x-3 -bottom-2 rounded-[var(--radius)] border bg-muted/60 h-full -z-10" />
+      <div className="absolute inset-x-6 -bottom-4 rounded-[var(--radius)] border bg-muted/30 h-full -z-20" />
+      <div
+        className={cn('bg-card rounded-[var(--radius)] border shadow-lg p-6 relative', className)}
+        {...props}
+      >
+        {children}
+      </div>
     </div>
   )
 }
