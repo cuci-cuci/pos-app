@@ -267,13 +267,13 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
               <Warning size={24} weight="fill" className="text-destructive" />
             </div>
             <DialogHeader className="items-center mb-1">
-              <DialogTitle>Hapus semua layanan?</DialogTitle>
+              <DialogTitle className="font-normal">Hapus semua layanan?</DialogTitle>
             </DialogHeader>
             <DialogDescription className="text-center">
               Semua item di keranjang akan dihapus. Tindakan ini tidak bisa dibatalkan.
             </DialogDescription>
           </div>
-          <div className="flex gap-3 bg-gray-100 px-6 py-4">
+          <div className="flex gap-3 bg-gray-100 px-4 py-4">
             <Button
               variant="outline"
               className="flex-1 bg-white"

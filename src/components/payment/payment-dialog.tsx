@@ -385,7 +385,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
 
   // Tablet: Dialog modal with stacked layers
   const tabletContent = (
-    <Dialog open={open} onOpenChange={handleClose} className="md:max-w-2xl">
+    <Dialog open={open} onOpenChange={handleClose} className="md:max-w-3xl">
       {/* Header layer */}
       <div className="bg-gray-100 rounded-t-xl px-5 pt-4 pb-6 -mb-3 relative z-0">
         <p className="text-sm text-muted-foreground">Ringkasan Pesanan</p>
