@@ -102,12 +102,6 @@ export function QuantityInput({
     [isKg, applyNumpadValue],
   )
 
-  const handleNumpadClear = useCallback(() => {
-    setNumpadValue('')
-    setCustomInput('')
-    setQuantity(step)
-  }, [step])
-
   const handleConfirm = () => {
     onConfirm(quantity)
     setQuantity(step)
@@ -199,11 +193,13 @@ export function QuantityInput({
               <p className="text-xl font-bold text-primary">{formatCurrency(subtotal)}</p>
             </div>
 
-            {/* Confirm button */}
-            <Button size="lg" className="w-full h-12 text-base font-bold" onClick={handleConfirm}>
-              {currentCartQuantity ? 'Perbarui' : 'Tambah ke Keranjang'} &middot;{' '}
-              {formatCurrency(subtotal)}
-            </Button>
+            {/* Confirm button — mobile only (tablet has it below both columns) */}
+            <div className="md:hidden">
+              <Button size="lg" className="w-full h-12 text-base font-bold" onClick={handleConfirm}>
+                {currentCartQuantity ? 'Perbarui' : 'Tambah ke Keranjang'} &middot;{' '}
+                {formatCurrency(subtotal)}
+              </Button>
+            </div>
           </div>
 
           {/* Column 2: Numpad — tablet only */}
@@ -266,16 +262,15 @@ export function QuantityInput({
                 <Backspace size={20} weight="bold" />
               </button>
             </div>
-
-            {/* Clear button */}
-            <button
-              type="button"
-              onClick={handleNumpadClear}
-              className="mt-1.5 h-10 rounded-lg bg-card border text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors touch-manipulation shrink-0"
-            >
-              Hapus
-            </button>
           </div>
+        </div>
+
+        {/* Confirm button — tablet: full-width row below both columns */}
+        <div className="hidden md:block border-t border-border p-4">
+          <Button size="lg" className="w-full h-12 text-base font-bold" onClick={handleConfirm}>
+            {currentCartQuantity ? 'Perbarui' : 'Tambah ke Keranjang'} &middot;{' '}
+            {formatCurrency(subtotal)}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
