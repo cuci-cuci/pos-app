@@ -280,7 +280,7 @@ export function PosPage() {
               type="button"
               onClick={addTab}
               className="shrink-0 flex items-center justify-center w-8 h-8 mb-0.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors touch-manipulation"
-              aria-label="Tambah pelanggan"
+              aria-label="Tambah sesi"
             >
               <Plus size={16} weight="bold" />
             </button>
@@ -459,9 +459,11 @@ export function PosPage() {
         >
           {/* Drag handle */}
           <div
-            className="absolute left-0 top-0 bottom-0 w-1.5 cursor-col-resize hover:bg-primary/20 active:bg-primary/30 transition-colors z-10"
+            className="absolute left-0 top-0 bottom-0 w-2 cursor-col-resize hover:bg-primary/10 active:bg-primary/20 transition-colors z-10 flex items-center justify-center"
             onMouseDown={handleDragStart}
-          />
+          >
+            <div className="w-0.5 h-8 rounded-full bg-border" />
+          </div>
           <CartPanel onTransactionComplete={handleTransactionComplete} />
         </div>
 
@@ -544,9 +546,9 @@ export function PosPage() {
               <Warning size={20} weight="fill" className="text-destructive" />
             </div>
             <div className="flex-1 space-y-1">
-              <DialogTitle className="text-left">Tutup tab ini?</DialogTitle>
+              <DialogTitle className="text-left">Tutup sesi ini?</DialogTitle>
               <DialogDescription className="text-left">
-                Tab ini masih memiliki item di keranjang. Semua item akan dihapus jika tab ditutup.
+                Sesi ini masih memiliki item di keranjang. Semua item akan dihapus jika sesi ditutup.
               </DialogDescription>
             </div>
           </DialogHeader>
@@ -566,7 +568,7 @@ export function PosPage() {
                 setCloseTabConfirm(null)
               }}
             >
-              Tutup Tab
+              Tutup Sesi
             </Button>
           </DialogFooter>
         </DialogContent>

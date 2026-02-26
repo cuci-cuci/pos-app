@@ -1,4 +1,4 @@
-import { Clock, CloudCheck, CloudSlash, Storefront } from '@phosphor-icons/react'
+import { Clock, Storefront, WifiHigh, WifiSlash } from '@phosphor-icons/react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { formatCurrency, formatTime } from '@/lib/format'
@@ -49,12 +49,12 @@ export function Header() {
                 isSyncing && 'animate-pulse',
               )}
             >
-              <CloudCheck size={13} weight="fill" />
+              <WifiHigh size={13} weight="bold" />
               Online
             </span>
           ) : (
             <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-destructive/10 text-destructive">
-              <CloudSlash size={13} weight="fill" />
+              <WifiSlash size={13} weight="bold" />
               Offline
             </span>
           )}

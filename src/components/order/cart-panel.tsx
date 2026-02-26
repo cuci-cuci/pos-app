@@ -1,10 +1,18 @@
-import { CaretDown, CaretUp, Crown, ShoppingCart, Trash } from '@phosphor-icons/react'
+import { CaretDown, CaretUp, Crown, ShoppingCart, Trash, Warning } from '@phosphor-icons/react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 import { CustomerSearch } from '@/components/customer/customer-search'
 import { PaymentDialog } from '@/components/payment/payment-dialog'
 import { EmptyState } from '@/components/shared/empty-state'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { db } from '@/db'
@@ -37,6 +45,7 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
     activeTabId,
   } = useCartStore()
   const [paymentOpen, setPaymentOpen] = useState(false)
+  const [clearConfirmOpen, setClearConfirmOpen] = useState(false)
   const [notesExpanded, setNotesExpanded] = useState(false)
   const [orderDetailsExpanded, setOrderDetailsExpanded] = useState(false)
 
@@ -69,7 +78,7 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
         </h2>
         <button
           type="button"
-          onClick={clear}
+          onClick={() => setClearConfirmOpen(true)}
           className="text-muted-foreground hover:text-destructive p-2 rounded-lg"
           aria-label="Kosongkan keranjang"
         >
@@ -250,6 +259,42 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
         onOpenChange={setPaymentOpen}
         onTransactionComplete={onTransactionComplete}
       />
+
+      {/* Clear cart confirmation */}
+      <Dialog open={clearConfirmOpen} onOpenChange={setClearConfirmOpen}>
+        <DialogContent className="max-w-xs">
+          <DialogHeader className="flex-row items-start gap-3 text-left">
+            <div className="shrink-0 w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
+              <Warning size={20} weight="fill" className="text-destructive" />
+            </div>
+            <div className="flex-1 space-y-1">
+              <DialogTitle className="text-left">Hapus semua layanan?</DialogTitle>
+              <DialogDescription className="text-left">
+                Semua item di keranjang akan dihapus. Tindakan ini tidak bisa dibatalkan.
+              </DialogDescription>
+            </div>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2 sm:flex-row">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setClearConfirmOpen(false)}
+            >
+              Batal
+            </Button>
+            <Button
+              variant="destructive"
+              className="flex-1"
+              onClick={() => {
+                clear()
+                setClearConfirmOpen(false)
+              }}
+            >
+              Hapus Semua
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -44,7 +44,7 @@ function createEmptyTab(label?: string): CartTab {
   const num = tabCounter++
   return {
     id: crypto.randomUUID(),
-    label: label ?? `Tab ${num}`,
+    label: label ?? `Sesi ${num}`,
     items: [],
     customerId: null,
     customerName: null,
@@ -120,7 +120,7 @@ function deriveFromActiveTab(tabs: CartTab[], activeTabId: string) {
   }
 }
 
-const defaultTab = createEmptyTab('Tab 1')
+const defaultTab = createEmptyTab('Sesi 1')
 
 export const useCartStore = create<CartState>()(
   persist(
@@ -285,7 +285,7 @@ export const useCartStore = create<CartState>()(
         const { tabs, activeTabId } = get()
         const tab = getActiveTab(tabs, activeTabId)
         // Keep the original tab label (e.g. "Tab 1") unless it was set to a customer name
-        const originalLabel = tab.label.startsWith('Tab ') ? tab.label : `Tab ${tabs.indexOf(tab) + 1}`
+        const originalLabel = tab.label.startsWith('Sesi ') ? tab.label : `Sesi ${tabs.indexOf(tab) + 1}`
         const newTabs = updateActiveTab(tabs, activeTabId, () => ({
           label: originalLabel,
           items: [],
@@ -326,7 +326,7 @@ export const useCartStore = create<CartState>()(
           const old = persisted as Record<string, unknown>
           const tab: CartTab = {
             id: crypto.randomUUID(),
-            label: (old.customerName as string) || 'Tab 1',
+            label: (old.customerName as string) || 'Sesi 1',
             items: (old.items as CartItem[]) || [],
             customerId: (old.customerId as string | null) ?? null,
             customerName: (old.customerName as string | null) ?? null,
@@ -354,7 +354,7 @@ export const useCartStore = create<CartState>()(
         if (state) {
           // Set tabCounter higher than any existing tab number to avoid duplicates
           for (const tab of state.tabs) {
-            const match = tab.label.match(/^Tab (\d+)$/)
+            const match = tab.label.match(/^Sesi (\d+)$/)
             if (match) {
               const num = Number.parseInt(match[1], 10)
               if (num >= tabCounter) tabCounter = num + 1

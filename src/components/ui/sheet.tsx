@@ -57,7 +57,7 @@ function Sheet({ open, onOpenChange, children }: SheetProps) {
     <dialog
       ref={dialogRef}
       className={cn(
-        'fixed inset-0 m-0 p-0 bg-transparent backdrop:bg-black/50 max-w-full max-h-full w-full h-full',
+        'fixed inset-0 m-0 p-0 bg-transparent backdrop:bg-black/50 backdrop:animate-[fadeIn_0.2s_ease-out] max-w-full max-h-full w-full h-full',
         open ? 'flex items-end justify-center' : '',
       )}
       onClick={handleBackdropClick}
@@ -73,11 +73,11 @@ function SheetContent({ className, children, ...props }: HTMLAttributes<HTMLDivE
   return (
     <div
       className={cn(
-        'bg-card rounded-t-[var(--radius)] w-full max-h-[85vh] overflow-y-auto p-6 shadow-lg border-t animate-slide-up',
+        'bg-card rounded-t-[var(--radius)] w-full max-w-lg mx-auto max-h-[85vh] overflow-y-auto p-6 shadow-lg border-t',
         className,
       )}
       style={{
-        animation: 'slideUp 0.3s ease-out',
+        animation: 'slideUp 0.3s cubic-bezier(0.32, 0.72, 0, 1)',
       }}
       {...props}
     >
