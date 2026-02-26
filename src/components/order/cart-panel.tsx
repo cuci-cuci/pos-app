@@ -9,7 +9,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -262,22 +261,22 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
 
       {/* Clear cart confirmation */}
       <Dialog open={clearConfirmOpen} onOpenChange={setClearConfirmOpen}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader className="flex-row items-start gap-3 text-left">
-            <div className="shrink-0 w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
-              <Warning size={20} weight="fill" className="text-destructive" />
+        <DialogContent className="max-w-sm p-0 overflow-hidden">
+          <div className="px-6 pt-6 pb-5 text-center">
+            <div className="mx-auto w-12 h-12 rounded-xl bg-destructive/10 flex items-center justify-center mb-4">
+              <Warning size={24} weight="fill" className="text-destructive" />
             </div>
-            <div className="flex-1 space-y-1">
-              <DialogTitle className="text-left">Hapus semua layanan?</DialogTitle>
-              <DialogDescription className="text-left">
-                Semua item di keranjang akan dihapus. Tindakan ini tidak bisa dibatalkan.
-              </DialogDescription>
-            </div>
-          </DialogHeader>
-          <DialogFooter className="flex gap-2 sm:flex-row">
+            <DialogHeader className="items-center mb-1">
+              <DialogTitle>Hapus semua layanan?</DialogTitle>
+            </DialogHeader>
+            <DialogDescription className="text-center">
+              Semua item di keranjang akan dihapus. Tindakan ini tidak bisa dibatalkan.
+            </DialogDescription>
+          </div>
+          <div className="flex gap-3 bg-gray-100 px-6 py-4">
             <Button
               variant="outline"
-              className="flex-1"
+              className="flex-1 bg-white"
               onClick={() => setClearConfirmOpen(false)}
             >
               Batal
@@ -292,7 +291,7 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
             >
               Hapus Semua
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
