@@ -509,14 +509,16 @@ export function PosPage() {
       {/* Close tab confirmation dialog */}
       <Dialog open={!!closeTabConfirm} onOpenChange={(open) => !open && setCloseTabConfirm(null)}>
         <DialogContent className="max-w-xs">
-          <DialogHeader>
-            <div className="mx-auto w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mb-2">
-              <Warning size={24} weight="fill" className="text-destructive" />
+          <DialogHeader className="flex-row items-start gap-3 text-left">
+            <div className="shrink-0 w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
+              <Warning size={20} weight="fill" className="text-destructive" />
             </div>
-            <DialogTitle className="text-center">Tutup tab ini?</DialogTitle>
-            <DialogDescription className="text-center">
-              Tab ini masih memiliki item di keranjang. Semua item akan dihapus jika tab ditutup.
-            </DialogDescription>
+            <div className="flex-1 space-y-1">
+              <DialogTitle className="text-left">Tutup tab ini?</DialogTitle>
+              <DialogDescription className="text-left">
+                Tab ini masih memiliki item di keranjang. Semua item akan dihapus jika tab ditutup.
+              </DialogDescription>
+            </div>
           </DialogHeader>
           <DialogFooter className="flex gap-2 sm:flex-row">
             <Button
