@@ -536,10 +536,7 @@ export function CustomerSearch() {
                     Mendaftar...
                   </>
                 ) : (
-                  <>
-                    <UserPlus size={16} className="mr-1" />
-                    Daftar Member
-                  </>
+                  'Daftar'
                 )}
               </Button>
             </div>
