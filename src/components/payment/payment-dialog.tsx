@@ -9,7 +9,7 @@ import {
 } from '@phosphor-icons/react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
@@ -29,7 +29,7 @@ interface PaymentDialogProps {
   onTransactionComplete?: (tx: Transaction) => void
 }
 
-type Step = 'review' | 'method' | 'cash' | 'noncash'
+type Step = 'method' | 'cash' | 'noncash'
 
 const methodIcons: Record<string, Icon> = {
   cash: Money,
@@ -48,7 +48,7 @@ const methodColors: Record<string, string> = {
 }
 
 export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: PaymentDialogProps) {
-  const [step, setStep] = useState<Step>('review')
+  const [step, setStep] = useState<Step>('method')
   const [selectedMethod, setSelectedMethod] = useState<{
     id: string
     name: string
@@ -88,6 +88,27 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
   const cashAmount = parseInt(cashTendered, 10) || 0
   const changeAmount = cashAmount - total
 
+  // Deduplicate payment methods by name+type
+  const methods = useMemo(() => {
+    const defaultMethods = [
+      { id: 'cash-default', name: 'Tunai', type: 'cash' },
+      { id: 'qris-default', name: 'QRIS', type: 'qris' },
+    ]
+
+    if (!paymentMethods || paymentMethods.length === 0) return defaultMethods
+
+    const seen = new Set<string>()
+    const unique: { id: string; name: string; type: string }[] = []
+    for (const m of paymentMethods) {
+      const key = `${m.name}|${m.type}`
+      if (!seen.has(key)) {
+        seen.add(key)
+        unique.push({ id: m.id, name: m.name, type: m.type })
+      }
+    }
+    return unique
+  }, [paymentMethods])
+
   const handleSelectMethod = (method: { id: string; name: string; type: string }) => {
     setSelectedMethod(method)
     if (method.type === 'cash') {
@@ -120,137 +141,123 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
   }
 
   const handleClose = () => {
-    setStep('review')
+    setStep('method')
     setSelectedMethod(null)
     setCashTendered('')
     onOpenChange(false)
   }
 
-  const defaultMethods = [
-    { id: 'cash-default', name: 'Tunai', type: 'cash' },
-    { id: 'qris-default', name: 'QRIS', type: 'qris' },
-  ]
+  // Order summary component (reused in both mobile and tablet layouts)
+  const orderSummary = (
+    <div className="space-y-3">
+      <div className="space-y-2 bg-muted rounded-xl p-4">
+        {items.map((item) => (
+          <div key={item.id} className="flex justify-between text-sm">
+            <span className="truncate mr-2">
+              {item.serviceName} x{item.quantity}
+            </span>
+            <span className="shrink-0">{formatCurrency(item.subtotal)}</span>
+          </div>
+        ))}
+      </div>
 
-  const methods =
-    paymentMethods && paymentMethods.length > 0
-      ? paymentMethods.map((m) => ({ id: m.id, name: m.name, type: m.type }))
-      : defaultMethods
+      <div className="space-y-1">
+        <div className="flex justify-between text-sm">
+          <span className="text-muted-foreground">Subtotal</span>
+          <span>{formatCurrency(subtotal)}</span>
+        </div>
+        {discountPercent > 0 && (
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Diskon ({discountPercent}%)</span>
+            <span className="text-destructive">-{formatCurrency(discountAmount)}</span>
+          </div>
+        )}
+        {taxRate > 0 && (
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Pajak ({taxRate}%)</span>
+            <span>{formatCurrency(taxAmount)}</span>
+          </div>
+        )}
+        <Separator className="my-2" />
+        <div className="flex justify-between items-center">
+          <span className="font-bold text-lg">Total</span>
+          <span className="font-bold text-2xl">{formatCurrency(total)}</span>
+        </div>
+      </div>
+    </div>
+  )
+
+  // Payment method list component
+  const methodList = (
+    <div className="space-y-2">
+      {methods.map((method) => {
+        const IconComp = methodIcons[method.type] ?? Wallet
+        return (
+          <button
+            type="button"
+            key={method.id}
+            onClick={() => handleSelectMethod(method)}
+            className={cn(
+              'w-full flex items-center gap-4 p-4 rounded-[var(--radius)] border',
+              'hover:bg-accent active:bg-accent transition-colors',
+              'min-h-[56px] touch-manipulation',
+            )}
+          >
+            <IconComp
+              size={28}
+              weight="fill"
+              className={methodColors[method.type] ?? 'text-muted-foreground'}
+            />
+            <span className="text-base font-medium">{method.name}</span>
+          </button>
+        )
+      })}
+    </div>
+  )
 
   return (
     <Sheet open={open} onOpenChange={handleClose}>
-      <SheetContent className="max-h-screen overflow-hidden">
+      <SheetContent className="max-h-screen overflow-hidden p-0">
         <AnimatePresence mode="wait">
-          {/* Step 1: Review */}
-          {step === 'review' && (
+          {/* Step 1: Method selection (with review on tablet) */}
+          {step === 'method' && (
             <motion.div
-              key="review"
+              key="method"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
               transition={{ duration: 0.15 }}
-              className="space-y-4"
+              className="p-6"
             >
-              <h2 className="text-lg font-bold">Ringkasan Pesanan</h2>
-
-              <div className="space-y-2 bg-muted rounded-xl p-4">
-                {items.map((item) => (
-                  <div key={item.id} className="flex justify-between text-sm">
-                    <span className="truncate mr-2">
-                      {item.serviceName} x{item.quantity}
-                    </span>
-                    <span className="shrink-0">{formatCurrency(item.subtotal)}</span>
-                  </div>
-                ))}
+              {/* Mobile: stacked layout */}
+              <div className="md:hidden space-y-4">
+                <h2 className="text-lg font-bold">Pembayaran</h2>
+                {orderSummary}
+                <Separator />
+                <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+                  Metode Pembayaran
+                </p>
+                {methodList}
               </div>
 
-              <div className="space-y-1">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Subtotal</span>
-                  <span>{formatCurrency(subtotal)}</span>
+              {/* Tablet: 2-column layout */}
+              <div className="hidden md:flex gap-6">
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-lg font-bold mb-4">Ringkasan Pesanan</h2>
+                  {orderSummary}
                 </div>
-                {discountPercent > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Diskon ({discountPercent}%)</span>
-                    <span className="text-destructive">-{formatCurrency(discountAmount)}</span>
-                  </div>
-                )}
-                {taxRate > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Pajak ({taxRate}%)</span>
-                    <span>{formatCurrency(taxAmount)}</span>
-                  </div>
-                )}
-                <Separator className="my-2" />
-                <div className="flex justify-between items-center">
-                  <span className="font-bold text-lg">Total</span>
-                  <span className="font-bold text-2xl">{formatCurrency(total)}</span>
+                <div className="w-px bg-border shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-3">
+                    Metode Pembayaran
+                  </p>
+                  {methodList}
                 </div>
-              </div>
-
-              <Button
-                size="lg"
-                className="w-full h-12 text-base font-bold mt-4"
-                onClick={() => setStep('method')}
-              >
-                Lanjut ke Pembayaran
-              </Button>
-            </motion.div>
-          )}
-
-          {/* Step 2: Payment Method */}
-          {step === 'method' && (
-            <motion.div
-              key="method"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.15 }}
-              className="space-y-4"
-            >
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setStep('review')}
-                  className="p-1 rounded hover:bg-accent"
-                >
-                  <ArrowLeft size={20} weight="bold" />
-                </button>
-                <h2 className="text-lg font-bold">Metode Pembayaran</h2>
-              </div>
-
-              <div className="text-center py-2">
-                <p className="text-sm text-muted-foreground">Total Pembayaran</p>
-                <p className="text-2xl font-bold">{formatCurrency(total)}</p>
-              </div>
-
-              <div className="space-y-3">
-                {methods.map((method) => {
-                  const IconComp = methodIcons[method.type] ?? Wallet
-                  return (
-                    <button
-                      type="button"
-                      key={method.id}
-                      onClick={() => handleSelectMethod(method)}
-                      className={cn(
-                        'w-full flex items-center gap-4 p-4 rounded-[var(--radius)] border',
-                        'hover:bg-accent active:bg-accent transition-colors',
-                        'min-h-[60px] touch-manipulation',
-                      )}
-                    >
-                      <IconComp
-                        size={28}
-                        weight="fill"
-                        className={methodColors[method.type] ?? 'text-muted-foreground'}
-                      />
-                      <span className="text-base font-medium">{method.name}</span>
-                    </button>
-                  )
-                })}
               </div>
             </motion.div>
           )}
 
-          {/* Step 3a: Cash */}
+          {/* Step 2a: Cash */}
           {step === 'cash' && (
             <motion.div
               key="cash"
@@ -258,7 +265,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.15 }}
-              className="space-y-4"
+              className="space-y-4 p-6"
             >
               <div className="flex items-center gap-2">
                 <button
@@ -331,7 +338,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
             </motion.div>
           )}
 
-          {/* Step 3b: Non-cash */}
+          {/* Step 2b: Non-cash */}
           {step === 'noncash' && (
             <motion.div
               key="noncash"
@@ -339,7 +346,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.15 }}
-              className="space-y-4"
+              className="space-y-4 p-6"
             >
               <div className="flex items-center gap-2">
                 <button
