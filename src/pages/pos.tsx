@@ -1,4 +1,4 @@
-import { ChartBar, Clock, CurrencyCircleDollar, Lightning, MagnifyingGlass, Plus, ShoppingCart, Warning, X } from '@phosphor-icons/react'
+import { ChartBar, Clock, Lightning, MagnifyingGlass, Plus, ShoppingCart, Warning, X } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
@@ -22,7 +22,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { db } from '@/db'
 import type { Service, ServiceCategory, Transaction } from '@/db/schema'
 import { getCategoryIcon } from '@/lib/category-icons'
-import { formatCurrency, formatTime } from '@/lib/format'
+import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth-store'
 import { useCartStore } from '@/stores/cart-store'
@@ -186,14 +186,10 @@ export function PosPage() {
     )
   }
 
-  const shiftOpenedTime = currentShift?.opened_at ? formatTime(currentShift.opened_at) : ''
-
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem-56px)]">
-      {/* Tab bar + shift info */}
-      <div className="flex items-end gap-0 px-3 pt-2 bg-muted/30 border-b border-border">
-        {/* Tabs */}
-        <div className="flex items-end gap-0 flex-1 min-w-0 overflow-x-auto scrollbar-hide">
+      {/* Tab bar */}
+      <div className="flex items-end gap-0 px-3 pt-2 bg-muted/30 border-b border-border overflow-x-auto scrollbar-hide">
           <LayoutGroup>
             {tabs.map((tab) => {
               const isActive = tab.id === activeTabId
@@ -256,21 +252,6 @@ export function PosPage() {
               <Plus size={16} weight="bold" />
             </button>
           )}
-        </div>
-
-        {/* Shift info — compact */}
-        {currentShift && (
-          <div className="hidden md:flex items-center gap-2 mb-1.5 ml-2 shrink-0">
-            <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
-              <Clock size={12} weight="fill" className="text-success" />
-              {shiftOpenedTime}
-            </span>
-            <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
-              <CurrencyCircleDollar size={12} weight="fill" className="text-success" />
-              {formatCurrency(currentShift.opening_cash)}
-            </span>
-          </div>
-        )}
       </div>
 
       <div className="flex flex-1 min-h-0">

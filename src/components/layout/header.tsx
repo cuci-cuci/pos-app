@@ -1,10 +1,8 @@
-import { Clock, Storefront } from '@phosphor-icons/react'
+import { CloudCheck, CloudSlash, Storefront } from '@phosphor-icons/react'
 import { useState } from 'react'
-import { CloseShiftDialog } from '@/components/shift/close-shift-dialog'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth-store'
 import { useDeviceStore } from '@/stores/device-store'
-import { useShiftStore } from '@/stores/shift-store'
 import { useSyncStore } from '@/stores/sync-store'
 import { UserMenu } from './user-menu'
 
@@ -12,18 +10,8 @@ export function Header() {
   const user = useAuthStore((s) => s.user)
   const outletName = useDeviceStore((s) => s.outletName)
   const deviceName = useDeviceStore((s) => s.deviceName)
-  const { isOnline, isSyncing, pendingCount } = useSyncStore()
-  const currentShift = useShiftStore((s) => s.currentShift)
+  const { isOnline, isSyncing } = useSyncStore()
   const [userMenuOpen, setUserMenuOpen] = useState(false)
-  const [closeShiftDialogOpen, setCloseShiftDialogOpen] = useState(false)
-
-  const syncDotColor = isSyncing
-    ? 'bg-info animate-pulse'
-    : pendingCount > 0
-      ? 'bg-warning'
-      : isOnline
-        ? 'bg-success'
-        : 'bg-destructive'
 
   const firstName = user?.name?.split(' ')[0] ?? ''
   const avatarLetter = user?.name?.charAt(0).toUpperCase() ?? '?'
@@ -46,18 +34,24 @@ export function Header() {
           </div>
         </div>
 
-        {/* Center: sync dot + shift badge */}
-        <div className="flex items-center justify-center gap-2">
-          <span className={cn('inline-block w-2.5 h-2.5 rounded-full', syncDotColor)} />
-          {currentShift && (
-            <button
-              type="button"
-              onClick={() => setCloseShiftDialogOpen(true)}
-              className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-success/15 text-success text-xs font-medium hover:bg-success/20 transition-colors"
+        {/* Center: online/offline status */}
+        <div className="flex items-center justify-center">
+          {isOnline ? (
+            <span
+              className={cn(
+                'flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium',
+                'bg-success/10 text-success',
+                isSyncing && 'animate-pulse',
+              )}
             >
-              <Clock size={12} weight="fill" />
-              Shift
-            </button>
+              <CloudCheck size={14} weight="fill" />
+              Online
+            </span>
+          ) : (
+            <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-destructive/10 text-destructive">
+              <CloudSlash size={14} weight="fill" />
+              Offline
+            </span>
           )}
         </div>
 
@@ -77,7 +71,6 @@ export function Header() {
       </header>
 
       <UserMenu open={userMenuOpen} onOpenChange={setUserMenuOpen} />
-      <CloseShiftDialog open={closeShiftDialogOpen} onOpenChange={setCloseShiftDialogOpen} />
     </>
   )
 }
