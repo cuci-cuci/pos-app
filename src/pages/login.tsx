@@ -89,13 +89,13 @@ export function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/60 p-4">
       <div className="w-full max-w-[400px]">
-        {/* Header bar — stacked above */}
-        <div className="bg-foreground/5 rounded-lg px-5 py-3 mb-2">
+        {/* Header bar — flush top */}
+        <div className="bg-foreground/5 rounded-t-lg px-5 py-3">
           <span className="text-sm font-medium text-muted-foreground">Masuk atau daftar</span>
         </div>
 
         {/* Main card */}
-        <div className="bg-card border rounded-lg overflow-hidden">
+        <div className="bg-card border-x border-b overflow-hidden">
           <div className="px-6 py-8">
             {/* Welcome heading */}
             <h1 className="text-2xl font-bold tracking-tight mb-8">
@@ -210,8 +210,8 @@ export function LoginPage() {
           </div>
         </div>
 
-        {/* Footer bar — stacked below */}
-        <div className="bg-foreground/5 rounded-lg px-5 py-3 mt-2">
+        {/* Footer bar — flush bottom */}
+        <div className="bg-foreground/5 rounded-b-lg px-5 py-3">
           <p className="text-sm text-muted-foreground">
             Butuh bantuan? Hubungi kami di{' '}
             <a
