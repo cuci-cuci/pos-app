@@ -1,7 +1,6 @@
 import {
   CircleNotch,
   Crown,
-  CurrencyCircleDollar,
   Envelope,
   Gift,
   MagnifyingGlass,
@@ -236,8 +235,7 @@ export function CustomerSearch() {
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">{formatPhoneDisplay(memberInfo.phone)}</p>
             <div className="flex items-center gap-3 mt-1.5 flex-wrap">
-              <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                <CurrencyCircleDollar size={12} />
+              <span className="text-xs text-muted-foreground">
                 {formatCurrency(memberInfo.totalSpending)}
               </span>
               <span className="flex items-center gap-1 text-xs text-primary font-medium">

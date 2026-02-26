@@ -1,8 +1,10 @@
-import { CloudCheck, CloudSlash, Storefront } from '@phosphor-icons/react'
+import { Clock, CloudCheck, CloudSlash, Storefront } from '@phosphor-icons/react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
+import { formatCurrency, formatTime } from '@/lib/format'
 import { useAuthStore } from '@/stores/auth-store'
 import { useDeviceStore } from '@/stores/device-store'
+import { useShiftStore } from '@/stores/shift-store'
 import { useSyncStore } from '@/stores/sync-store'
 import { UserMenu } from './user-menu'
 
@@ -11,10 +13,12 @@ export function Header() {
   const outletName = useDeviceStore((s) => s.outletName)
   const deviceName = useDeviceStore((s) => s.deviceName)
   const { isOnline, isSyncing } = useSyncStore()
+  const currentShift = useShiftStore((s) => s.currentShift)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
 
   const firstName = user?.name?.split(' ')[0] ?? ''
   const avatarLetter = user?.name?.charAt(0).toUpperCase() ?? '?'
+  const shiftTime = currentShift?.opened_at ? formatTime(currentShift.opened_at) : ''
 
   return (
     <>
@@ -34,24 +38,39 @@ export function Header() {
           </div>
         </div>
 
-        {/* Center: online/offline status */}
-        <div className="flex items-center justify-center">
+        {/* Center: status + shift info */}
+        <div className="flex items-center gap-2">
+          {/* Online / Offline */}
           {isOnline ? (
             <span
               className={cn(
-                'flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium',
+                'flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium',
                 'bg-success/10 text-success',
                 isSyncing && 'animate-pulse',
               )}
             >
-              <CloudCheck size={14} weight="fill" />
+              <CloudCheck size={13} weight="fill" />
               Online
             </span>
           ) : (
-            <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-destructive/10 text-destructive">
-              <CloudSlash size={14} weight="fill" />
+            <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-destructive/10 text-destructive">
+              <CloudSlash size={13} weight="fill" />
               Offline
             </span>
+          )}
+
+          {/* Shift info */}
+          {currentShift && (
+            <>
+              <span className="text-border">|</span>
+              <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                <Clock size={12} weight="fill" />
+                {shiftTime}
+              </span>
+              <span className="text-[11px] text-muted-foreground font-medium">
+                Kas {formatCurrency(currentShift.opening_cash)}
+              </span>
+            </>
           )}
         </div>
 
