@@ -282,7 +282,7 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
               Semua item di keranjang akan dihapus. Tindakan ini tidak bisa dibatalkan.
             </DialogDescription>
           </div>
-          <div className="flex gap-3 bg-gray-100 px-4 py-4">
+          <div className="flex gap-3 bg-gray-100 px-4 py-4 border-t border-border">
             <Button
               variant="outline"
               className="flex-1 bg-white"
