@@ -108,7 +108,7 @@ export function SuccessOverlay({
   const handleShare = useCallback(async () => {
     if (!transaction) return
     const lines: string[] = []
-    lines.push(outletName || 'LaundryPOS')
+    lines.push(outletName || 'kelarin')
     lines.push(`Pesanan #${transaction.orderNumber}`)
     if (transaction.customerName) lines.push(`Pelanggan: ${transaction.customerName}`)
     lines.push('')

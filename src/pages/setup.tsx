@@ -92,7 +92,7 @@ export function SetupPage() {
                   <Storefront size={48} weight="fill" className="text-primary" />
                 </div>
               </div>
-              <h1 className="text-2xl font-bold mb-2">Selamat datang di LaundryPOS</h1>
+              <h1 className="text-2xl font-bold mb-2">Selamat datang di kelarin</h1>
               <p className="text-muted-foreground mb-2">{tenantName}</p>
               <p className="text-sm text-muted-foreground mb-8">
                 Mari siapkan perangkat ini untuk mulai menerima transaksi.

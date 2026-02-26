@@ -35,7 +35,7 @@ export function PWAInstallPrompt() {
       <div className="flex items-start gap-3">
         <DownloadSimple size={24} weight="bold" className="text-primary shrink-0 mt-0.5" />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold">Install LaundryPOS</p>
+          <p className="text-sm font-semibold">Install kelarin</p>
           <p className="text-xs text-muted-foreground mt-0.5">
             Akses lebih cepat langsung dari home screen
           </p>

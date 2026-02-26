@@ -11,7 +11,7 @@ interface ReceiptActionsProps {
 
 function buildShareText(order: OrderDetail, outletName: string): string {
   const lines: string[] = []
-  lines.push(outletName || 'LaundryPOS')
+  lines.push(outletName || 'kelarin')
   lines.push(`Pesanan #${order.order_number}`)
   if (order.customer_name) {
     lines.push(`Pelanggan: ${order.customer_name}`)

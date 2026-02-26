@@ -11,7 +11,7 @@ interface TransactionActionsProps {
 
 function buildShareText(transaction: Transaction, outletName: string): string {
   const lines: string[] = []
-  lines.push(outletName || 'LaundryPOS')
+  lines.push(outletName || 'kelarin')
   lines.push(`Pesanan #${transaction.orderNumber}`)
   if (transaction.customerName) {
     lines.push(`Pelanggan: ${transaction.customerName}`)

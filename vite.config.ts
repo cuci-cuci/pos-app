@@ -12,9 +12,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
       manifest: {
-        name: 'LaundryPOS',
-        short_name: 'LaundryPOS',
-        description: 'Aplikasi POS Laundry — kelola transaksi, pesanan, dan outlet',
+        name: 'kelarin',
+        short_name: 'kelarin',
+        description: 'kelarin — aplikasi POS laundry, kelola transaksi dan pesanan',
         theme_color: '#2563eb',
         background_color: '#ffffff',
         display: 'standalone',

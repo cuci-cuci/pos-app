@@ -1,11 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CircleNotch, Drop, WarningCircle } from '@phosphor-icons/react'
+import { CircleNotch, WarningCircle } from '@phosphor-icons/react'
 import { Link, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { APP_NAME } from '@/lib/constants'
 import { login } from '@/services/auth-service'
@@ -51,7 +50,6 @@ export function LoginPage() {
       const message =
         err instanceof Error ? err.message : 'Login gagal. Periksa email dan password Anda.'
 
-      // Provide more specific error messages
       let displayMessage = message
       if (message.includes('401') || message.includes('Unauthorized')) {
         displayMessage = 'Email atau password salah.'
@@ -87,23 +85,23 @@ export function LoginPage() {
   const isLoading = loginState !== 'idle'
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted p-4">
-      <div className="w-full max-w-sm">
-        {/* Logo and app name */}
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-3">
-            <Drop size={36} weight="fill" className="text-primary-foreground" />
+    <div className="min-h-screen flex items-center justify-center bg-muted/60 p-4">
+      <div className="w-full max-w-[400px]">
+        <div className="bg-card border rounded-[var(--radius)] overflow-hidden">
+          {/* Header bar */}
+          <div className="flex items-center justify-between px-6 py-4 border-b">
+            <span className="text-sm font-medium text-foreground">Masuk atau daftar</span>
           </div>
-          <h1 className="text-2xl font-bold">{APP_NAME}</h1>
-          <p className="text-sm text-muted-foreground mt-1">Sistem POS Laundry</p>
-        </div>
 
-        <Card>
-          <CardHeader className="text-center pb-2">
-            <CardTitle className="text-lg">Masuk ke Akun Anda</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* Content */}
+          <div className="px-6 py-8">
+            {/* Welcome heading */}
+            <h1 className="text-2xl font-bold tracking-tight mb-8">
+              Selamat Datang di{' '}
+              <span className="text-primary">{APP_NAME}</span>
+            </h1>
+
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               {error && (
                 <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/20 text-destructive text-sm rounded-[var(--radius)] p-3">
                   <WarningCircle size={18} weight="fill" className="shrink-0 mt-0.5" />
@@ -111,25 +109,35 @@ export function LoginPage() {
                 </div>
               )}
 
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <label htmlFor="email" className="text-sm font-medium">
-                  Email
+                  Alamat email
                 </label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="email@contoh.com"
+                  placeholder="Masukkan alamat email"
                   autoComplete="email"
                   disabled={isLoading}
                   {...register('email')}
                 />
-                {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
+                {errors.email && (
+                  <p className="text-xs text-destructive">{errors.email.message}</p>
+                )}
               </div>
 
-              <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium">
-                  Password
-                </label>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label htmlFor="password" className="text-sm font-medium">
+                    Password
+                  </label>
+                  <Link
+                    to="/forgot-password"
+                    className="text-sm font-medium text-primary hover:text-primary/80"
+                  >
+                    Reset password
+                  </Link>
+                </div>
                 <Input
                   id="password"
                   type="password"
@@ -143,32 +151,33 @@ export function LoginPage() {
                 )}
               </div>
 
-              <Button type="submit" size="lg" className="w-full h-12" disabled={isLoading}>
-                {isLoading ? (
-                  <span className="flex items-center gap-2">
-                    <CircleNotch size={20} weight="bold" className="animate-spin" />
-                    {stateMessages[loginState]}
-                  </span>
-                ) : (
-                  'Masuk'
-                )}
-              </Button>
+              <div className="flex items-center gap-3 pt-2">
+                <Button type="submit" size="lg" className="h-11 px-8" disabled={isLoading}>
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <CircleNotch size={18} weight="bold" className="animate-spin" />
+                      {stateMessages[loginState]}
+                    </span>
+                  ) : (
+                    'Masuk'
+                  )}
+                </Button>
+                <Link to="/register">
+                  <Button type="button" variant="outline" size="lg" className="h-11 px-6">
+                    Buat akun
+                  </Button>
+                </Link>
+              </div>
             </form>
-          </CardContent>
-        </Card>
+          </div>
 
-        <p className="text-center text-xs text-muted-foreground mt-4">
-          <Link to="/forgot-password" className="font-medium underline">
-            Lupa password?
-          </Link>
-        </p>
-
-        <p className="text-center text-xs text-muted-foreground mt-2">
-          Belum punya akun bisnis?{' '}
-          <Link to="/register" className="font-medium underline">
-            Daftarkan bisnis Anda
-          </Link>
-        </p>
+          {/* Footer */}
+          <div className="px-6 py-4 border-t">
+            <p className="text-sm text-muted-foreground">
+              Belum yakin? Coba gunakan email bisnis Anda untuk masuk.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   )

@@ -36,7 +36,7 @@ export function Header() {
           <Storefront size={22} weight="fill" className="text-primary shrink-0" />
           <div className="min-w-0">
             <p className="text-sm font-semibold leading-tight truncate">
-              {outletName || 'LaundryPOS'}
+              {outletName || 'kelarin'}
             </p>
             {deviceName && (
               <p className="text-[10px] text-muted-foreground leading-tight truncate">

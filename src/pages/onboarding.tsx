@@ -207,7 +207,7 @@ export function OnboardingPage() {
                     <Storefront size={48} className="text-primary" weight="fill" />
                   </div>
                 </div>
-                <h1 className="text-2xl font-bold mb-2">Selamat datang di LaundryPOS!</h1>
+                <h1 className="text-2xl font-bold mb-2">Selamat datang di kelarin!</h1>
                 <p className="text-muted-foreground mb-2">{user?.name}</p>
                 <p className="text-sm text-muted-foreground mb-8">
                   Mari siapkan bisnis Anda sebelum mulai menggunakan POS.
