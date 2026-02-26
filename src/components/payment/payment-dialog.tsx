@@ -195,7 +195,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
 
   // Payment method list with radio buttons
   const methodList = (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       {methods.map((method) => {
         const IconComp = methodIcons[method.type] ?? Wallet
         const isSelected = selectedMethod?.id === method.id
@@ -205,20 +205,20 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
             key={method.id}
             onClick={() => handleSelectMethod(method)}
             className={cn(
-              'w-full flex items-center gap-3 p-4 rounded-[var(--radius)] border',
+              'w-full flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius)] border',
               'hover:bg-accent active:bg-accent transition-colors',
-              'min-h-[56px] touch-manipulation',
+              'min-h-[44px] touch-manipulation',
               isSelected && 'border-primary bg-primary/5',
             )}
           >
             <IconComp
-              size={24}
+              size={20}
               weight="fill"
               className={methodColors[method.type] ?? 'text-muted-foreground'}
             />
-            <span className="text-base font-medium flex-1 text-left">{method.name}</span>
+            <span className="text-sm font-medium font-mono flex-1 text-left">{method.name}</span>
             <RadioButton
-              size={22}
+              size={20}
               weight={isSelected ? 'fill' : 'regular'}
               className={isSelected ? 'text-primary' : 'text-muted-foreground/40'}
             />

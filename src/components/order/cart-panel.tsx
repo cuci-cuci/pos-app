@@ -262,7 +262,7 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
 
       {/* Clear cart confirmation */}
       <Dialog open={clearConfirmOpen} onOpenChange={setClearConfirmOpen}>
-        <DialogContent className="max-w-xs">
+        <DialogContent className="max-w-sm">
           <DialogHeader className="flex-row items-start gap-3 text-left">
             <div className="shrink-0 w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
               <Warning size={20} weight="fill" className="text-destructive" />
