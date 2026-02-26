@@ -10,6 +10,23 @@ import {
 } from 'react'
 import { cn } from '@/lib/utils'
 
+function useIsLandscapeTablet() {
+  const [isLandscape, setIsLandscape] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return window.innerWidth >= 768 && window.innerWidth > window.innerHeight
+  })
+
+  useEffect(() => {
+    const check = () => {
+      setIsLandscape(window.innerWidth >= 768 && window.innerWidth > window.innerHeight)
+    }
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+
+  return isLandscape
+}
+
 interface SheetProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -18,6 +35,7 @@ interface SheetProps {
 
 function Sheet({ open, onOpenChange, children }: SheetProps) {
   const dialogRef = useRef<HTMLDialogElement>(null)
+  const isLandscape = useIsLandscapeTablet()
 
   useEffect(() => {
     const dialog = dialogRef.current
@@ -57,7 +75,7 @@ function Sheet({ open, onOpenChange, children }: SheetProps) {
       ref={dialogRef}
       className={cn(
         'fixed inset-0 m-0 p-0 bg-transparent backdrop:bg-black/50 backdrop:animate-[fadeIn_0.2s_ease-out] max-w-full max-h-full w-full h-full',
-        open ? 'flex items-end justify-center' : '',
+        open && (isLandscape ? 'flex items-center justify-center' : 'flex items-end justify-center'),
       )}
       onClick={handleBackdropClick}
       onKeyDown={handleKeyDown}
@@ -71,6 +89,7 @@ function Sheet({ open, onOpenChange, children }: SheetProps) {
 function SheetContent({ className, children, ...props }: HTMLAttributes<HTMLDivElement>) {
   const [animating, setAnimating] = useState(true)
   const ref = useRef<HTMLDivElement>(null)
+  const isLandscape = useIsLandscapeTablet()
 
   useEffect(() => {
     const el = ref.current
@@ -84,16 +103,22 @@ function SheetContent({ className, children, ...props }: HTMLAttributes<HTMLDivE
     <div
       ref={ref}
       className={cn(
-        'bg-card rounded-t-[var(--radius)] w-full max-w-lg mx-auto max-h-[85vh] p-6 shadow-lg border-t',
+        'bg-card w-full max-h-[85vh] p-6 shadow-lg',
+        isLandscape
+          ? 'rounded-[var(--radius)] border max-w-lg'
+          : 'rounded-t-[var(--radius)] border-t',
         animating ? 'overflow-hidden' : 'overflow-y-auto',
         className,
       )}
       style={{
-        animation: 'slideUp 0.3s cubic-bezier(0.32, 0.72, 0, 1)',
+        animation: `${isLandscape ? 'modalIn' : 'slideUp'} 0.3s cubic-bezier(0.32, 0.72, 0, 1)`,
       }}
       {...props}
     >
-      <div className="mx-auto w-12 h-1.5 rounded-full bg-muted mb-4" />
+      {/* Drag handle — portrait/mobile only */}
+      {!isLandscape && (
+        <div className="mx-auto w-12 h-1.5 rounded-full bg-muted mb-4" />
+      )}
       {children}
     </div>
   )
