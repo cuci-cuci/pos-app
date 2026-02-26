@@ -89,13 +89,13 @@ export function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/60 p-4">
       <div className="w-full max-w-[400px]">
-        <div className="bg-card border rounded-[var(--radius)] overflow-hidden">
-          {/* Header bar */}
-          <div className="flex items-center justify-between px-6 py-4 border-b">
-            <span className="text-sm font-medium text-foreground">Masuk atau daftar</span>
-          </div>
+        {/* Header bar — stacked above */}
+        <div className="bg-foreground/5 rounded-lg px-5 py-3 mb-2">
+          <span className="text-sm font-medium text-muted-foreground">Masuk atau daftar</span>
+        </div>
 
-          {/* Content */}
+        {/* Main card */}
+        <div className="bg-card border rounded-lg overflow-hidden">
           <div className="px-6 py-8">
             {/* Welcome heading */}
             <h1 className="text-2xl font-bold tracking-tight mb-8">
@@ -105,7 +105,7 @@ export function LoginPage() {
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               {error && (
-                <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/20 text-destructive text-sm rounded-[var(--radius)] p-3">
+                <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/20 text-destructive text-sm rounded-lg p-3">
                   <WarningCircle size={18} weight="fill" className="shrink-0 mt-0.5" />
                   <span>{error}</span>
                 </div>
@@ -208,19 +208,19 @@ export function LoginPage() {
               </div>
             </form>
           </div>
+        </div>
 
-          {/* Footer */}
-          <div className="px-6 py-4 border-t">
-            <p className="text-sm text-muted-foreground">
-              Butuh bantuan? Hubungi kami di{' '}
-              <a
-                href="mailto:help@kelarin.co.id"
-                className="text-primary font-medium hover:text-primary/80"
-              >
-                help@kelarin.co.id
-              </a>
-            </p>
-          </div>
+        {/* Footer bar — stacked below */}
+        <div className="bg-foreground/5 rounded-lg px-5 py-3 mt-2">
+          <p className="text-sm text-muted-foreground">
+            Butuh bantuan? Hubungi kami di{' '}
+            <a
+              href="mailto:help@kelarin.co.id"
+              className="text-primary font-medium hover:text-primary/80"
+            >
+              help@kelarin.co.id
+            </a>
+          </p>
         </div>
       </div>
     </div>
