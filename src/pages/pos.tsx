@@ -460,7 +460,8 @@ export function PosPage() {
         >
           {/* Drag handle */}
           <div
-            className="absolute -left-2 top-0 bottom-0 w-5 cursor-col-resize hover:bg-primary/10 active:bg-primary/20 transition-colors z-10 flex items-center justify-center"
+            className="absolute top-0 bottom-0 w-5 cursor-col-resize hover:bg-primary/10 active:bg-primary/20 transition-colors z-10 flex items-center justify-center"
+            style={{ left: '-10px' }}
             onMouseDown={handleDragStart}
           >
             <div className="w-1 h-12 rounded-full bg-gray-300" />

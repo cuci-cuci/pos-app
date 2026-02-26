@@ -20,6 +20,17 @@ import { formatCurrency } from '@/lib/format'
 import { useCartStore } from '@/stores/cart-store'
 import { CartItemRow } from './cart-item-row'
 
+function formatPhoneDisplay(phone: string): string {
+  const digits = phone.replace(/\D/g, '')
+  if (digits.length <= 4) return digits
+  if (digits.length <= 8) return `${digits.slice(0, 4)}-${digits.slice(4)}`
+  return `${digits.slice(0, 4)}-${digits.slice(4, 8)}-${digits.slice(8)}`
+}
+
+function handlePhoneInput(value: string): string {
+  return value.replace(/\D/g, '').slice(0, 13)
+}
+
 interface CartPanelProps {
   onTransactionComplete?: (tx: Transaction) => void
 }
@@ -83,13 +94,6 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
         >
           <Trash size={20} weight="fill" />
         </button>
-      </div>
-
-      <Separator />
-
-      {/* Customer section */}
-      <div className="px-4 py-3">
-        <CustomerSearch />
       </div>
 
       <Separator />
@@ -160,9 +164,9 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
                 id="customer-phone"
                 type="tel"
                 inputMode="tel"
-                placeholder="08xxxxxxxxxx"
-                value={customerPhone}
-                onChange={(e) => setCustomerPhone(e.target.value)}
+                placeholder="0812-3456-7890"
+                value={formatPhoneDisplay(customerPhone)}
+                onChange={(e) => setCustomerPhone(handlePhoneInput(e.target.value))}
                 className="h-9 text-sm"
               />
             </div>
@@ -186,6 +190,11 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Customer section */}
+      <div className="px-4 py-3 border-t border-border">
+        <CustomerSearch />
       </div>
 
       {/* Price breakdown */}
