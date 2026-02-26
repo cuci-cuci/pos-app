@@ -4,6 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CartPanel } from '@/components/order/cart-panel'
+import { CustomerSearch } from '@/components/customer/customer-search'
 import { QuantityInput } from '@/components/order/quantity-input'
 import { ServiceCard } from '@/components/order/service-card'
 import { EmptyState } from '@/components/shared/empty-state'
@@ -441,16 +442,16 @@ export function PosPage() {
             </div>
           </div>
 
-          {/* Sticky cart bar (desktop) */}
-          {itemCount > 0 && (
-            <div className="hidden md:flex items-center justify-between px-4 py-3 border-t border-border bg-card">
-              <div className="flex items-center gap-2">
-                <ShoppingCart size={20} weight="fill" className="text-primary" />
-                <span className="text-sm font-medium">{itemCount} item</span>
-              </div>
-              <span className="text-base font-bold">{formatCurrency(total)}</span>
+          {/* Sticky bottom bar (desktop): item count + member search */}
+          <div className="hidden md:flex items-center gap-3 px-4 py-2.5 border-t border-border bg-card">
+            <div className="flex items-center gap-2 shrink-0">
+              <ShoppingCart size={18} weight="fill" className="text-primary" />
+              <span className="text-sm font-medium">{itemCount} item</span>
             </div>
-          )}
+            <div className="flex-1 min-w-0">
+              <CustomerSearch />
+            </div>
+          </div>
         </div>
 
         {/* Right: Cart (tablet+) */}

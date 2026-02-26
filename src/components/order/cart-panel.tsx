@@ -1,7 +1,6 @@
 import { CaretDown, CaretUp, Crown, ShoppingCart, Trash, Warning } from '@phosphor-icons/react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
-import { CustomerSearch } from '@/components/customer/customer-search'
 import { PaymentDialog } from '@/components/payment/payment-dialog'
 import { EmptyState } from '@/components/shared/empty-state'
 import { Button } from '@/components/ui/button'
@@ -190,11 +189,6 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
             </div>
           </div>
         )}
-      </div>
-
-      {/* Customer section */}
-      <div className="px-4 py-3 border-t border-border">
-        <CustomerSearch />
       </div>
 
       {/* Price breakdown */}
