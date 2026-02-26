@@ -10,7 +10,7 @@ import {
 } from '@phosphor-icons/react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -156,15 +156,16 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
   // Order summary component (reused in both mobile and tablet layouts)
   const orderSummary = (
     <div className="space-y-3">
-      <div className="space-y-2 bg-muted rounded-xl p-4 font-mono text-sm">
-        {items.map((item) => (
-          <div key={item.id} className="flex justify-between">
-            <span className="truncate mr-2">
-              {item.serviceName} &middot; {item.quantity} {item.unit}
-            </span>
-            <span className="shrink-0 tabular-nums">{formatCurrency(item.subtotal)}</span>
-          </div>
-        ))}
+      <div className="bg-muted rounded-xl p-4 font-mono text-sm">
+        <div className="grid grid-cols-[1fr_auto_auto] gap-x-3 gap-y-2">
+          {items.map((item) => (
+            <React.Fragment key={item.id}>
+              <span className="break-words">{item.serviceName}</span>
+              <span className="text-muted-foreground whitespace-nowrap">{item.quantity} {item.unit}</span>
+              <span className="tabular-nums text-right whitespace-nowrap">{formatCurrency(item.subtotal)}</span>
+            </React.Fragment>
+          ))}
+        </div>
       </div>
 
       <div className="space-y-1 font-mono text-sm">
@@ -402,8 +403,8 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
               transition={{ duration: 0.15 }}
             >
               <div className="flex">
-                {/* Left: Order summary */}
-                <div className="flex-1 p-6 min-w-0">
+                {/* Left: Order summary — wider */}
+                <div className="flex-[3] p-6 min-w-0">
                   <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-3">
                     Detail Item
                   </p>
@@ -414,7 +415,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
                 <div className="w-px bg-border shrink-0" />
 
                 {/* Right: Payment methods with radio */}
-                <div className="flex-1 p-6 min-w-0">
+                <div className="flex-[2] p-6 min-w-0">
                   <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-3">
                     Metode Pembayaran
                   </p>
