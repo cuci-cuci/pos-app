@@ -1,4 +1,4 @@
-import { ChartBar, Clock, Lightning, MagnifyingGlass, Plus, ShoppingCart, Warning, X } from '@phosphor-icons/react'
+import { ChartBar, Clock, CurrencyCircleDollar, Lightning, MagnifyingGlass, Plus, ShoppingCart, Warning, X } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
@@ -190,78 +190,86 @@ export function PosPage() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem-56px)]">
-      {/* Shift info bar */}
-      {currentShift && (
-        <div className="flex items-center gap-2 px-4 py-1.5 bg-success/10 border-b border-success/20 text-sm text-success">
-          <Clock size={14} weight="fill" />
-          <span>Shift aktif sejak {shiftOpenedTime}</span>
-          <span className="text-success/60">|</span>
-          <span>Kas awal: {formatCurrency(currentShift.opening_cash)}</span>
+      {/* Tab bar + shift info */}
+      <div className="flex items-end gap-0 px-3 pt-2 bg-muted/30 border-b border-border">
+        {/* Tabs */}
+        <div className="flex items-end gap-0 flex-1 min-w-0 overflow-x-auto scrollbar-hide">
+          <LayoutGroup>
+            {tabs.map((tab) => {
+              const isActive = tab.id === activeTabId
+              const tabItemCount = tab.items.length
+              return (
+                <motion.button
+                  key={tab.id}
+                  layout
+                  type="button"
+                  onClick={() => switchTab(tab.id)}
+                  className={cn(
+                    'relative flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-t-lg transition-colors',
+                    'min-w-[100px] max-w-[160px] touch-manipulation',
+                    isActive
+                      ? 'bg-card text-foreground border border-b-0 border-border z-10 -mb-px'
+                      : 'bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50',
+                  )}
+                >
+                  <span className="truncate">{tab.label}</span>
+                  {tabItemCount > 0 && (
+                    <span
+                      className={cn(
+                        'shrink-0 text-[10px] font-bold rounded-full w-4.5 h-4.5 flex items-center justify-center',
+                        isActive
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted-foreground/20 text-muted-foreground',
+                      )}
+                    >
+                      {tabItemCount}
+                    </span>
+                  )}
+                  {tabs.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleCloseTab(tab.id)
+                      }}
+                      className={cn(
+                        'shrink-0 rounded-full p-0.5 transition-colors',
+                        isActive
+                          ? 'hover:bg-destructive/10 text-muted-foreground hover:text-destructive'
+                          : 'hover:bg-destructive/10 text-muted-foreground/50 hover:text-destructive',
+                      )}
+                    >
+                      <X size={12} weight="bold" />
+                    </button>
+                  )}
+                </motion.button>
+              )
+            })}
+          </LayoutGroup>
+          {tabs.length < 3 && (
+            <button
+              type="button"
+              onClick={addTab}
+              className="shrink-0 flex items-center justify-center w-8 h-8 mb-0.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors touch-manipulation"
+              aria-label="Tambah pelanggan"
+            >
+              <Plus size={16} weight="bold" />
+            </button>
+          )}
         </div>
-      )}
-      {/* Cart tabs bar */}
-      <div className="flex items-end gap-0 px-3 pt-2 bg-muted/30 border-b border-border overflow-x-auto scrollbar-hide">
-        <LayoutGroup>
-          {tabs.map((tab) => {
-            const isActive = tab.id === activeTabId
-            const itemCount = tab.items.length
-            return (
-              <motion.button
-                key={tab.id}
-                layout
-                type="button"
-                onClick={() => switchTab(tab.id)}
-                className={cn(
-                  'relative flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-t-lg transition-colors',
-                  'min-w-[100px] max-w-[160px] touch-manipulation',
-                  isActive
-                    ? 'bg-card text-foreground border border-b-0 border-border z-10 -mb-px'
-                    : 'bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50',
-                )}
-              >
-                <span className="truncate">{tab.label}</span>
-                {itemCount > 0 && (
-                  <span
-                    className={cn(
-                      'shrink-0 text-[10px] font-bold rounded-full w-4.5 h-4.5 flex items-center justify-center',
-                      isActive
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted-foreground/20 text-muted-foreground',
-                    )}
-                  >
-                    {itemCount}
-                  </span>
-                )}
-                {tabs.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleCloseTab(tab.id)
-                    }}
-                    className={cn(
-                      'shrink-0 rounded-full p-0.5 transition-colors',
-                      isActive
-                        ? 'hover:bg-destructive/10 text-muted-foreground hover:text-destructive'
-                        : 'hover:bg-destructive/10 text-muted-foreground/50 hover:text-destructive',
-                    )}
-                  >
-                    <X size={12} weight="bold" />
-                  </button>
-                )}
-              </motion.button>
-            )
-          })}
-        </LayoutGroup>
-        {tabs.length < 3 && (
-          <button
-            type="button"
-            onClick={addTab}
-            className="shrink-0 flex items-center justify-center w-8 h-8 mb-0.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors touch-manipulation"
-            aria-label="Tambah pelanggan"
-          >
-            <Plus size={16} weight="bold" />
-          </button>
+
+        {/* Shift info — compact */}
+        {currentShift && (
+          <div className="hidden md:flex items-center gap-2 mb-1.5 ml-2 shrink-0">
+            <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+              <Clock size={12} weight="fill" className="text-success" />
+              {shiftOpenedTime}
+            </span>
+            <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+              <CurrencyCircleDollar size={12} weight="fill" className="text-success" />
+              {formatCurrency(currentShift.opening_cash)}
+            </span>
+          </div>
         )}
       </div>
 

@@ -511,7 +511,7 @@ export function CustomerSearch() {
                 value={regReferralCode}
                 onChange={(e) => setRegReferralCode(e.target.value.toUpperCase())}
                 maxLength={8}
-                className="h-10 uppercase"
+                className="h-10"
               />
             </div>
           </div>
