@@ -160,7 +160,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
         {items.map((item) => (
           <div key={item.id} className="flex justify-between">
             <span className="truncate mr-2">
-              {item.serviceName} x{item.quantity}
+              {item.serviceName} &middot; {item.quantity} {item.unit}
             </span>
             <span className="shrink-0 tabular-nums">{formatCurrency(item.subtotal)}</span>
           </div>
@@ -186,7 +186,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
         )}
         <Separator className="my-2" />
         <div className="flex justify-between items-center">
-          <span className="font-bold text-lg font-sans">Total</span>
+          <span className="font-bold text-lg font-mono">Total</span>
           <span className="font-bold text-2xl tabular-nums">{formatCurrency(total)}</span>
         </div>
       </div>
@@ -405,7 +405,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
                 {/* Left: Order summary */}
                 <div className="flex-1 p-6 min-w-0">
                   <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-3">
-                    Ringkasan Pesanan
+                    Detail Item
                   </p>
                   {orderSummary}
                 </div>
