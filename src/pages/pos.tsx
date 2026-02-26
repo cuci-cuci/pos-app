@@ -33,6 +33,7 @@ export function PosPage() {
   const userRole = useAuthStore((s) => s.user?.role)
   const cartItems = useCartStore((s) => s.items)
   const addItem = useCartStore((s) => s.addItem)
+  const removeItem = useCartStore((s) => s.removeItem)
   const getTotal = useCartStore((s) => s.getTotal)
   const tabs = useCartStore((s) => s.tabs)
   const activeTabId = useCartStore((s) => s.activeTabId)
@@ -533,6 +534,10 @@ export function PosPage() {
               cartItems.find((ci) => ci.serviceId === quantityService.id)?.quantity
             }
             onConfirm={handleConfirmQuantity}
+            onRemove={() => {
+              const cartItem = cartItems.find((ci) => ci.serviceId === quantityService.id)
+              if (cartItem) removeItem(cartItem.id)
+            }}
           />
         )}
 

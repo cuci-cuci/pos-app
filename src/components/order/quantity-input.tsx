@@ -1,4 +1,4 @@
-import { Backspace, Minus, Plus } from '@phosphor-icons/react'
+import { Backspace, Minus, Plus, Trash } from '@phosphor-icons/react'
 import { useCallback, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -14,6 +14,7 @@ interface QuantityInputProps {
   pricePerUnit: number
   currentCartQuantity?: number
   onConfirm: (quantity: number) => void
+  onRemove?: () => void
 }
 
 const NUMPAD_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const
@@ -26,6 +27,7 @@ export function QuantityInput({
   pricePerUnit,
   currentCartQuantity,
   onConfirm,
+  onRemove,
 }: QuantityInputProps) {
   const isKg = unit === 'kg'
   const step = isKg ? 0.5 : 1
@@ -200,8 +202,21 @@ export function QuantityInput({
             </div>
 
             {/* Confirm button — mobile only (tablet has it below both columns) */}
-            <div className="md:hidden">
-              <Button size="lg" className="w-full h-12 text-base font-bold" onClick={handleConfirm}>
+            <div className="md:hidden flex gap-2">
+              {currentCartQuantity && onRemove && (
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="h-12 px-4"
+                  onClick={() => {
+                    onRemove()
+                    onOpenChange(false)
+                  }}
+                >
+                  <Trash size={20} weight="bold" />
+                </Button>
+              )}
+              <Button size="lg" className="flex-1 h-12 text-base font-bold" onClick={handleConfirm}>
                 {currentCartQuantity ? 'Perbarui' : 'Tambah ke Keranjang'} &middot;{' '}
                 {formatCurrency(subtotal)}
               </Button>
@@ -272,8 +287,21 @@ export function QuantityInput({
         </div>
 
         {/* Confirm button — tablet: full-width row below both columns */}
-        <div className="hidden md:block border-t border-border p-4">
-          <Button size="lg" className="w-full h-12 text-base font-bold" onClick={handleConfirm}>
+        <div className="hidden md:flex gap-2 border-t border-border p-4">
+          {currentCartQuantity && onRemove && (
+            <Button
+              size="lg"
+              variant="outline"
+              className="h-12 px-4"
+              onClick={() => {
+                onRemove()
+                onOpenChange(false)
+              }}
+            >
+              <Trash size={20} weight="bold" />
+            </Button>
+          )}
+          <Button size="lg" className="flex-1 h-12 text-base font-bold" onClick={handleConfirm}>
             {currentCartQuantity ? 'Perbarui' : 'Tambah ke Keranjang'} &middot;{' '}
             {formatCurrency(subtotal)}
           </Button>
