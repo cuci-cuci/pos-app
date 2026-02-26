@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CircleNotch, Eye, EyeSlash, WarningCircle } from '@phosphor-icons/react'
 import { Link, useRouter } from '@tanstack/react-router'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -88,28 +89,55 @@ export function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/60 p-4">
-      <div className="w-full max-w-[400px]">
-        {/* Header bar — flush top */}
-        <div className="bg-foreground/5 rounded-t-xl px-5 py-3">
+      <motion.div
+        className="w-full max-w-[400px]"
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      >
+        {/* Header bar — tucked behind card with negative margin */}
+        <motion.div
+          className="bg-foreground/5 rounded-t-xl px-5 pt-4 pb-6 -mb-3 relative z-0"
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.1 }}
+        >
           <span className="text-sm font-medium text-muted-foreground">Masuk atau daftar</span>
-        </div>
+        </motion.div>
 
         {/* Main card */}
-        <div className="bg-card border rounded-xl overflow-hidden">
+        <motion.div
+          className="bg-card border rounded-xl overflow-hidden relative z-10"
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, delay: 0.15 }}
+        >
           <div className="px-6 py-8">
             {/* Welcome heading */}
-            <h1 className="text-2xl font-bold tracking-tight mb-8">
+            <motion.h1
+              className="text-2xl font-bold tracking-tight mb-8"
+              initial={{ opacity: 0, x: -12 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.35, delay: 0.25 }}
+            >
               Selamat Datang di{' '}
               <span className="text-primary">{APP_NAME}</span>
-            </h1>
+            </motion.h1>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-              {error && (
-                <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/20 text-destructive text-sm rounded-xl p-3">
-                  <WarningCircle size={18} weight="fill" className="shrink-0 mt-0.5" />
-                  <span>{error}</span>
-                </div>
-              )}
+              <AnimatePresence>
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="flex items-start gap-2 bg-destructive/10 border border-destructive/20 text-destructive text-sm rounded-xl p-3"
+                  >
+                    <WarningCircle size={18} weight="fill" className="shrink-0 mt-0.5" />
+                    <span>{error}</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <div className="space-y-1.5">
                 <label htmlFor="email" className="text-sm font-medium text-muted-foreground">
@@ -208,10 +236,15 @@ export function LoginPage() {
               </div>
             </form>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Footer bar — flush bottom */}
-        <div className="bg-foreground/5 rounded-b-xl px-5 py-3">
+        {/* Footer bar — tucked behind card with negative margin */}
+        <motion.div
+          className="bg-foreground/5 rounded-b-xl px-5 pt-6 pb-4 -mt-3 relative z-0"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.1 }}
+        >
           <p className="text-sm text-muted-foreground">
             Butuh bantuan? Hubungi kami di{' '}
             <a
@@ -221,8 +254,8 @@ export function LoginPage() {
               help@kelarin.co.id
             </a>
           </p>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   )
 }
