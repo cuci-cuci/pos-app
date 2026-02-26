@@ -157,8 +157,8 @@ export function QuantityInput({
               ))}
             </div>
 
-            {/* Custom input */}
-            <div className="mt-3">
+            {/* Custom input — mobile only (tablet uses numpad) */}
+            <div className="mt-3 md:hidden">
               <Input
                 type="number"
                 inputMode="decimal"
@@ -207,13 +207,13 @@ export function QuantityInput({
           </div>
 
           {/* Column 2: Numpad — tablet only */}
-          <div className="hidden md:flex flex-col border-l border-border bg-muted/30 p-4 w-[240px] shrink-0">
+          <div className="hidden md:flex flex-col border-l border-border bg-muted/30 p-4 w-[260px] shrink-0">
             <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">
-              Kalkulator
+              Jumlah Kustom
             </p>
 
             {/* Numpad display */}
-            <div className="bg-card border rounded-lg px-3 py-2.5 mb-3 min-h-[48px] flex items-center">
+            <div className="bg-card border rounded-lg px-3 py-2.5 mb-3 flex items-center">
               <span
                 className={cn(
                   'text-2xl font-bold flex-1 text-right tabular-nums',
@@ -225,14 +225,14 @@ export function QuantityInput({
               <span className="text-xs text-muted-foreground ml-2">{unit}</span>
             </div>
 
-            {/* Numpad grid */}
-            <div className="grid grid-cols-3 gap-1.5 flex-1">
+            {/* Numpad grid — fills remaining height */}
+            <div className="grid grid-cols-3 grid-rows-4 gap-1.5 flex-1 min-h-0">
               {NUMPAD_KEYS.map((key) => (
                 <button
                   type="button"
                   key={key}
                   onClick={() => handleNumpadKey(key)}
-                  className="h-12 rounded-lg bg-card border text-lg font-semibold hover:bg-accent active:bg-accent/80 transition-colors touch-manipulation"
+                  className="rounded-lg bg-card border text-lg font-semibold hover:bg-accent active:bg-accent/80 transition-colors touch-manipulation"
                 >
                   {key}
                 </button>
@@ -243,7 +243,7 @@ export function QuantityInput({
                 onClick={() => handleNumpadKey('.')}
                 disabled={!isKg}
                 className={cn(
-                  'h-12 rounded-lg bg-card border text-lg font-semibold transition-colors touch-manipulation',
+                  'rounded-lg bg-card border text-lg font-semibold transition-colors touch-manipulation',
                   isKg
                     ? 'hover:bg-accent active:bg-accent/80'
                     : 'opacity-30 cursor-not-allowed',
@@ -254,14 +254,14 @@ export function QuantityInput({
               <button
                 type="button"
                 onClick={() => handleNumpadKey('0')}
-                className="h-12 rounded-lg bg-card border text-lg font-semibold hover:bg-accent active:bg-accent/80 transition-colors touch-manipulation"
+                className="rounded-lg bg-card border text-lg font-semibold hover:bg-accent active:bg-accent/80 transition-colors touch-manipulation"
               >
                 0
               </button>
               <button
                 type="button"
                 onClick={() => handleNumpadKey('backspace')}
-                className="h-12 rounded-lg bg-card border text-lg font-semibold hover:bg-accent active:bg-accent/80 transition-colors touch-manipulation flex items-center justify-center"
+                className="rounded-lg bg-card border text-lg font-semibold hover:bg-accent active:bg-accent/80 transition-colors touch-manipulation flex items-center justify-center"
               >
                 <Backspace size={20} weight="bold" />
               </button>
@@ -271,7 +271,7 @@ export function QuantityInput({
             <button
               type="button"
               onClick={handleNumpadClear}
-              className="mt-2 h-10 rounded-lg bg-card border text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors touch-manipulation"
+              className="mt-1.5 h-10 rounded-lg bg-card border text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors touch-manipulation shrink-0"
             >
               Hapus
             </button>
