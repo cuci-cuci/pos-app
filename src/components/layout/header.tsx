@@ -80,9 +80,16 @@ export function Header() {
           onClick={() => setUserMenuOpen(true)}
           className="flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity"
         >
-          <span className="text-sm text-muted-foreground hidden sm:block truncate max-w-[120px]">
-            {firstName}
-          </span>
+          <div className="hidden sm:block min-w-0 text-right">
+            <p className="text-sm font-medium leading-tight truncate max-w-[120px]">
+              {firstName}
+            </p>
+            {user?.email && (
+              <p className="text-[10px] text-muted-foreground leading-tight truncate max-w-[120px]">
+                {user.email}
+              </p>
+            )}
+          </div>
           <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold shrink-0">
             {avatarLetter}
           </div>

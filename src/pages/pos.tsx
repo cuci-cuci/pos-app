@@ -2,7 +2,7 @@ import { ChartBar, Clock, Lightning, MagnifyingGlass, Plus, ShoppingCart, Warnin
 import { useRouter } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CartPanel } from '@/components/order/cart-panel'
 import { QuantityInput } from '@/components/order/quantity-input'
 import { ServiceCard } from '@/components/order/service-card'
@@ -51,6 +51,39 @@ export function PosPage() {
   const [cartSheetOpen, setCartSheetOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [closeTabConfirm, setCloseTabConfirm] = useState<string | null>(null)
+
+  // Resizable cart panel
+  const CART_MIN = 260
+  const CART_MAX = 500
+  const CART_DEFAULT = 340
+  const [cartWidth, setCartWidth] = useState(CART_DEFAULT)
+  const isDragging = useRef(false)
+
+  const handleDragStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    isDragging.current = true
+    const startX = e.clientX
+    const startWidth = cartWidth
+
+    const onMouseMove = (ev: MouseEvent) => {
+      if (!isDragging.current) return
+      const delta = startX - ev.clientX
+      setCartWidth(Math.min(CART_MAX, Math.max(CART_MIN, startWidth + delta)))
+    }
+
+    const onMouseUp = () => {
+      isDragging.current = false
+      document.removeEventListener('mousemove', onMouseMove)
+      document.removeEventListener('mouseup', onMouseUp)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+    document.addEventListener('mousemove', onMouseMove)
+    document.addEventListener('mouseup', onMouseUp)
+  }, [cartWidth])
 
   const handleTransactionComplete = useCallback((_tx: Transaction) => {
     setCartSheetOpen(false)
@@ -420,7 +453,15 @@ export function PosPage() {
         </div>
 
         {/* Right: Cart (tablet+) */}
-        <div className="hidden md:flex md:w-[280px] lg:w-[340px] xl:w-[400px] border-l border-border bg-card flex-col">
+        <div
+          className="hidden md:flex border-l border-border bg-card flex-col relative shrink-0"
+          style={{ width: cartWidth }}
+        >
+          {/* Drag handle */}
+          <div
+            className="absolute left-0 top-0 bottom-0 w-1.5 cursor-col-resize hover:bg-primary/20 active:bg-primary/30 transition-colors z-10"
+            onMouseDown={handleDragStart}
+          />
           <CartPanel onTransactionComplete={handleTransactionComplete} />
         </div>
 

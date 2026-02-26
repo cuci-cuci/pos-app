@@ -346,7 +346,7 @@ export function CustomerSearch() {
             onClick={handleOpenRegister}
           >
             <UserPlus size={16} weight="bold" />
-            <span className="hidden sm:inline">Daftar Member</span>
+            <span className="hidden sm:inline">Daftar</span>
           </Button>
         </div>
 
@@ -431,7 +431,7 @@ export function CustomerSearch() {
             <p className="text-sm text-muted-foreground mb-2">Tidak ditemukan</p>
             <Button variant="outline" size="sm" className="gap-1" onClick={handleOpenRegister}>
               <UserPlus size={14} weight="bold" />
-              Daftar Member Baru
+              Daftar
             </Button>
           </div>
         )}
