@@ -13,28 +13,6 @@ interface ServiceCardProps {
   onSelect: (service: Service) => void
 }
 
-function CartBadge({ quantity, size = 'md' }: { quantity: number; size?: 'sm' | 'md' }) {
-  return (
-    <AnimatePresence mode="popLayout">
-      {quantity > 0 && (
-        <motion.span
-          key={quantity}
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          exit={{ scale: 0 }}
-          transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-          className={cn(
-            'absolute -top-2 -right-2 bg-primary text-primary-foreground font-bold rounded-full flex items-center justify-center z-10',
-            size === 'sm' ? 'text-[10px] w-5 h-5' : 'text-[10px] w-6 h-6',
-          )}
-        >
-          x{quantity}
-        </motion.span>
-      )}
-    </AnimatePresence>
-  )
-}
-
 export function ServiceCard({
   service,
   categoryName,
@@ -45,60 +23,124 @@ export function ServiceCard({
 }: ServiceCardProps) {
   const IconComp = getCategoryIcon(categoryName, categoryIcon)
   const iconColor = getCategoryColor(categoryName, categoryIcon)
+  const isActive = cartQuantity != null && cartQuantity > 0
 
   if (compact) {
     return (
+      <div className="relative">
+        <motion.button
+          type="button"
+          onClick={() => onSelect(service)}
+          whileTap={{ scale: 0.97 }}
+          className={cn(
+            'relative flex flex-col p-2.5 w-full',
+            'min-h-[72px] transition-all text-left no-select',
+            'touch-manipulation',
+            isActive
+              ? 'bg-primary text-primary-foreground rounded-t-xl z-10'
+              : 'bg-card hover:bg-accent active:bg-accent rounded-xl border',
+          )}
+        >
+          <IconComp
+            size={14}
+            weight="fill"
+            className={cn(isActive ? 'text-primary-foreground/70' : iconColor, 'mb-1')}
+          />
+          <span className="text-xs font-bold leading-tight line-clamp-2 mb-0.5">
+            {service.name}
+          </span>
+          <span className={cn('text-[10px]', isActive ? 'text-primary-foreground/60' : 'text-muted-foreground')}>
+            per {service.unit}
+          </span>
+          <span className={cn('font-semibold text-xs mt-auto', isActive ? 'text-primary-foreground' : 'text-primary')}>
+            {formatCurrency(service.pricePerUnit)}
+          </span>
+        </motion.button>
+
+        {/* Active stacked bottom layer */}
+        <AnimatePresence>
+          {isActive && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="bg-primary/80 rounded-b-xl px-2.5 pt-3 pb-2 -mt-1.5 relative z-0"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-semibold text-primary-foreground/80">
+                  x{cartQuantity}
+                </span>
+                <span className="text-[10px] font-bold text-primary-foreground">
+                  {formatCurrency(service.pricePerUnit * cartQuantity!)}
+                </span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    )
+  }
+
+  return (
+    <div className="relative">
       <motion.button
         type="button"
         onClick={() => onSelect(service)}
         whileTap={{ scale: 0.97 }}
         className={cn(
-          'relative flex flex-col p-2.5 rounded-[var(--radius)] border',
-          'bg-card hover:bg-accent active:bg-accent',
-          'min-h-[72px] transition-colors text-left no-select',
+          'relative flex flex-col p-4 w-full',
+          'min-h-[100px] transition-all text-left no-select',
           'touch-manipulation',
-          cartQuantity && cartQuantity > 0 && 'border-primary/30',
+          isActive
+            ? 'bg-primary text-primary-foreground rounded-t-xl z-10'
+            : 'bg-card hover:bg-accent active:bg-accent rounded-xl border',
         )}
       >
-        <CartBadge quantity={cartQuantity ?? 0} size="sm" />
-        <IconComp size={14} weight="fill" className={cn(iconColor, 'mb-1')} />
-        <span className="text-xs font-bold leading-tight line-clamp-2 mb-0.5">{service.name}</span>
-        <span className="text-[10px] text-muted-foreground">per {service.unit}</span>
-        <span className="text-primary font-semibold text-xs mt-auto">
+        {/* Category icon */}
+        <IconComp
+          size={18}
+          weight="fill"
+          className={cn(isActive ? 'text-primary-foreground/70' : iconColor, 'mb-2')}
+        />
+
+        {/* Service name */}
+        <span className="text-sm font-bold leading-tight line-clamp-2 mb-1">
+          {service.name}
+        </span>
+
+        {/* Unit label */}
+        <span className={cn('text-xs mb-2', isActive ? 'text-primary-foreground/60' : 'text-muted-foreground')}>
+          per {service.unit}
+        </span>
+
+        {/* Price */}
+        <span className={cn('font-semibold text-base mt-auto', isActive ? 'text-primary-foreground' : 'text-primary')}>
           {formatCurrency(service.pricePerUnit)}
         </span>
       </motion.button>
-    )
-  }
 
-  return (
-    <motion.button
-      type="button"
-      onClick={() => onSelect(service)}
-      whileTap={{ scale: 0.97 }}
-      className={cn(
-        'relative flex flex-col p-4 rounded-[var(--radius)] border',
-        'bg-card hover:bg-accent active:bg-accent',
-        'min-h-[100px] transition-colors text-left no-select',
-        'touch-manipulation',
-        cartQuantity && cartQuantity > 0 && 'border-primary/30',
-      )}
-    >
-      <CartBadge quantity={cartQuantity ?? 0} />
-
-      {/* Category icon */}
-      <IconComp size={18} weight="fill" className={cn(iconColor, 'mb-2')} />
-
-      {/* Service name */}
-      <span className="text-sm font-bold leading-tight line-clamp-2 mb-1">{service.name}</span>
-
-      {/* Unit label */}
-      <span className="text-xs text-muted-foreground mb-2">per {service.unit}</span>
-
-      {/* Price */}
-      <span className="text-primary font-semibold text-base mt-auto">
-        {formatCurrency(service.pricePerUnit)}
-      </span>
-    </motion.button>
+      {/* Active stacked bottom layer — dark blue with total */}
+      <AnimatePresence>
+        {isActive && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="bg-primary/80 rounded-b-xl px-4 pt-4 pb-2.5 -mt-2 relative z-0"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-primary-foreground/80">
+                x{cartQuantity}
+              </span>
+              <span className="text-sm font-bold text-primary-foreground">
+                {formatCurrency(service.pricePerUnit * cartQuantity!)}
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   )
 }
