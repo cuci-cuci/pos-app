@@ -240,16 +240,16 @@ export function LoginPage() {
 
         {/* Footer bar — tucked behind card with negative margin */}
         <motion.div
-          className="bg-foreground/5 rounded-b-xl px-5 pt-6 pb-4 -mt-3 relative z-0"
+          className="bg-primary rounded-b-xl px-5 pt-6 pb-4 -mt-3 relative z-0"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.1 }}
         >
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-primary-foreground/80">
             Butuh bantuan? Hubungi kami di{' '}
             <a
               href="mailto:help@kelarin.co.id"
-              className="text-primary font-medium hover:text-primary/80"
+              className="text-primary-foreground font-medium hover:underline"
             >
               help@kelarin.co.id
             </a>
