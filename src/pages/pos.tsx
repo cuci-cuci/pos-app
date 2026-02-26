@@ -189,7 +189,7 @@ export function PosPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem-56px)]">
       {/* Tab bar */}
-      <div className="flex items-end gap-0 px-3 pt-2 bg-muted/30 border-b border-border overflow-x-auto scrollbar-hide">
+      <div className="flex items-end gap-0 px-3 pt-2 bg-muted/30 border-b border-border overflow-hidden">
           <LayoutGroup>
             {tabs.map((tab) => {
               const isActive = tab.id === activeTabId
@@ -202,7 +202,7 @@ export function PosPage() {
                   onClick={() => switchTab(tab.id)}
                   className={cn(
                     'relative flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-t-lg transition-colors',
-                    'min-w-[100px] max-w-[160px] touch-manipulation',
+                    'max-w-[160px] touch-manipulation',
                     isActive
                       ? 'bg-card text-foreground border border-b-0 border-border z-10 -mb-px'
                       : 'bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50',
