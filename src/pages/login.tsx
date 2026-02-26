@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CircleNotch, WarningCircle } from '@phosphor-icons/react'
+import { CircleNotch, Eye, EyeSlash, WarningCircle } from '@phosphor-icons/react'
 import { Link, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -31,6 +31,8 @@ export function LoginPage() {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [loginState, setLoginState] = useState<LoginState>('idle')
+  const [showPassword, setShowPassword] = useState(false)
+  const [agreedTnc, setAgreedTnc] = useState(true)
 
   const {
     register,
@@ -110,7 +112,7 @@ export function LoginPage() {
               )}
 
               <div className="space-y-1.5">
-                <label htmlFor="email" className="text-sm font-medium">
+                <label htmlFor="email" className="text-sm font-medium text-muted-foreground">
                   Alamat email
                 </label>
                 <Input
@@ -128,7 +130,7 @@ export function LoginPage() {
 
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <label htmlFor="password" className="text-sm font-medium">
+                  <label htmlFor="password" className="text-sm font-medium text-muted-foreground">
                     Password
                   </label>
                   <Link
@@ -138,21 +140,57 @@ export function LoginPage() {
                     Reset password
                   </Link>
                 </div>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Masukkan password"
-                  autoComplete="current-password"
-                  disabled={isLoading}
-                  {...register('password')}
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Masukkan password"
+                    autoComplete="current-password"
+                    disabled={isLoading}
+                    className="pr-10"
+                    {...register('password')}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? (
+                      <EyeSlash size={18} weight="bold" />
+                    ) : (
+                      <Eye size={18} weight="bold" />
+                    )}
+                  </button>
+                </div>
                 {errors.password && (
                   <p className="text-xs text-destructive">{errors.password.message}</p>
                 )}
               </div>
 
+              {/* Terms checkbox */}
+              <div className="space-y-2">
+                <label className="flex items-start gap-2.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={agreedTnc}
+                    onChange={(e) => setAgreedTnc(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 rounded border-input text-primary accent-primary"
+                  />
+                  <span className="text-sm text-muted-foreground leading-tight">
+                    Dengan masuk, saya menyetujui{' '}
+                    <span className="text-primary font-medium">Syarat & Ketentuan</span>
+                  </span>
+                </label>
+              </div>
+
               <div className="flex items-center gap-3 pt-2">
-                <Button type="submit" size="lg" className="h-11 px-8" disabled={isLoading}>
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="h-11 px-8"
+                  disabled={isLoading || !agreedTnc}
+                >
                   {isLoading ? (
                     <span className="flex items-center gap-2">
                       <CircleNotch size={18} weight="bold" className="animate-spin" />
@@ -174,7 +212,13 @@ export function LoginPage() {
           {/* Footer */}
           <div className="px-6 py-4 border-t">
             <p className="text-sm text-muted-foreground">
-              Belum yakin? Coba gunakan email bisnis Anda untuk masuk.
+              Butuh bantuan? Hubungi kami di{' '}
+              <a
+                href="mailto:help@kelarin.co.id"
+                className="text-primary font-medium hover:text-primary/80"
+              >
+                help@kelarin.co.id
+              </a>
             </p>
           </div>
         </div>
