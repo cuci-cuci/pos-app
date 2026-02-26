@@ -8,10 +8,12 @@ interface DeviceState {
   outletName: string
   isSetupComplete: boolean
   setupCompletedAt: string | null
+  soundEnabled: boolean
   setDevice: (config: { deviceName?: string; outletId?: string; outletName?: string }) => void
   completeSetup: () => void
   resetDevice: () => void
   isDeviceReady: () => boolean
+  setSoundEnabled: (enabled: boolean) => void
 }
 
 export const useDeviceStore = create<DeviceState>()(
@@ -23,6 +25,7 @@ export const useDeviceStore = create<DeviceState>()(
       outletName: '',
       isSetupComplete: false,
       setupCompletedAt: null,
+      soundEnabled: true,
       setDevice: (config) => set({ ...config }),
       completeSetup: () =>
         set({ isSetupComplete: true, setupCompletedAt: new Date().toISOString() }),
@@ -35,6 +38,7 @@ export const useDeviceStore = create<DeviceState>()(
           setupCompletedAt: null,
         }),
       isDeviceReady: () => get().isSetupComplete && get().outletId !== '',
+      setSoundEnabled: (enabled) => set({ soundEnabled: enabled }),
     }),
     { name: 'laundry-pos-device' },
   ),

@@ -6,6 +6,7 @@ import {
   useCallback,
   useEffect,
   useRef,
+  useState,
 } from 'react'
 import { cn } from '@/lib/utils'
 
@@ -35,8 +36,6 @@ function Sheet({ open, onOpenChange, children }: SheetProps) {
 
   const handleBackdropClick = useCallback(
     (e: MouseEvent<HTMLDialogElement>) => {
-      // Click directly on the <dialog> element means the backdrop was clicked
-      // (clicking content hits child elements, not the dialog itself)
       if (e.target === dialogRef.current) {
         onOpenChange(false)
       }
@@ -70,10 +69,23 @@ function Sheet({ open, onOpenChange, children }: SheetProps) {
 }
 
 function SheetContent({ className, children, ...props }: HTMLAttributes<HTMLDivElement>) {
+  const [animating, setAnimating] = useState(true)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const handler = () => setAnimating(false)
+    el.addEventListener('animationend', handler)
+    return () => el.removeEventListener('animationend', handler)
+  }, [])
+
   return (
     <div
+      ref={ref}
       className={cn(
-        'bg-card rounded-t-[var(--radius)] w-full max-w-lg mx-auto max-h-[85vh] overflow-y-auto p-6 shadow-lg border-t',
+        'bg-card rounded-t-[var(--radius)] w-full max-w-lg mx-auto max-h-[85vh] p-6 shadow-lg border-t',
+        animating ? 'overflow-hidden' : 'overflow-y-auto',
         className,
       )}
       style={{
