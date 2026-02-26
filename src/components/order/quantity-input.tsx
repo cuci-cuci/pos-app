@@ -112,9 +112,17 @@ export function QuantityInput({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange} className="md:max-w-2xl">
-      <DialogContent className="p-0 overflow-hidden">
+      {/* Header layer — stacked behind the card */}
+      <div className="bg-foreground/5 rounded-t-xl px-5 pt-4 pb-6 -mb-3 relative z-0">
+        <p className="text-sm text-muted-foreground">
+          {serviceName} &middot; {formatCurrency(pricePerUnit)} / {unit}
+        </p>
+      </div>
+
+      {/* Main card */}
+      <DialogContent className="p-0 overflow-hidden relative z-10 rounded-xl">
         <div className="flex flex-col md:flex-row">
-          {/* Column 1: Service info, presets, stepper */}
+          {/* Column 1: Presets, stepper */}
           <div className="flex-1 p-6">
             <DialogHeader>
               <DialogTitle>{serviceName}</DialogTitle>
@@ -273,6 +281,13 @@ export function QuantityInput({
           </Button>
         </div>
       </DialogContent>
+
+      {/* Footer layer — stacked behind the card */}
+      <div className="bg-foreground/5 rounded-b-xl px-5 pt-6 pb-4 -mt-3 relative z-0">
+        <p className="text-xs text-muted-foreground text-center">
+          {currentCartQuantity ? `Jumlah saat ini: ${currentCartQuantity} ${unit}` : `Harga per ${unit}: ${formatCurrency(pricePerUnit)}`}
+        </p>
+      </div>
     </Dialog>
   )
 }
