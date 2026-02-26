@@ -233,7 +233,7 @@ export function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/60 p-4">
       <motion.div
-        className="w-full max-w-[540px]"
+        className="w-full max-w-2xl"
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
@@ -257,9 +257,44 @@ export function RegisterPage() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.4, delay: 0.15 }}
         >
-          <div className="flex min-h-[420px]">
-            {/* Left sidebar stepper */}
-            <div className="w-[180px] shrink-0 bg-muted/40 border-r p-5 flex flex-col gap-2">
+          {/* Mobile horizontal stepper */}
+          <div className="flex items-center gap-2 p-4 border-b md:hidden">
+            {STEPS.map((s, i) => {
+              const Icon = s.icon
+              const isActive = i === currentStep
+              const isDone = i < currentStep
+              return (
+                <div key={s.id} className="flex items-center gap-2 flex-1">
+                  <button
+                    type="button"
+                    onClick={() => { if (isDone) setCurrentStep(i) }}
+                    className={cn(
+                      'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all w-full',
+                      isActive
+                        ? 'bg-foreground/5 text-foreground'
+                        : isDone
+                          ? 'bg-emerald-50 text-emerald-700 cursor-pointer'
+                          : 'text-muted-foreground',
+                    )}
+                  >
+                    {isDone ? (
+                      <CheckCircle size={16} weight="fill" className="text-emerald-500 shrink-0" />
+                    ) : (
+                      <Icon size={16} weight={isActive ? 'fill' : 'regular'} className="shrink-0" />
+                    )}
+                    <span>{s.label}</span>
+                  </button>
+                  {i < STEPS.length - 1 && (
+                    <div className={cn('h-px w-4 shrink-0', isDone ? 'bg-emerald-300' : 'bg-border')} />
+                  )}
+                </div>
+              )
+            })}
+          </div>
+
+          <div className="flex flex-1 min-h-[420px]">
+            {/* Left sidebar stepper — hidden on mobile */}
+            <div className="hidden md:flex w-[200px] shrink-0 bg-muted/40 border-r p-5 flex-col gap-2">
               {STEPS.map((s, i) => {
                 const Icon = s.icon
                 const isActive = i === currentStep
@@ -274,9 +309,9 @@ export function RegisterPage() {
                     className={cn(
                       'flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all text-left w-full',
                       isActive
-                        ? 'bg-primary/10 text-primary'
+                        ? 'bg-foreground/5 text-foreground'
                         : isDone
-                          ? 'bg-primary text-primary-foreground cursor-pointer'
+                          ? 'text-emerald-700 cursor-pointer'
                           : 'text-muted-foreground',
                     )}
                   >
@@ -284,14 +319,14 @@ export function RegisterPage() {
                       className={cn(
                         'w-7 h-7 rounded-lg flex items-center justify-center shrink-0',
                         isActive
-                          ? 'bg-primary text-primary-foreground'
+                          ? 'bg-foreground/10'
                           : isDone
-                            ? 'bg-primary-foreground/20'
-                            : 'bg-foreground/10',
+                            ? 'bg-emerald-100'
+                            : 'bg-foreground/5',
                       )}
                     >
                       {isDone ? (
-                        <CheckCircle size={14} weight="fill" />
+                        <CheckCircle size={14} weight="fill" className="text-emerald-500" />
                       ) : (
                         <Icon size={14} weight={isActive ? 'fill' : 'regular'} />
                       )}
