@@ -96,9 +96,12 @@ export function SetupPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.1 }}
         >
-          <p className="text-sm text-muted-foreground">
-            Setup perangkat — <span className="font-semibold text-foreground">{tenantName}</span>
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              Setup perangkat — <span className="font-semibold text-foreground">{tenantName}</span>
+            </p>
+            <p className="text-sm text-muted-foreground">{user?.email}</p>
+          </div>
         </motion.div>
 
         {/* Main card */}
