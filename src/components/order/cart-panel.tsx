@@ -33,6 +33,8 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
     setEstimatedDuration,
     clear,
     getSubtotal,
+    tabs,
+    activeTabId,
   } = useCartStore()
   const [paymentOpen, setPaymentOpen] = useState(false)
   const [notesExpanded, setNotesExpanded] = useState(false)
@@ -62,7 +64,9 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3">
-        <h2 className="font-semibold text-base">Keranjang ({items.length})</h2>
+        <h2 className="font-semibold text-base">
+          Keranjang{tabs.length > 1 ? ` — ${tabs.find((t) => t.id === activeTabId)?.label ?? ''}` : ''} ({items.length})
+        </h2>
         <button
           type="button"
           onClick={clear}

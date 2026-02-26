@@ -1,7 +1,7 @@
-import { ChartBar, Clock, Lightning, MagnifyingGlass, ShoppingCart } from '@phosphor-icons/react'
+import { ChartBar, Clock, Lightning, MagnifyingGlass, Plus, ShoppingCart, X } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { CartPanel } from '@/components/order/cart-panel'
 import { QuantityInput } from '@/components/order/quantity-input'
@@ -27,6 +27,11 @@ export function PosPage() {
   const cartItems = useCartStore((s) => s.items)
   const addItem = useCartStore((s) => s.addItem)
   const getTotal = useCartStore((s) => s.getTotal)
+  const tabs = useCartStore((s) => s.tabs)
+  const activeTabId = useCartStore((s) => s.activeTabId)
+  const addTab = useCartStore((s) => s.addTab)
+  const removeTab = useCartStore((s) => s.removeTab)
+  const switchTab = useCartStore((s) => s.switchTab)
   const { currentShift, fetchCurrentShift, loading: shiftLoading } = useShiftStore()
   const [openShiftDialogOpen, setOpenShiftDialogOpen] = useState(false)
 
@@ -176,6 +181,72 @@ export function PosPage() {
           <span>Kas awal: {formatCurrency(currentShift.opening_cash)}</span>
         </div>
       )}
+      {/* Cart tabs bar */}
+      <div className="flex items-end gap-0 px-3 pt-2 bg-muted/30 border-b border-border overflow-x-auto scrollbar-hide">
+        <LayoutGroup>
+          {tabs.map((tab) => {
+            const isActive = tab.id === activeTabId
+            const itemCount = tab.items.length
+            return (
+              <motion.button
+                key={tab.id}
+                layout
+                type="button"
+                onClick={() => switchTab(tab.id)}
+                className={cn(
+                  'relative flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-t-lg transition-colors',
+                  'min-w-[100px] max-w-[160px] touch-manipulation',
+                  isActive
+                    ? 'bg-card text-foreground border border-b-0 border-border z-10 -mb-px'
+                    : 'bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50',
+                )}
+              >
+                <span className="truncate">{tab.label}</span>
+                {itemCount > 0 && (
+                  <span
+                    className={cn(
+                      'shrink-0 text-[10px] font-bold rounded-full w-4.5 h-4.5 flex items-center justify-center',
+                      isActive
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted-foreground/20 text-muted-foreground',
+                    )}
+                  >
+                    {itemCount}
+                  </span>
+                )}
+                {tabs.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      removeTab(tab.id)
+                    }}
+                    className={cn(
+                      'shrink-0 rounded-full p-0.5 transition-colors',
+                      isActive
+                        ? 'hover:bg-destructive/10 text-muted-foreground hover:text-destructive'
+                        : 'hover:bg-destructive/10 text-muted-foreground/50 hover:text-destructive',
+                    )}
+                  >
+                    <X size={12} weight="bold" />
+                  </button>
+                )}
+              </motion.button>
+            )
+          })}
+        </LayoutGroup>
+        {tabs.length < 3 && (
+          <button
+            type="button"
+            onClick={addTab}
+            className="shrink-0 flex items-center justify-center w-8 h-8 mb-0.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors touch-manipulation"
+            aria-label="Tambah pelanggan"
+          >
+            <Plus size={16} weight="bold" />
+          </button>
+        )}
+      </div>
+
       <div className="flex flex-1 min-h-0">
         {/* Left: Services */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
