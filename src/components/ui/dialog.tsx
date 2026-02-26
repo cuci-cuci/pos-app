@@ -13,9 +13,10 @@ interface DialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   children: ReactNode
+  className?: string
 }
 
-function Dialog({ open, onOpenChange, children }: DialogProps) {
+function Dialog({ open, onOpenChange, children, className }: DialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {
@@ -62,7 +63,7 @@ function Dialog({ open, onOpenChange, children }: DialogProps) {
   return (
     <dialog
       ref={dialogRef}
-      className="m-auto backdrop:bg-black/50 bg-transparent p-0 max-w-lg w-[calc(100%-2rem)] open:animate-in open:fade-in-0 open:zoom-in-95"
+      className={cn('m-auto backdrop:bg-black/50 bg-transparent p-0 max-w-lg w-[calc(100%-2rem)] open:animate-in open:fade-in-0 open:zoom-in-95', className)}
       onClick={handleBackdropClick}
       onKeyDown={handleKeyDown}
       onClose={() => onOpenChange(false)}
