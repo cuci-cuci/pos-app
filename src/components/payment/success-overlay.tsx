@@ -223,12 +223,13 @@ export function SuccessOverlay({
 
               {/* Order info note */}
               <motion.div
-                className="mt-3 bg-blue-50 dark:bg-blue-950/30 rounded-xl p-3 mx-4 w-full max-w-sm text-center"
+                className="mt-3 bg-muted rounded-xl p-3 mx-4 w-full max-w-sm text-center flex items-start gap-2"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.0 }}
               >
-                <p className="text-xs text-blue-600 dark:text-blue-400">
+                <Package size={16} weight="fill" className="text-muted-foreground shrink-0 mt-0.5" />
+                <p className="text-xs text-muted-foreground text-left">
                   Pesanan laundry akan dibuat otomatis setelah sinkronisasi.
                   {transaction.customerPhone &&
                     ' Notifikasi WhatsApp akan dikirim ke pelanggan.'}

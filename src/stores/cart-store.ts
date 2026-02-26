@@ -38,11 +38,13 @@ export interface CartTab {
 }
 
 const MAX_TABS = 3
+let tabCounter = 1
 
-function createEmptyTab(label: string): CartTab {
+function createEmptyTab(label?: string): CartTab {
+  const num = tabCounter++
   return {
     id: crypto.randomUUID(),
-    label,
+    label: label ?? `Tab ${num}`,
     items: [],
     customerId: null,
     customerName: null,
@@ -118,7 +120,7 @@ function deriveFromActiveTab(tabs: CartTab[], activeTabId: string) {
   }
 }
 
-const defaultTab = createEmptyTab('Pelanggan 1')
+const defaultTab = createEmptyTab('Tab 1')
 
 export const useCartStore = create<CartState>()(
   persist(
@@ -133,7 +135,7 @@ export const useCartStore = create<CartState>()(
       addTab: () => {
         const { tabs } = get()
         if (tabs.length >= MAX_TABS) return
-        const newTab = createEmptyTab(`Pelanggan ${tabs.length + 1}`)
+        const newTab = createEmptyTab()
         const newTabs = [...tabs, newTab]
         set({
           tabs: newTabs,
@@ -281,10 +283,11 @@ export const useCartStore = create<CartState>()(
 
       clear: () => {
         const { tabs, activeTabId } = get()
-        const idx = tabs.findIndex((t) => t.id === activeTabId)
-        const defaultLabel = `Pelanggan ${idx + 1}`
+        const tab = getActiveTab(tabs, activeTabId)
+        // Keep the original tab label (e.g. "Tab 1") unless it was set to a customer name
+        const originalLabel = tab.label.startsWith('Tab ') ? tab.label : `Tab ${tabs.indexOf(tab) + 1}`
         const newTabs = updateActiveTab(tabs, activeTabId, () => ({
-          label: defaultLabel,
+          label: originalLabel,
           items: [],
           customerId: null,
           customerName: null,
@@ -323,7 +326,7 @@ export const useCartStore = create<CartState>()(
           const old = persisted as Record<string, unknown>
           const tab: CartTab = {
             id: crypto.randomUUID(),
-            label: (old.customerName as string) || 'Pelanggan 1',
+            label: (old.customerName as string) || 'Tab 1',
             items: (old.items as CartItem[]) || [],
             customerId: (old.customerId as string | null) ?? null,
             customerName: (old.customerName as string | null) ?? null,
@@ -347,6 +350,18 @@ export const useCartStore = create<CartState>()(
         tabs: state.tabs,
         activeTabId: state.activeTabId,
       }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          // Set tabCounter higher than any existing tab number to avoid duplicates
+          for (const tab of state.tabs) {
+            const match = tab.label.match(/^Tab (\d+)$/)
+            if (match) {
+              const num = Number.parseInt(match[1], 10)
+              if (num >= tabCounter) tabCounter = num + 1
+            }
+          }
+        }
+      },
     },
   ),
 )

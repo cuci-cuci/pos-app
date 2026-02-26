@@ -1,4 +1,4 @@
-import { ChartBar, Clock, Lightning, MagnifyingGlass, Plus, ShoppingCart, X } from '@phosphor-icons/react'
+import { ChartBar, Clock, Lightning, MagnifyingGlass, Plus, ShoppingCart, Warning, X } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
@@ -6,10 +6,17 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { CartPanel } from '@/components/order/cart-panel'
 import { QuantityInput } from '@/components/order/quantity-input'
 import { ServiceCard } from '@/components/order/service-card'
-import { SuccessOverlay } from '@/components/payment/success-overlay'
 import { EmptyState } from '@/components/shared/empty-state'
 import { OpenShiftDialog } from '@/components/shift/open-shift-dialog'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { db } from '@/db'
@@ -43,12 +50,23 @@ export function PosPage() {
   const [quantityService, setQuantityService] = useState<Service | null>(null)
   const [cartSheetOpen, setCartSheetOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [successTx, setSuccessTx] = useState<Transaction | null>(null)
+  const [closeTabConfirm, setCloseTabConfirm] = useState<string | null>(null)
 
-  const handleTransactionComplete = useCallback((tx: Transaction) => {
+  const handleTransactionComplete = useCallback((_tx: Transaction) => {
     setCartSheetOpen(false)
-    setSuccessTx(tx)
   }, [])
+
+  const handleCloseTab = useCallback(
+    (tabId: string) => {
+      const tab = tabs.find((t) => t.id === tabId)
+      if (tab && tab.items.length > 0) {
+        setCloseTabConfirm(tabId)
+      } else {
+        removeTab(tabId)
+      }
+    },
+    [tabs, removeTab],
+  )
 
   const categories = useLiveQuery(
     () =>
@@ -219,7 +237,7 @@ export function PosPage() {
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation()
-                      removeTab(tab.id)
+                      handleCloseTab(tab.id)
                     }}
                     className={cn(
                       'shrink-0 rounded-full p-0.5 transition-colors',
@@ -486,14 +504,41 @@ export function PosPage() {
           />
         )}
 
-        {/* Success celebration overlay */}
-        <SuccessOverlay
-          open={!!successTx}
-          transaction={successTx}
-          onNewTransaction={() => setSuccessTx(null)}
-          onClose={() => setSuccessTx(null)}
-        />
       </div>
+
+      {/* Close tab confirmation dialog */}
+      <Dialog open={!!closeTabConfirm} onOpenChange={(open) => !open && setCloseTabConfirm(null)}>
+        <DialogContent className="max-w-xs">
+          <DialogHeader>
+            <div className="mx-auto w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mb-2">
+              <Warning size={24} weight="fill" className="text-destructive" />
+            </div>
+            <DialogTitle className="text-center">Tutup tab ini?</DialogTitle>
+            <DialogDescription className="text-center">
+              Tab ini masih memiliki item di keranjang. Semua item akan dihapus jika tab ditutup.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2 sm:flex-row">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setCloseTabConfirm(null)}
+            >
+              Batal
+            </Button>
+            <Button
+              variant="destructive"
+              className="flex-1"
+              onClick={() => {
+                if (closeTabConfirm) removeTab(closeTabConfirm)
+                setCloseTabConfirm(null)
+              }}
+            >
+              Tutup Tab
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
