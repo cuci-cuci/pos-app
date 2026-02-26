@@ -280,8 +280,6 @@ export function QuantityInput({
         </div>
       </DialogContent>
 
-      {/* Footer layer — stacked behind the card */}
-      <div className="bg-gray-100 rounded-b-xl px-5 pt-6 pb-3 -mt-3 relative z-0" />
     </Dialog>
   )
 }

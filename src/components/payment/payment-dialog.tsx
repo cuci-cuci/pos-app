@@ -156,38 +156,38 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
   // Order summary component (reused in both mobile and tablet layouts)
   const orderSummary = (
     <div className="space-y-3">
-      <div className="space-y-2 bg-muted rounded-xl p-4">
+      <div className="space-y-2 bg-muted rounded-xl p-4 font-mono text-sm">
         {items.map((item) => (
-          <div key={item.id} className="flex justify-between text-sm">
+          <div key={item.id} className="flex justify-between">
             <span className="truncate mr-2">
               {item.serviceName} x{item.quantity}
             </span>
-            <span className="shrink-0">{formatCurrency(item.subtotal)}</span>
+            <span className="shrink-0 tabular-nums">{formatCurrency(item.subtotal)}</span>
           </div>
         ))}
       </div>
 
-      <div className="space-y-1">
-        <div className="flex justify-between text-sm">
+      <div className="space-y-1 font-mono text-sm">
+        <div className="flex justify-between">
           <span className="text-muted-foreground">Subtotal</span>
-          <span>{formatCurrency(subtotal)}</span>
+          <span className="tabular-nums">{formatCurrency(subtotal)}</span>
         </div>
         {discountPercent > 0 && (
-          <div className="flex justify-between text-sm">
+          <div className="flex justify-between">
             <span className="text-muted-foreground">Diskon ({discountPercent}%)</span>
-            <span className="text-destructive">-{formatCurrency(discountAmount)}</span>
+            <span className="text-destructive tabular-nums">-{formatCurrency(discountAmount)}</span>
           </div>
         )}
         {taxRate > 0 && (
-          <div className="flex justify-between text-sm">
+          <div className="flex justify-between">
             <span className="text-muted-foreground">Pajak ({taxRate}%)</span>
-            <span>{formatCurrency(taxAmount)}</span>
+            <span className="tabular-nums">{formatCurrency(taxAmount)}</span>
           </div>
         )}
         <Separator className="my-2" />
         <div className="flex justify-between items-center">
-          <span className="font-bold text-lg">Total</span>
-          <span className="font-bold text-2xl">{formatCurrency(total)}</span>
+          <span className="font-bold text-lg font-sans">Total</span>
+          <span className="font-bold text-2xl tabular-nums">{formatCurrency(total)}</span>
         </div>
       </div>
     </div>
@@ -404,7 +404,9 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
               <div className="flex">
                 {/* Left: Order summary */}
                 <div className="flex-1 p-6 min-w-0">
-                  <h2 className="text-lg font-bold mb-4">Ringkasan Pesanan</h2>
+                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-3">
+                    Ringkasan Pesanan
+                  </p>
                   {orderSummary}
                 </div>
 
@@ -555,7 +557,6 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
       </DialogContent>
 
       {/* Footer layer */}
-      <div className="bg-gray-100 rounded-b-xl px-5 pt-6 pb-3 -mt-3 relative z-0" />
     </Dialog>
   )
 
