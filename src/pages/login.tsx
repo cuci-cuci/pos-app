@@ -90,12 +90,12 @@ export function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-muted/60 p-4">
       <div className="w-full max-w-[400px]">
         {/* Header bar — flush top */}
-        <div className="bg-foreground/5 rounded-t-lg px-5 py-3">
+        <div className="bg-foreground/5 rounded-t-xl px-5 py-3">
           <span className="text-sm font-medium text-muted-foreground">Masuk atau daftar</span>
         </div>
 
         {/* Main card */}
-        <div className="bg-card border-x border-b overflow-hidden">
+        <div className="bg-card border rounded-xl overflow-hidden">
           <div className="px-6 py-8">
             {/* Welcome heading */}
             <h1 className="text-2xl font-bold tracking-tight mb-8">
@@ -105,7 +105,7 @@ export function LoginPage() {
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               {error && (
-                <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/20 text-destructive text-sm rounded-lg p-3">
+                <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/20 text-destructive text-sm rounded-xl p-3">
                   <WarningCircle size={18} weight="fill" className="shrink-0 mt-0.5" />
                   <span>{error}</span>
                 </div>
@@ -211,7 +211,7 @@ export function LoginPage() {
         </div>
 
         {/* Footer bar — flush bottom */}
-        <div className="bg-foreground/5 rounded-b-lg px-5 py-3">
+        <div className="bg-foreground/5 rounded-b-xl px-5 py-3">
           <p className="text-sm text-muted-foreground">
             Butuh bantuan? Hubungi kami di{' '}
             <a
