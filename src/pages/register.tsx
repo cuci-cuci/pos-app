@@ -1,13 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CircleNotch, Drop, WarningCircle } from '@phosphor-icons/react'
+import { ArrowLeft, ArrowRight, CircleNotch, Eye, EyeSlash, Storefront, User, WarningCircle } from '@phosphor-icons/react'
 import { Link, useRouter } from '@tanstack/react-router'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { APP_NAME } from '@/lib/constants'
+import { cn } from '@/lib/utils'
 import { apiClient } from '@/services/api-client'
 import { type AuthUser, useAuthStore } from '@/stores/auth-store'
 import { syncEngine } from '@/sync/sync-engine'
@@ -62,16 +63,25 @@ const stateMessages: Record<RegisterState, string> = {
   redirecting: 'Mengalihkan...',
 }
 
+const STEPS = [
+  { id: 'business', label: 'Bisnis', icon: Storefront },
+  { id: 'account', label: 'Akun', icon: User },
+] as const
+
 export function RegisterPage() {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [registerState, setRegisterState] = useState<RegisterState>('idle')
+  const [currentStep, setCurrentStep] = useState(0)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const {
     register,
     handleSubmit,
     setValue,
     watch,
+    trigger,
     formState: { errors },
   } = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
@@ -90,6 +100,11 @@ export function RegisterPage() {
     const value = e.target.value
     setValue('businessName', value)
     setValue('slug', slugify(value), { shouldValidate: watch('slug') !== '' })
+  }
+
+  const handleNextStep = async () => {
+    const valid = await trigger(['businessName', 'slug', 'phone'])
+    if (valid) setCurrentStep(1)
   }
 
   const onSubmit = async (data: RegisterForm) => {
@@ -158,163 +173,318 @@ export function RegisterPage() {
   const isLoading = registerState !== 'idle'
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted p-4">
-      <div className="w-full max-w-sm">
-        {/* Logo and app name */}
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-3">
-            <Drop size={36} weight="fill" className="text-primary-foreground" />
-          </div>
-          <h1 className="text-2xl font-bold">{APP_NAME}</h1>
-          <p className="text-sm text-muted-foreground mt-1">Daftarkan Bisnis Anda</p>
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-muted/60 p-4">
+      <motion.div
+        className="w-full max-w-[440px]"
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      >
+        {/* Header bar */}
+        <motion.div
+          className="bg-foreground/5 rounded-t-xl px-5 pt-4 pb-6 -mb-3 relative z-0"
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.1 }}
+        >
+          <span className="text-sm font-medium text-muted-foreground">Buat akun baru</span>
+        </motion.div>
 
-        <Card>
-          <CardHeader className="text-center pb-2">
-            <CardTitle className="text-lg">Buat Akun Baru</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              {error && (
-                <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/20 text-destructive text-sm rounded-[var(--radius)] p-3">
-                  <WarningCircle size={18} weight="fill" className="shrink-0 mt-0.5" />
-                  <span>{error}</span>
-                </div>
-              )}
+        {/* Main card */}
+        <motion.div
+          className="bg-card border rounded-xl overflow-hidden relative z-10"
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, delay: 0.15 }}
+        >
+          <div className="px-6 py-8">
+            {/* Heading */}
+            <motion.h1
+              className="text-2xl font-bold tracking-tight mb-2"
+              initial={{ opacity: 0, x: -12 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.35, delay: 0.25 }}
+            >
+              Daftar ke <span className="text-primary">{APP_NAME}</span>
+            </motion.h1>
+            <p className="text-sm text-muted-foreground mb-6">
+              Siapkan bisnis Anda dalam 2 langkah mudah
+            </p>
 
-              <div className="space-y-2">
-                <label htmlFor="businessName" className="text-sm font-medium">
-                  Nama Bisnis
-                </label>
-                <Input
-                  id="businessName"
-                  type="text"
-                  placeholder="Contoh: Laundry Bersih Kilat"
-                  disabled={isLoading}
-                  {...register('businessName')}
-                  onChange={handleBusinessNameChange}
-                />
-                {errors.businessName && (
-                  <p className="text-xs text-destructive">{errors.businessName.message}</p>
+            {/* Stepper */}
+            <div className="flex items-center gap-2 mb-8">
+              {STEPS.map((s, i) => {
+                const Icon = s.icon
+                const isActive = i === currentStep
+                const isDone = i < currentStep
+                return (
+                  <div key={s.id} className="flex items-center gap-2 flex-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (isDone) setCurrentStep(i)
+                      }}
+                      className={cn(
+                        'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all w-full',
+                        isActive
+                          ? 'bg-primary/10 text-primary'
+                          : isDone
+                            ? 'bg-primary text-primary-foreground cursor-pointer'
+                            : 'bg-muted text-muted-foreground',
+                      )}
+                    >
+                      <Icon size={16} weight={isActive || isDone ? 'fill' : 'regular'} />
+                      <span>{s.label}</span>
+                    </button>
+                    {i < STEPS.length - 1 && (
+                      <div className={cn('h-px w-4 shrink-0', isDone ? 'bg-primary' : 'bg-border')} />
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              <AnimatePresence>
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="flex items-start gap-2 bg-destructive/10 border border-destructive/20 text-destructive text-sm rounded-xl p-3"
+                  >
+                    <WarningCircle size={18} weight="fill" className="shrink-0 mt-0.5" />
+                    <span>{error}</span>
+                  </motion.div>
                 )}
-              </div>
+              </AnimatePresence>
 
-              <div className="space-y-2">
-                <label htmlFor="slug" className="text-sm font-medium">
-                  Slug
-                </label>
-                <Input
-                  id="slug"
-                  type="text"
-                  placeholder="laundrybersihkilat"
-                  disabled={isLoading}
-                  {...register('slug')}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Huruf kecil dan angka saja, tanpa spasi atau simbol
-                </p>
-                {errors.slug && <p className="text-xs text-destructive">{errors.slug.message}</p>}
-              </div>
+              {/* Step 1: Business Info */}
+              <AnimatePresence mode="wait">
+                {currentStep === 0 && (
+                  <motion.div
+                    key="step-business"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.25 }}
+                    className="space-y-4"
+                  >
+                    <div className="space-y-1.5">
+                      <label htmlFor="businessName" className="text-sm font-medium text-muted-foreground">
+                        Nama bisnis
+                      </label>
+                      <Input
+                        id="businessName"
+                        type="text"
+                        placeholder="Contoh: Laundry Bersih Kilat"
+                        disabled={isLoading}
+                        {...register('businessName')}
+                        onChange={handleBusinessNameChange}
+                      />
+                      {errors.businessName && (
+                        <p className="text-xs text-destructive">{errors.businessName.message}</p>
+                      )}
+                    </div>
 
-              <div className="space-y-2">
-                <label htmlFor="ownerName" className="text-sm font-medium">
-                  Nama Pemilik
-                </label>
-                <Input
-                  id="ownerName"
-                  type="text"
-                  placeholder="Nama lengkap pemilik"
-                  disabled={isLoading}
-                  {...register('ownerName')}
-                />
-                {errors.ownerName && (
-                  <p className="text-xs text-destructive">{errors.ownerName.message}</p>
+                    <div className="space-y-1.5">
+                      <label htmlFor="slug" className="text-sm font-medium text-muted-foreground">
+                        Slug
+                      </label>
+                      <Input
+                        id="slug"
+                        type="text"
+                        placeholder="laundrybersihkilat"
+                        disabled={isLoading}
+                        {...register('slug')}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Huruf kecil dan angka saja, tanpa spasi atau simbol
+                      </p>
+                      {errors.slug && <p className="text-xs text-destructive">{errors.slug.message}</p>}
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label htmlFor="phone" className="text-sm font-medium text-muted-foreground">
+                        No. telepon <span className="text-muted-foreground/60">(opsional)</span>
+                      </label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="08xxxxxxxxxx"
+                        disabled={isLoading}
+                        {...register('phone')}
+                      />
+                    </div>
+
+                    <div className="pt-2">
+                      <Button
+                        type="button"
+                        size="lg"
+                        className="h-11 px-8"
+                        onClick={handleNextStep}
+                      >
+                        Lanjutkan
+                        <ArrowRight size={16} weight="bold" className="ml-2" />
+                      </Button>
+                    </div>
+                  </motion.div>
                 )}
-              </div>
 
-              <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium">
-                  Email
-                </label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="email@contoh.com"
-                  autoComplete="email"
-                  disabled={isLoading}
-                  {...register('email')}
-                />
-                {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
-              </div>
+                {/* Step 2: Account Info */}
+                {currentStep === 1 && (
+                  <motion.div
+                    key="step-account"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ duration: 0.25 }}
+                    className="space-y-4"
+                  >
+                    <div className="space-y-1.5">
+                      <label htmlFor="ownerName" className="text-sm font-medium text-muted-foreground">
+                        Nama pemilik
+                      </label>
+                      <Input
+                        id="ownerName"
+                        type="text"
+                        placeholder="Nama lengkap pemilik"
+                        disabled={isLoading}
+                        {...register('ownerName')}
+                      />
+                      {errors.ownerName && (
+                        <p className="text-xs text-destructive">{errors.ownerName.message}</p>
+                      )}
+                    </div>
 
-              <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium">
-                  Password
-                </label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Minimal 6 karakter"
-                  autoComplete="new-password"
-                  disabled={isLoading}
-                  {...register('password')}
-                />
-                {errors.password && (
-                  <p className="text-xs text-destructive">{errors.password.message}</p>
+                    <div className="space-y-1.5">
+                      <label htmlFor="email" className="text-sm font-medium text-muted-foreground">
+                        Alamat email
+                      </label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="email@contoh.com"
+                        autoComplete="email"
+                        disabled={isLoading}
+                        {...register('email')}
+                      />
+                      {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label htmlFor="password" className="text-sm font-medium text-muted-foreground">
+                        Password
+                      </label>
+                      <div className="relative">
+                        <Input
+                          id="password"
+                          type={showPassword ? 'text' : 'password'}
+                          placeholder="Minimal 6 karakter"
+                          autoComplete="new-password"
+                          disabled={isLoading}
+                          className="pr-10"
+                          {...register('password')}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                          tabIndex={-1}
+                        >
+                          {showPassword ? (
+                            <EyeSlash size={18} weight="bold" />
+                          ) : (
+                            <Eye size={18} weight="bold" />
+                          )}
+                        </button>
+                      </div>
+                      {errors.password && (
+                        <p className="text-xs text-destructive">{errors.password.message}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label htmlFor="confirmPassword" className="text-sm font-medium text-muted-foreground">
+                        Konfirmasi password
+                      </label>
+                      <div className="relative">
+                        <Input
+                          id="confirmPassword"
+                          type={showConfirmPassword ? 'text' : 'password'}
+                          placeholder="Ulangi password"
+                          autoComplete="new-password"
+                          disabled={isLoading}
+                          className="pr-10"
+                          {...register('confirmPassword')}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                          tabIndex={-1}
+                        >
+                          {showConfirmPassword ? (
+                            <EyeSlash size={18} weight="bold" />
+                          ) : (
+                            <Eye size={18} weight="bold" />
+                          )}
+                        </button>
+                      </div>
+                      {errors.confirmPassword && (
+                        <p className="text-xs text-destructive">{errors.confirmPassword.message}</p>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-3 pt-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="lg"
+                        className="h-11 px-6"
+                        onClick={() => setCurrentStep(0)}
+                      >
+                        <ArrowLeft size={16} weight="bold" className="mr-1" />
+                        Kembali
+                      </Button>
+                      <Button
+                        type="submit"
+                        size="lg"
+                        className="h-11 px-8"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? (
+                          <span className="flex items-center gap-2">
+                            <CircleNotch size={18} weight="bold" className="animate-spin" />
+                            {stateMessages[registerState]}
+                          </span>
+                        ) : (
+                          'Daftar'
+                        )}
+                      </Button>
+                    </div>
+                  </motion.div>
                 )}
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="confirmPassword" className="text-sm font-medium">
-                  Konfirmasi Password
-                </label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  placeholder="Ulangi password"
-                  autoComplete="new-password"
-                  disabled={isLoading}
-                  {...register('confirmPassword')}
-                />
-                {errors.confirmPassword && (
-                  <p className="text-xs text-destructive">{errors.confirmPassword.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="phone" className="text-sm font-medium">
-                  No. Telepon <span className="text-muted-foreground">(opsional)</span>
-                </label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  placeholder="08xxxxxxxxxx"
-                  disabled={isLoading}
-                  {...register('phone')}
-                />
-              </div>
-
-              <Button type="submit" size="lg" className="w-full h-12" disabled={isLoading}>
-                {isLoading ? (
-                  <span className="flex items-center gap-2">
-                    <CircleNotch size={20} weight="bold" className="animate-spin" />
-                    {stateMessages[registerState]}
-                  </span>
-                ) : (
-                  'Daftar'
-                )}
-              </Button>
+              </AnimatePresence>
             </form>
-          </CardContent>
-        </Card>
+          </div>
+        </motion.div>
 
-        <p className="text-center text-xs text-muted-foreground mt-4">
-          Sudah punya akun?{' '}
-          <Link to="/login" className="font-medium underline">
-            Masuk
-          </Link>
-        </p>
-      </div>
+        {/* Footer bar */}
+        <motion.div
+          className="bg-primary rounded-b-xl px-5 pt-6 pb-4 -mt-3 relative z-0"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.1 }}
+        >
+          <p className="text-sm text-primary-foreground/80">
+            Sudah punya akun?{' '}
+            <Link to="/login" className="text-primary-foreground font-medium hover:underline">
+              Masuk
+            </Link>
+          </p>
+        </motion.div>
+      </motion.div>
     </div>
   )
 }
