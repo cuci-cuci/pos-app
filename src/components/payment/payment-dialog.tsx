@@ -7,10 +7,11 @@ import {
   QrCode,
   RadioButton,
   Wallet,
+  WifiSlash,
 } from '@phosphor-icons/react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { AnimatePresence, motion } from 'framer-motion'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -24,6 +25,7 @@ import { cn } from '@/lib/utils'
 import { createTransaction } from '@/services/order-service'
 import { useAuthStore } from '@/stores/auth-store'
 import { useCartStore } from '@/stores/cart-store'
+import { useSyncStore } from '@/stores/sync-store'
 
 interface PaymentDialogProps {
   open: boolean
@@ -59,6 +61,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
   const [cashTendered, setCashTendered] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
 
+  const isOnline = useSyncStore((s) => s.isOnline)
   const tenantId = useAuthStore((s) => s.user?.tenantId)
   const { items, discountPercent, getSubtotal } = useCartStore()
   const subtotal = getSubtotal()
@@ -111,12 +114,26 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
     return unique
   }, [paymentMethods])
 
+  // Auto-reset non-cash selection when device goes offline
+  useEffect(() => {
+    if (!isOnline && selectedMethod && selectedMethod.type !== 'cash') {
+      setSelectedMethod(null)
+      if (step !== 'method') {
+        setStep('method')
+      }
+    }
+  }, [isOnline]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleSelectMethod = (method: { id: string; name: string; type: string }) => {
     setSelectedMethod(method)
   }
 
   const handleProceed = () => {
     if (!selectedMethod) return
+    if (!isOnline && selectedMethod.type !== 'cash') {
+      setSelectedMethod(null)
+      return
+    }
     if (selectedMethod.type === 'cash') {
       setStep('cash')
     } else {
@@ -197,32 +214,50 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
   // Payment method list with radio buttons
   const methodList = (
     <div className="space-y-1.5">
+      {!isOnline && (
+        <div className="flex items-center gap-2 px-3 py-2 mb-1 rounded-[var(--radius)] bg-amber-50 border border-amber-200">
+          <WifiSlash size={16} weight="bold" className="text-amber-600 shrink-0" />
+          <p className="text-xs text-amber-700">
+            Perangkat offline — hanya tunai yang tersedia
+          </p>
+        </div>
+      )}
       {methods.map((method) => {
         const IconComp = methodIcons[method.type] ?? Wallet
         const isSelected = selectedMethod?.id === method.id
+        const isCash = method.type === 'cash'
+        const isDisabled = !isOnline && !isCash
+
         return (
           <button
             type="button"
             key={method.id}
-            onClick={() => handleSelectMethod(method)}
+            onClick={() => !isDisabled && handleSelectMethod(method)}
+            disabled={isDisabled}
             className={cn(
               'w-full flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius)] border',
-              'hover:bg-accent active:bg-accent transition-colors',
               'min-h-[44px] touch-manipulation',
-              isSelected && 'border-primary bg-primary/5',
+              isDisabled
+                ? 'opacity-40 cursor-not-allowed bg-muted'
+                : 'hover:bg-accent active:bg-accent transition-colors',
+              isSelected && !isDisabled && 'border-primary bg-primary/5',
             )}
           >
             <IconComp
               size={20}
               weight="fill"
-              className={methodColors[method.type] ?? 'text-muted-foreground'}
+              className={isDisabled ? 'text-muted-foreground' : (methodColors[method.type] ?? 'text-muted-foreground')}
             />
             <span className="text-sm font-medium font-mono flex-1 text-left">{method.name}</span>
-            <RadioButton
-              size={20}
-              weight={isSelected ? 'fill' : 'regular'}
-              className={isSelected ? 'text-primary' : 'text-muted-foreground/40'}
-            />
+            {isDisabled ? (
+              <span className="text-[10px] text-muted-foreground">Perlu koneksi</span>
+            ) : (
+              <RadioButton
+                size={20}
+                weight={isSelected ? 'fill' : 'regular'}
+                className={isSelected ? 'text-primary' : 'text-muted-foreground/40'}
+              />
+            )}
           </button>
         )
       })}
@@ -253,7 +288,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
               <Button
                 size="lg"
                 className="w-full h-12 text-base font-bold"
-                disabled={!selectedMethod}
+                disabled={!selectedMethod || (!isOnline && selectedMethod.type !== 'cash')}
                 onClick={handleProceed}
               >
                 Lanjutkan Pembayaran
@@ -428,7 +463,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
                 <Button
                   size="lg"
                   className="w-full h-12 text-base font-bold"
-                  disabled={!selectedMethod}
+                  disabled={!selectedMethod || (!isOnline && selectedMethod.type !== 'cash')}
                   onClick={handleProceed}
                 >
                   Lanjutkan Pembayaran
