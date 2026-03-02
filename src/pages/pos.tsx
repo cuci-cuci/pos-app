@@ -8,6 +8,7 @@ import { CustomerSearch } from '@/components/customer/customer-search'
 import { QuantityInput } from '@/components/order/quantity-input'
 import { ServiceCard } from '@/components/order/service-card'
 import { EmptyState } from '@/components/shared/empty-state'
+import { ServiceGridSkeleton } from '@/components/shared/skeleton-loaders'
 import { OpenShiftDialog } from '@/components/shift/open-shift-dialog'
 import { Button } from '@/components/ui/button'
 import {
@@ -219,6 +220,10 @@ export function PosPage() {
         <OpenShiftDialog open={openShiftDialogOpen} onOpenChange={setOpenShiftDialogOpen} />
       </div>
     )
+  }
+
+  if (categories === undefined || allServices === undefined) {
+    return <ServiceGridSkeleton />
   }
 
   return (

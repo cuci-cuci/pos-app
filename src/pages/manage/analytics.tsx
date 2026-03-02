@@ -2,6 +2,7 @@ import {
   ArrowLeft,
   ChartBar,
   CreditCard,
+  CurrencyCircleDollar,
   CurrencyDollar,
   DownloadSimple,
   Receipt,
@@ -17,6 +18,7 @@ import { EmptyState } from '@/components/shared/empty-state'
 import { InlineError } from '@/components/shared/inline-error'
 import { AnalyticsSkeleton } from '@/components/shared/skeleton-loaders'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { showToast } from '@/components/ui/toast'
 import { exportCSV } from '@/lib/export'
 import { formatCurrency } from '@/lib/format'
@@ -255,7 +257,7 @@ export function ManageAnalyticsPage() {
             <div className="bg-card border rounded-[var(--radius)] p-4 mb-4">
               <h3 className="text-sm font-semibold mb-3">Tren Revenue Harian</h3>
               {dailyLoading ? (
-                <div className="h-[250px] bg-muted/50 rounded animate-pulse" />
+                <Skeleton className="h-[250px] w-full" />
               ) : dailyData.length === 0 ? (
                 <div className="h-[250px] flex items-center justify-center text-sm text-muted-foreground">
                   Belum ada data revenue harian
@@ -284,9 +286,11 @@ export function ManageAnalyticsPage() {
               Revenue per Outlet
             </h2>
             {outlets.length === 0 ? (
-              <div className="bg-card border rounded-[var(--radius)] p-6 text-center">
-                <p className="text-sm text-muted-foreground">Belum ada data outlet</p>
-              </div>
+              <EmptyState
+                icon={<Storefront size={28} weight="fill" />}
+                title="Belum Ada Data"
+                description="Data pendapatan per outlet akan muncul di sini."
+              />
             ) : (
               <div className="bg-card border rounded-[var(--radius)] overflow-hidden">
                 <table className="w-full text-sm">
@@ -330,9 +334,11 @@ export function ManageAnalyticsPage() {
               Revenue per Layanan
             </h2>
             {services.length === 0 ? (
-              <div className="bg-card border rounded-[var(--radius)] p-6 text-center">
-                <p className="text-sm text-muted-foreground">Belum ada data layanan</p>
-              </div>
+              <EmptyState
+                icon={<Tag size={28} weight="fill" />}
+                title="Belum Ada Data"
+                description="Data pendapatan per layanan akan muncul di sini."
+              />
             ) : (
               <div className="bg-card border rounded-[var(--radius)] overflow-hidden">
                 <table className="w-full text-sm">
@@ -374,9 +380,11 @@ export function ManageAnalyticsPage() {
               Revenue per Metode Bayar
             </h2>
             {paymentMethods.length === 0 ? (
-              <div className="bg-card border rounded-[var(--radius)] p-6 text-center">
-                <p className="text-sm text-muted-foreground">Belum ada data metode bayar</p>
-              </div>
+              <EmptyState
+                icon={<CurrencyCircleDollar size={28} weight="fill" />}
+                title="Belum Ada Data"
+                description="Data pendapatan per metode bayar akan muncul di sini."
+              />
             ) : (
               <div className="bg-card border rounded-[var(--radius)] overflow-hidden">
                 <table className="w-full text-sm">

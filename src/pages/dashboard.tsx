@@ -15,6 +15,7 @@ import { useRouter } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
 import type { ReactNode } from 'react'
 import { useEffect, useMemo, useState } from 'react'
+import { EmptyState } from '@/components/shared/empty-state'
 import { DashboardSkeleton } from '@/components/shared/skeleton-loaders'
 import { SyncStatusIcon } from '@/components/shared/sync-status-icon'
 import { CloseShiftDialog } from '@/components/shift/close-shift-dialog'
@@ -341,9 +342,11 @@ export function DashboardPage() {
             </Button>
           </div>
           {recentTransactions.length === 0 ? (
-            <div className="bg-card border rounded-[var(--radius)] p-6 text-center">
-              <p className="text-sm text-muted-foreground">Belum ada transaksi</p>
-            </div>
+            <EmptyState
+              icon={<Receipt size={32} weight="fill" />}
+              title="Belum Ada Transaksi"
+              description="Transaksi hari ini akan muncul di sini."
+            />
           ) : (
             <div className="space-y-2">
               {recentTransactions.map((tx) => (
@@ -478,9 +481,11 @@ export function DashboardPage() {
           </Button>
         </div>
         {recentTransactions.length === 0 ? (
-          <div className="bg-card border rounded-[var(--radius)] p-6 text-center">
-            <p className="text-sm text-muted-foreground">Belum ada transaksi</p>
-          </div>
+          <EmptyState
+            icon={<Receipt size={32} weight="fill" />}
+            title="Belum Ada Transaksi"
+            description="Transaksi hari ini akan muncul di sini."
+          />
         ) : (
           <div className="space-y-2">
             {recentTransactions.map((tx) => (
