@@ -10,3 +10,7 @@ export const MAX_RETRY_ATTEMPTS = 4
 
 export const ROLE_TENANT_OWNER = 'tenant_owner' as const
 export const ROLE_CASHIER = 'cashier' as const
+
+export const GATEWAY_POLL_INTERVAL_MS = 3_000
+export const GATEWAY_COUNTDOWN_INTERVAL_MS = 1_000
+export const GATEWAY_MAX_RETRIES = 5

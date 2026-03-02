@@ -27,6 +27,7 @@ import type { PaymentMethod, Transaction } from '@/db/schema'
 import { formatCurrency } from '@/lib/format'
 import { generateId } from '@/lib/id-generator'
 import { cn } from '@/lib/utils'
+import { GATEWAY_COUNTDOWN_INTERVAL_MS, GATEWAY_MAX_RETRIES, GATEWAY_POLL_INTERVAL_MS } from '@/lib/constants'
 import { createGatewayPayment, getGatewayPaymentStatus } from '@/services/gateway-api'
 import { createTransaction } from '@/services/order-service'
 import { useAuthStore } from '@/stores/auth-store'
@@ -302,7 +303,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
       } catch {
         // Silently retry on network errors
       }
-    }, 3000)
+    }, GATEWAY_POLL_INTERVAL_MS)
 
     return () => clearInterval(interval)
   }, [step, gatewayStep, gatewayData]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -322,11 +323,12 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
     }
 
     updateTimeLeft()
-    const interval = setInterval(updateTimeLeft, 1000)
+    const interval = setInterval(updateTimeLeft, GATEWAY_COUNTDOWN_INTERVAL_MS)
     return () => clearInterval(interval)
   }, [step, gatewayStep, gatewayData?.expiresAt])
 
   const handleRetryGateway = () => {
+    if (gatewayRetryRef.current >= GATEWAY_MAX_RETRIES) return
     // Generate new payment item ID for retry (reuse transaction ID)
     if (preIdsRef.current) {
       preIdsRef.current.paymentItemId = generateId()
