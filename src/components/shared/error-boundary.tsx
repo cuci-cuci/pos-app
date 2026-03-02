@@ -1,4 +1,5 @@
 import { WarningOctagon } from '@phosphor-icons/react'
+import { useRouter } from '@tanstack/react-router'
 import { Component, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 
@@ -8,6 +9,27 @@ interface Props {
 interface State {
   hasError: boolean
   error: Error | null
+}
+
+export function RouteErrorFallback({ error }: { error: Error }) {
+  const router = useRouter()
+  return (
+    <div className="flex flex-col items-center justify-center h-full p-6 text-center">
+      <div className="mb-3 flex items-center justify-center rounded-full w-12 h-12 bg-destructive/10">
+        <WarningOctagon size={24} weight="fill" className="text-destructive" />
+      </div>
+      <h2 className="text-base font-bold mb-1">Terjadi Kesalahan</h2>
+      <p className="text-xs text-muted-foreground mb-4 max-w-xs">{error.message}</p>
+      <div className="flex gap-2">
+        <Button variant="outline" size="sm" onClick={() => router.history.back()}>
+          Kembali
+        </Button>
+        <Button size="sm" onClick={() => window.location.reload()}>
+          Muat Ulang
+        </Button>
+      </div>
+    </div>
+  )
 }
 
 export class ErrorBoundary extends Component<Props, State> {

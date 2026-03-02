@@ -26,6 +26,7 @@ import { ShiftDetailPage } from '@/pages/shifts/detail'
 import { ShiftsPage } from '@/pages/shifts/index'
 import { TransactionDetailPage } from '@/pages/transaction-detail-page'
 import { TransactionsPage } from '@/pages/transactions'
+import { RouteErrorFallback } from '@/components/shared/error-boundary'
 import { useAuthStore } from '@/stores/auth-store'
 import { useDeviceStore } from '@/stores/device-store'
 
@@ -95,6 +96,7 @@ const authenticatedRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: 'authenticated',
   component: AppShell,
+  errorComponent: RouteErrorFallback,
   beforeLoad: ({ location }) => {
     const authState = useAuthStore.getState()
     const isAuthenticated = authState.isAuthenticated()

@@ -6,6 +6,7 @@ import { ReceiptTemplate } from '@/components/receipt/receipt-template'
 import { InlineError } from '@/components/shared/inline-error'
 import { DetailSkeleton } from '@/components/shared/skeleton-loaders'
 import { Button } from '@/components/ui/button'
+import { showToast } from '@/components/ui/toast'
 import { db } from '@/db'
 import { formatCurrency, formatDate, formatTime } from '@/lib/format'
 import { cn } from '@/lib/utils'
@@ -144,7 +145,7 @@ export function OrderDetailPage() {
       await orderApi.updateStatus(order.id, { status: nextStatus })
       await fetchOrder()
     } catch {
-      // handle error silently
+      showToast('Gagal mengubah status pesanan', 'error')
     } finally {
       setUpdating(false)
       setConfirmAction(null)
@@ -161,7 +162,7 @@ export function OrderDetailPage() {
       })
       await fetchOrder()
     } catch {
-      // handle error silently
+      showToast('Gagal membatalkan pesanan', 'error')
     } finally {
       setUpdating(false)
       setShowCancelConfirm(false)
