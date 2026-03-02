@@ -217,6 +217,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
   }
 
   const handleClose = () => {
+    if (isProcessing) return
     setStep('method')
     setSelectedMethod(null)
     setCashTendered('')
@@ -279,20 +280,25 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
     }
   }, [step, gatewayStep, initiateGateway])
 
-  // Poll gateway payment status every 3s when waiting
+  // Poll gateway payment status when waiting
   useEffect(() => {
     if (step !== 'noncash' || gatewayStep !== 'waiting' || !gatewayData?.externalId) return
 
+    let cancelled = false
+    const externalId = gatewayData.externalId
+    const paymentUrl = gatewayData.paymentUrl
+
     const interval = setInterval(async () => {
+      if (cancelled) return
       try {
-        const status = await getGatewayPaymentStatus(gatewayData.externalId)
+        const status = await getGatewayPaymentStatus(externalId)
+        if (cancelled) return
         if (status.gateway_status === 'PAID') {
           setGatewayStep('paid')
           clearInterval(interval)
-          // Auto-confirm payment
           void handleConfirmPayment({
-            gatewayExternalId: gatewayData.externalId,
-            gatewayPaymentUrl: gatewayData.paymentUrl,
+            gatewayExternalId: externalId,
+            gatewayPaymentUrl: paymentUrl,
             gatewayStatus: 'PAID',
           })
         } else if (status.is_final) {
@@ -305,8 +311,11 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
       }
     }, GATEWAY_POLL_INTERVAL_MS)
 
-    return () => clearInterval(interval)
-  }, [step, gatewayStep, gatewayData]) // eslint-disable-line react-hooks/exhaustive-deps
+    return () => {
+      cancelled = true
+      clearInterval(interval)
+    }
+  }, [step, gatewayStep, gatewayData?.externalId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Countdown timer
   useEffect(() => {
