@@ -239,6 +239,12 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
       return
     }
 
+    if (!navigator.onLine) {
+      setGatewayStep('error')
+      setGatewayError('Tidak ada koneksi internet. Periksa jaringan Anda.')
+      return
+    }
+
     setGatewayStep('initiating')
     setGatewayError('')
 
@@ -251,6 +257,15 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
       })
 
       if (res.gateway_payment_url) {
+        // Validate expiry timestamp
+        if (res.expires_at) {
+          const expiresMs = new Date(res.expires_at).getTime()
+          if (Number.isNaN(expiresMs) || expiresMs <= Date.now()) {
+            setGatewayStep('expired')
+            setGatewayError('Pembayaran sudah kedaluwarsa. Silakan coba lagi.')
+            return
+          }
+        }
         setGatewayData({
           externalId: res.external_id,
           paymentUrl: res.gateway_payment_url,
@@ -390,9 +405,15 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
           )}
 
           {gatewayData.expiresAt && timeLeft > 0 && (
-            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+            <div className={cn(
+              "flex items-center justify-center gap-2 text-sm",
+              timeLeft <= 300 ? "text-amber-600 font-semibold" : "text-muted-foreground"
+            )}>
               <Timer size={16} weight="bold" />
-              <span>Berlaku {formatTimeLeft(timeLeft)}</span>
+              <span>
+                {timeLeft <= 300 ? 'Segera berakhir! ' : 'Berlaku '}
+                {formatTimeLeft(timeLeft)}
+              </span>
             </div>
           )}
 
@@ -426,13 +447,20 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
             <p className="text-sm text-muted-foreground text-center">
               Batas waktu pembayaran telah habis. Silakan coba lagi.
             </p>
+            {gatewayRetryRef.current > 0 && (
+              <p className="text-xs text-muted-foreground">
+                Percobaan ke-{gatewayRetryRef.current + 1}
+                {gatewayRetryRef.current >= GATEWAY_MAX_RETRIES - 1 && ' (terakhir)'}
+              </p>
+            )}
           </div>
           <Button
             size="lg"
             className="w-full h-12 text-base font-bold gap-2"
             onClick={handleRetryGateway}
+            disabled={gatewayRetryRef.current >= GATEWAY_MAX_RETRIES}
           >
-            Coba Lagi
+            {gatewayRetryRef.current >= GATEWAY_MAX_RETRIES ? 'Batas percobaan tercapai' : 'Coba Lagi'}
           </Button>
         </div>
       )}
@@ -446,13 +474,20 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
             {gatewayError && (
               <p className="text-sm text-muted-foreground text-center">{gatewayError}</p>
             )}
+            {gatewayRetryRef.current > 0 && (
+              <p className="text-xs text-muted-foreground">
+                Percobaan ke-{gatewayRetryRef.current + 1}
+                {gatewayRetryRef.current >= GATEWAY_MAX_RETRIES - 1 && ' (terakhir)'}
+              </p>
+            )}
           </div>
           <Button
             size="lg"
             className="w-full h-12 text-base font-bold gap-2"
             onClick={handleRetryGateway}
+            disabled={gatewayRetryRef.current >= GATEWAY_MAX_RETRIES}
           >
-            Coba Lagi
+            {gatewayRetryRef.current >= GATEWAY_MAX_RETRIES ? 'Batas percobaan tercapai' : 'Coba Lagi'}
           </Button>
         </div>
       )}
