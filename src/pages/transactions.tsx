@@ -74,20 +74,19 @@ export function TransactionsPage() {
     if (!user) return []
 
     if (activeTab === 'failed') {
-      return await db.transactions
+      const results = await db.transactions
         .where('[tenantId+syncStatus]')
         .equals([user.tenantId, 'failed'])
-        .reverse()
-        .sortBy('createdAt')
+        .toArray()
+      return results.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     }
 
     // Get all transactions for this tenant, sorted by createdAt descending
     const all = await db.transactions
-      .where('createdAt')
-      .above('')
-      .filter((t) => t.tenantId === user.tenantId)
-      .reverse()
-      .sortBy('createdAt')
+      .where('tenantId')
+      .equals(user.tenantId)
+      .toArray()
+    all.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 
     if (activeTab === 'today') {
       return all.filter((t) => t.createdAt >= todayStart)

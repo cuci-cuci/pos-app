@@ -11,26 +11,45 @@ interface ShiftState {
   clearShift: () => void
 }
 
-export const useShiftStore = create<ShiftState>()((set) => ({
+export const useShiftStore = create<ShiftState>()((set, get) => ({
   currentShift: null,
   loading: false,
 
   fetchCurrentShift: async () => {
     set({ loading: true })
-    try {
-      const res = await shiftApi.getCurrent()
-      set({ currentShift: res.data })
-    } catch {
-      set({ currentShift: null })
-    } finally {
-      set({ loading: false })
+    const maxRetries = 2
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        const res = await shiftApi.getCurrent()
+        set({ currentShift: res.data })
+        return
+      } catch {
+        if (attempt < maxRetries) {
+          // Wait before retry (500ms, then 1s)
+          await new Promise((r) => setTimeout(r, (attempt + 1) * 500))
+          continue
+        }
+        set({ currentShift: null })
+      }
     }
+    set({ loading: false })
   },
 
   openShift: async (data) => {
-    const res = await shiftApi.open(data)
-    set({ currentShift: res.data })
-    return res.data
+    try {
+      const res = await shiftApi.open(data)
+      set({ currentShift: res.data })
+      return res.data
+    } catch (err) {
+      // If 409 conflict, shift is already open — fetch and use it
+      const msg = err instanceof Error ? err.message : ''
+      if (msg.includes('409') || msg.includes('Conflict') || msg.includes('conflict')) {
+        await get().fetchCurrentShift()
+        const current = get().currentShift
+        if (current) return current
+      }
+      throw err
+    }
   },
 
   closeShift: async (data) => {

@@ -1,4 +1,4 @@
-import { ArrowLeft, Copy, MagnifyingGlass, Phone, Plus, ShareNetwork, Users } from '@phosphor-icons/react'
+import { ArrowLeft, Copy, Envelope, MagnifyingGlass, Phone, Plus, ShareNetwork, User, UserPlus, Users, PencilSimple } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
 import { EmptyState } from '@/components/shared/empty-state'
@@ -7,13 +7,21 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { showToast } from '@/components/ui/toast'
 import { ownerApi } from '@/services/owner-api'
+
+function formatPhoneDisplay(phone: string): string {
+  const digits = phone.replace(/\D/g, '')
+  if (digits.length <= 4) return digits
+  if (digits.length <= 8) return `${digits.slice(0, 4)}-${digits.slice(4)}`
+  return `${digits.slice(0, 4)}-${digits.slice(4, 8)}-${digits.slice(8)}`
+}
+
+function handlePhoneInput(value: string): string {
+  return value.replace(/[^0-9]/g, '').slice(0, 15)
+}
 
 interface Member {
   id: string
@@ -178,7 +186,7 @@ export function ManageMembersPage() {
                     {member.phone && (
                       <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
                         <Phone size={12} weight="fill" />
-                        {member.phone}
+                        {formatPhoneDisplay(member.phone)}
                       </p>
                     )}
                     {member.email && (
@@ -219,13 +227,33 @@ export function ManageMembersPage() {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editingMember ? 'Edit Member' : 'Tambah Member'}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3">
+        <DialogContent className="p-0 gap-0 overflow-hidden max-w-sm">
+          {/* Header bar */}
+          <div className="bg-foreground/5 rounded-t-xl px-5 pt-4 pb-6 -mb-3 relative z-0">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                {editingMember ? (
+                  <PencilSimple size={20} weight="fill" className="text-primary" />
+                ) : (
+                  <UserPlus size={20} weight="fill" className="text-primary" />
+                )}
+              </div>
+              <div>
+                <h3 className="font-semibold text-base">
+                  {editingMember ? 'Edit Member' : 'Tambah Member'}
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  {editingMember ? 'Perbarui data member' : 'Tambahkan member baru'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Main card */}
+          <div className="bg-card border rounded-xl relative z-10 p-5 space-y-3">
             <div>
-              <label htmlFor="member-name" className="text-sm font-medium mb-1 block">
+              <label htmlFor="member-name" className="text-sm font-medium mb-1.5 flex items-center gap-1.5">
+                <User size={14} className="text-muted-foreground" />
                 Nama
               </label>
               <Input
@@ -233,21 +261,27 @@ export function ManageMembersPage() {
                 placeholder="Nama member"
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
+                className="h-10"
               />
             </div>
             <div>
-              <label htmlFor="member-phone" className="text-sm font-medium mb-1 block">
+              <label htmlFor="member-phone" className="text-sm font-medium mb-1.5 flex items-center gap-1.5">
+                <Phone size={14} className="text-muted-foreground" />
                 No. Telepon
               </label>
               <Input
                 id="member-phone"
-                placeholder="08xxxxxxxxxx"
-                value={formPhone}
-                onChange={(e) => setFormPhone(e.target.value)}
+                placeholder="0812-3456-7890"
+                type="tel"
+                inputMode="tel"
+                value={formatPhoneDisplay(formPhone)}
+                onChange={(e) => setFormPhone(handlePhoneInput(e.target.value))}
+                className="h-10"
               />
             </div>
             <div>
-              <label htmlFor="member-email" className="text-sm font-medium mb-1 block">
+              <label htmlFor="member-email" className="text-sm font-medium mb-1.5 flex items-center gap-1.5">
+                <Envelope size={14} className="text-muted-foreground" />
                 Email
               </label>
               <Input
@@ -256,17 +290,27 @@ export function ManageMembersPage() {
                 placeholder="email@contoh.com"
                 value={formEmail}
                 onChange={(e) => setFormEmail(e.target.value)}
+                className="h-10"
               />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={submitting}>
-              Batal
-            </Button>
-            <Button onClick={handleSubmit} disabled={submitting}>
-              {submitting ? 'Menyimpan...' : 'Simpan'}
-            </Button>
-          </DialogFooter>
+
+          {/* Footer bar */}
+          <div className="bg-foreground/5 rounded-b-xl px-5 pt-6 pb-4 -mt-3 relative z-0">
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setDialogOpen(false)}
+                disabled={submitting}
+              >
+                Batal
+              </Button>
+              <Button className="flex-1" onClick={handleSubmit} disabled={submitting}>
+                {submitting ? 'Menyimpan...' : 'Simpan'}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

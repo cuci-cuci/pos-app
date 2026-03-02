@@ -1,9 +1,12 @@
 import {
   CircleNotch,
   Crown,
-  CurrencyCircleDollar,
+  Envelope,
+  Gift,
   MagnifyingGlass,
+  Phone as PhoneIcon,
   Tag,
+  User,
   UserCircle,
   UserPlus,
   X,
@@ -15,12 +18,8 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Separator } from '@/components/ui/separator'
 import { showToast } from '@/components/ui/toast'
 import { db } from '@/db'
 import type { Customer, MemberTier } from '@/db/schema'
@@ -29,6 +28,17 @@ import { cn } from '@/lib/utils'
 import { memberApi } from '@/services/member-api'
 import { useAuthStore } from '@/stores/auth-store'
 import { useCartStore } from '@/stores/cart-store'
+
+function formatPhoneDisplay(phone: string): string {
+  const digits = phone.replace(/\D/g, '')
+  if (digits.length <= 4) return digits
+  if (digits.length <= 8) return `${digits.slice(0, 4)}-${digits.slice(4)}`
+  return `${digits.slice(0, 4)}-${digits.slice(4, 8)}-${digits.slice(8)}`
+}
+
+function handlePhoneInput(value: string): string {
+  return value.replace(/[^0-9]/g, '').slice(0, 15)
+}
 
 const TIER_CONFIG: Record<MemberTier, { label: string; color: string; bg: string }> = {
   bronze: { label: 'Bronze', color: 'text-orange-700', bg: 'bg-orange-100' },
@@ -223,10 +233,9 @@ export function CustomerSearch() {
                 {tierConfig.label}
               </Badge>
             </div>
-            <p className="text-xs text-muted-foreground mt-0.5">{memberInfo.phone}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{formatPhoneDisplay(memberInfo.phone)}</p>
             <div className="flex items-center gap-3 mt-1.5 flex-wrap">
-              <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                <CurrencyCircleDollar size={12} />
+              <span className="text-xs text-muted-foreground">
                 {formatCurrency(memberInfo.totalSpending)}
               </span>
               <span className="flex items-center gap-1 text-xs text-primary font-medium">
@@ -402,7 +411,7 @@ export function CustomerSearch() {
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground">{result.phone}</p>
+                    <p className="text-xs text-muted-foreground">{formatPhoneDisplay(result.phone)}</p>
                     {result.isMember &&
                       result.discountPercent !== undefined &&
                       result.discountPercent > 0 && (
@@ -422,22 +431,33 @@ export function CustomerSearch() {
             <p className="text-sm text-muted-foreground mb-2">Tidak ditemukan</p>
             <Button variant="outline" size="sm" className="gap-1" onClick={handleOpenRegister}>
               <UserPlus size={14} weight="bold" />
-              Daftar Member Baru
+              Daftar Member
             </Button>
           </div>
         )}
       </div>
 
-      {/* Registration dialog */}
+      {/* Registration dialog — stacked layer style */}
       <Dialog open={registerOpen} onOpenChange={setRegisterOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Daftar Member Baru</DialogTitle>
-          </DialogHeader>
+        <DialogContent className="p-0 gap-0 overflow-hidden max-w-sm">
+          {/* Header bar */}
+          <div className="bg-foreground/5 rounded-t-xl px-5 pt-4 pb-6 -mb-3 relative z-0">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <UserPlus size={20} weight="fill" className="text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-base">Daftar Member Baru</h3>
+                <p className="text-xs text-muted-foreground">Daftarkan pelanggan sebagai member</p>
+              </div>
+            </div>
+          </div>
 
-          <div className="space-y-3 mt-2">
+          {/* Main card */}
+          <div className="bg-card border rounded-xl relative z-10 p-5 space-y-3">
             <div>
-              <label htmlFor="reg-name" className="text-sm font-medium mb-1 block">
+              <label htmlFor="reg-name" className="text-sm font-medium mb-1.5 flex items-center gap-1.5">
+                <User size={14} className="text-muted-foreground" />
                 Nama
               </label>
               <Input
@@ -449,21 +469,23 @@ export function CustomerSearch() {
               />
             </div>
             <div>
-              <label htmlFor="reg-phone" className="text-sm font-medium mb-1 block">
+              <label htmlFor="reg-phone" className="text-sm font-medium mb-1.5 flex items-center gap-1.5">
+                <PhoneIcon size={14} className="text-muted-foreground" />
                 No. Telepon
               </label>
               <Input
                 id="reg-phone"
-                placeholder="08xxxxxxxxxx"
+                placeholder="0812-3456-7890"
                 type="tel"
                 inputMode="tel"
-                value={regPhone}
-                onChange={(e) => setRegPhone(e.target.value)}
+                value={formatPhoneDisplay(regPhone)}
+                onChange={(e) => setRegPhone(handlePhoneInput(e.target.value))}
                 className="h-10"
               />
             </div>
             <div>
-              <label htmlFor="reg-email" className="text-sm font-medium mb-1 block">
+              <label htmlFor="reg-email" className="text-sm font-medium mb-1.5 flex items-center gap-1.5">
+                <Envelope size={14} className="text-muted-foreground" />
                 Email <span className="text-muted-foreground font-normal">(opsional)</span>
               </label>
               <Input
@@ -477,7 +499,8 @@ export function CustomerSearch() {
               />
             </div>
             <div>
-              <label htmlFor="reg-referral" className="text-sm font-medium mb-1 block">
+              <label htmlFor="reg-referral" className="text-sm font-medium mb-1.5 flex items-center gap-1.5">
+                <Gift size={14} className="text-muted-foreground" />
                 Kode Referral <span className="text-muted-foreground font-normal">(opsional)</span>
               </label>
               <Input
@@ -486,38 +509,38 @@ export function CustomerSearch() {
                 value={regReferralCode}
                 onChange={(e) => setRegReferralCode(e.target.value.toUpperCase())}
                 maxLength={8}
-                className="h-10 uppercase"
+                className="h-10"
               />
             </div>
           </div>
 
-          <Separator className="my-3" />
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setRegisterOpen(false)}
-              disabled={isRegistering}
-            >
-              Batal
-            </Button>
-            <Button
-              onClick={() => void handleRegister()}
-              disabled={!regName.trim() || !regPhone.trim() || isRegistering}
-            >
-              {isRegistering ? (
-                <>
-                  <CircleNotch size={16} weight="bold" className="animate-spin mr-1" />
-                  Mendaftar...
-                </>
-              ) : (
-                <>
-                  <UserPlus size={16} className="mr-1" />
-                  Daftar Member
-                </>
-              )}
-            </Button>
-          </DialogFooter>
+          {/* Footer bar */}
+          <div className="bg-foreground/5 rounded-b-xl px-5 pt-6 pb-4 -mt-3 relative z-0">
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setRegisterOpen(false)}
+                disabled={isRegistering}
+              >
+                Batal
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={() => void handleRegister()}
+                disabled={!regName.trim() || !regPhone.trim() || isRegistering}
+              >
+                {isRegistering ? (
+                  <>
+                    <CircleNotch size={16} weight="bold" className="animate-spin mr-1" />
+                    Mendaftar...
+                  </>
+                ) : (
+                  'Daftar'
+                )}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </>

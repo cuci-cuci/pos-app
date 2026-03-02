@@ -7,12 +7,18 @@ import { type CartItem, useCartStore } from '@/stores/cart-store'
 import { useDeviceStore } from '@/stores/device-store'
 import { useShiftStore } from '@/stores/shift-store'
 import { useSyncStore } from '@/stores/sync-store'
+import { syncEngine } from '@/sync/sync-engine'
 
 interface PaymentInput {
   methodId: string
   methodName: string
   methodType: string
   cashTendered?: number
+  gatewayExternalId?: string
+  gatewayPaymentUrl?: string
+  gatewayStatus?: string
+  transactionId?: string
+  paymentItemId?: string
 }
 
 export async function createTransaction(paymentInput: PaymentInput): Promise<Transaction> {
@@ -57,13 +63,16 @@ export async function createTransaction(paymentInput: PaymentInput): Promise<Tra
       : undefined
 
   const payment: Payment = {
-    id: generateId(),
+    id: paymentInput.paymentItemId ?? generateId(),
     methodId: paymentInput.methodId,
     methodName: paymentInput.methodName,
     methodType: paymentInput.methodType,
     amount: priceResult.totalAmount,
     cashTendered: paymentInput.cashTendered,
     changeAmount,
+    gatewayExternalId: paymentInput.gatewayExternalId,
+    gatewayPaymentUrl: paymentInput.gatewayPaymentUrl,
+    gatewayStatus: paymentInput.gatewayStatus,
   }
 
   // Compute smart default duration from service estimated durations
@@ -78,7 +87,7 @@ export async function createTransaction(paymentInput: PaymentInput): Promise<Tra
   const now = new Date().toISOString()
 
   const transaction: Transaction = {
-    id: generateId(),
+    id: paymentInput.transactionId ?? generateId(),
     tenantId: auth.user.tenantId,
     outletId: useDeviceStore.getState().outletId,
     orderNumber: generateOrderNumber(),
@@ -107,6 +116,9 @@ export async function createTransaction(paymentInput: PaymentInput): Promise<Tra
 
   await db.transactions.add(transaction)
   cart.clear()
+
+  // Trigger immediate sync so transaction appears on server quickly
+  void syncEngine.triggerSync()
 
   return transaction
 }

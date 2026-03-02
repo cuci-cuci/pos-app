@@ -96,6 +96,9 @@ export interface Payment {
   amount: number
   cashTendered?: number
   changeAmount?: number
+  gatewayExternalId?: string
+  gatewayPaymentUrl?: string
+  gatewayStatus?: string
 }
 
 export interface Transaction {

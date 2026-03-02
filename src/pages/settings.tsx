@@ -4,6 +4,8 @@ import {
   DeviceMobile,
   Info,
   SignOut,
+  SpeakerHigh,
+  SpeakerSlash,
   Storefront,
   Trash,
   UserCircle,
@@ -22,6 +24,7 @@ import { Separator } from '@/components/ui/separator'
 import { showToast } from '@/components/ui/toast'
 import { db } from '@/db'
 import { APP_NAME, ROLE_TENANT_OWNER } from '@/lib/constants'
+import { cn } from '@/lib/utils'
 import { formatDate, formatTime } from '@/lib/format'
 import { logout } from '@/services/auth-service'
 import { useAuthStore } from '@/stores/auth-store'
@@ -35,7 +38,7 @@ export function SettingsPage() {
   const { isOnline, isSyncing, lastSyncAt, pendingCount, failedCount, configVersion } =
     useSyncStore()
 
-  const { deviceId, deviceName, outletName, setupCompletedAt } = useDeviceStore()
+  const { deviceId, deviceName, outletName, setupCompletedAt, soundEnabled, setSoundEnabled } = useDeviceStore()
 
   const [syncing, setSyncing] = useState(false)
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
@@ -116,6 +119,31 @@ export function SettingsPage() {
                 <span className="text-muted-foreground">{formatDate(setupCompletedAt)}</span>
               </div>
             )}
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground flex items-center gap-1.5">
+                {soundEnabled ? (
+                  <SpeakerHigh size={14} weight="fill" />
+                ) : (
+                  <SpeakerSlash size={14} weight="fill" />
+                )}
+                Suara Notifikasi
+              </span>
+              <button
+                type="button"
+                onClick={() => setSoundEnabled(!soundEnabled)}
+                className={cn(
+                  'relative w-10 h-6 rounded-full transition-colors',
+                  soundEnabled ? 'bg-primary' : 'bg-muted',
+                )}
+              >
+                <span
+                  className={cn(
+                    'absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform',
+                    soundEnabled ? 'translate-x-[18px]' : 'translate-x-0.5',
+                  )}
+                />
+              </button>
+            </div>
           </CardContent>
         </Card>
 

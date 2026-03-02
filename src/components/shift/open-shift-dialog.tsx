@@ -42,8 +42,14 @@ export function OpenShiftDialog({ open, onOpenChange }: OpenShiftDialogProps) {
       showToast('Shift berhasil dibuka', 'success')
       onOpenChange(false)
       setOpeningCash('')
-    } catch {
-      showToast('Gagal membuka shift', 'error')
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : ''
+      if (msg.includes('409') || msg.includes('Conflict') || msg.includes('conflict')) {
+        showToast('Shift sudah aktif — memuat shift yang berjalan', 'success')
+        onOpenChange(false)
+      } else {
+        showToast('Gagal membuka shift', 'error')
+      }
     } finally {
       setLoading(false)
     }

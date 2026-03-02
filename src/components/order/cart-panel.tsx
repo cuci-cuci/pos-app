@@ -1,10 +1,16 @@
-import { CaretDown, CaretUp, Crown, ShoppingCart, Trash } from '@phosphor-icons/react'
+import { CaretDown, CaretUp, Crown, ShoppingCart, Trash, Warning } from '@phosphor-icons/react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
-import { CustomerSearch } from '@/components/customer/customer-search'
 import { PaymentDialog } from '@/components/payment/payment-dialog'
 import { EmptyState } from '@/components/shared/empty-state'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { db } from '@/db'
@@ -12,6 +18,17 @@ import type { Transaction } from '@/db/schema'
 import { formatCurrency } from '@/lib/format'
 import { useCartStore } from '@/stores/cart-store'
 import { CartItemRow } from './cart-item-row'
+
+function formatPhoneDisplay(phone: string): string {
+  const digits = phone.replace(/\D/g, '')
+  if (digits.length <= 4) return digits
+  if (digits.length <= 8) return `${digits.slice(0, 4)}-${digits.slice(4)}`
+  return `${digits.slice(0, 4)}-${digits.slice(4, 8)}-${digits.slice(8)}`
+}
+
+function handlePhoneInput(value: string): string {
+  return value.replace(/\D/g, '').slice(0, 13)
+}
 
 interface CartPanelProps {
   onTransactionComplete?: (tx: Transaction) => void
@@ -33,8 +50,11 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
     setEstimatedDuration,
     clear,
     getSubtotal,
+    tabs,
+    activeTabId,
   } = useCartStore()
   const [paymentOpen, setPaymentOpen] = useState(false)
+  const [clearConfirmOpen, setClearConfirmOpen] = useState(false)
   const [notesExpanded, setNotesExpanded] = useState(false)
   const [orderDetailsExpanded, setOrderDetailsExpanded] = useState(false)
 
@@ -62,22 +82,17 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3">
-        <h2 className="font-semibold text-base">Keranjang ({items.length})</h2>
+        <h2 className="font-semibold text-base">
+          Keranjang{tabs.length > 1 ? ` — ${tabs.find((t) => t.id === activeTabId)?.label ?? ''}` : ''} ({items.length})
+        </h2>
         <button
           type="button"
-          onClick={clear}
+          onClick={() => setClearConfirmOpen(true)}
           className="text-muted-foreground hover:text-destructive p-2 rounded-lg"
           aria-label="Kosongkan keranjang"
         >
           <Trash size={20} weight="fill" />
         </button>
-      </div>
-
-      <Separator />
-
-      {/* Customer section */}
-      <div className="px-4 py-3">
-        <CustomerSearch />
       </div>
 
       <Separator />
@@ -148,9 +163,9 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
                 id="customer-phone"
                 type="tel"
                 inputMode="tel"
-                placeholder="08xxxxxxxxxx"
-                value={customerPhone}
-                onChange={(e) => setCustomerPhone(e.target.value)}
+                placeholder="0812-3456-7890"
+                value={formatPhoneDisplay(customerPhone)}
+                onChange={(e) => setCustomerPhone(handlePhoneInput(e.target.value))}
                 className="h-9 text-sm"
               />
             </div>
@@ -246,6 +261,42 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
         onOpenChange={setPaymentOpen}
         onTransactionComplete={onTransactionComplete}
       />
+
+      {/* Clear cart confirmation */}
+      <Dialog open={clearConfirmOpen} onOpenChange={setClearConfirmOpen}>
+        <DialogContent className="max-w-sm p-0 overflow-hidden">
+          <div className="px-6 pt-6 pb-5 text-center">
+            <div className="mx-auto w-12 h-12 rounded-xl bg-destructive/10 flex items-center justify-center mb-4">
+              <Warning size={24} weight="fill" className="text-destructive" />
+            </div>
+            <DialogHeader className="items-center mb-1">
+              <DialogTitle className="font-normal">Hapus semua layanan?</DialogTitle>
+            </DialogHeader>
+            <DialogDescription className="text-center">
+              Semua item di keranjang akan dihapus. Tindakan ini tidak bisa dibatalkan.
+            </DialogDescription>
+          </div>
+          <div className="flex gap-3 bg-gray-100 px-4 py-4 border-t border-border">
+            <Button
+              variant="outline"
+              className="flex-1 bg-white"
+              onClick={() => setClearConfirmOpen(false)}
+            >
+              Batal
+            </Button>
+            <Button
+              variant="destructive"
+              className="flex-1"
+              onClick={() => {
+                clear()
+                setClearConfirmOpen(false)
+              }}
+            >
+              Hapus Semua
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -16,7 +16,7 @@ export function ReceiptTemplate({ order }: ReceiptTemplateProps) {
     <div className="receipt-printable bg-white text-black p-4 font-mono text-xs leading-relaxed">
       {/* Header */}
       <div className="text-center mb-3">
-        <p className="text-sm font-bold">{outletName || 'LaundryPOS'}</p>
+        <p className="text-sm font-bold">{outletName || 'kelarin'}</p>
         <p className="text-[10px] mt-0.5">================================</p>
       </div>
 

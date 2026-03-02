@@ -1,21 +1,29 @@
-import { ChartBar, Clock, Lightning, MagnifyingGlass, ShoppingCart } from '@phosphor-icons/react'
+import { ChartBar, Clock, Lightning, MagnifyingGlass, Plus, ShoppingCart, Warning, X } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { AnimatePresence, motion } from 'framer-motion'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CartPanel } from '@/components/order/cart-panel'
+import { CustomerSearch } from '@/components/customer/customer-search'
 import { QuantityInput } from '@/components/order/quantity-input'
 import { ServiceCard } from '@/components/order/service-card'
-import { SuccessOverlay } from '@/components/payment/success-overlay'
 import { EmptyState } from '@/components/shared/empty-state'
 import { OpenShiftDialog } from '@/components/shift/open-shift-dialog'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { db } from '@/db'
 import type { Service, ServiceCategory, Transaction } from '@/db/schema'
 import { getCategoryIcon } from '@/lib/category-icons'
-import { formatCurrency, formatTime } from '@/lib/format'
+import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth-store'
 import { useCartStore } from '@/stores/cart-store'
@@ -26,7 +34,13 @@ export function PosPage() {
   const userRole = useAuthStore((s) => s.user?.role)
   const cartItems = useCartStore((s) => s.items)
   const addItem = useCartStore((s) => s.addItem)
+  const removeItem = useCartStore((s) => s.removeItem)
   const getTotal = useCartStore((s) => s.getTotal)
+  const tabs = useCartStore((s) => s.tabs)
+  const activeTabId = useCartStore((s) => s.activeTabId)
+  const addTab = useCartStore((s) => s.addTab)
+  const removeTab = useCartStore((s) => s.removeTab)
+  const switchTab = useCartStore((s) => s.switchTab)
   const { currentShift, fetchCurrentShift, loading: shiftLoading } = useShiftStore()
   const [openShiftDialogOpen, setOpenShiftDialogOpen] = useState(false)
 
@@ -38,12 +52,56 @@ export function PosPage() {
   const [quantityService, setQuantityService] = useState<Service | null>(null)
   const [cartSheetOpen, setCartSheetOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [successTx, setSuccessTx] = useState<Transaction | null>(null)
+  const [closeTabConfirm, setCloseTabConfirm] = useState<string | null>(null)
 
-  const handleTransactionComplete = useCallback((tx: Transaction) => {
+  // Resizable cart panel
+  const CART_MIN = 260
+  const CART_MAX = 500
+  const CART_DEFAULT = 340
+  const [cartWidth, setCartWidth] = useState(CART_DEFAULT)
+  const isDragging = useRef(false)
+
+  const handleDragStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    isDragging.current = true
+    const startX = e.clientX
+    const startWidth = cartWidth
+
+    const onMouseMove = (ev: MouseEvent) => {
+      if (!isDragging.current) return
+      const delta = startX - ev.clientX
+      setCartWidth(Math.min(CART_MAX, Math.max(CART_MIN, startWidth + delta)))
+    }
+
+    const onMouseUp = () => {
+      isDragging.current = false
+      document.removeEventListener('mousemove', onMouseMove)
+      document.removeEventListener('mouseup', onMouseUp)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+    document.addEventListener('mousemove', onMouseMove)
+    document.addEventListener('mouseup', onMouseUp)
+  }, [cartWidth])
+
+  const handleTransactionComplete = useCallback((_tx: Transaction) => {
     setCartSheetOpen(false)
-    setSuccessTx(tx)
   }, [])
+
+  const handleCloseTab = useCallback(
+    (tabId: string) => {
+      const tab = tabs.find((t) => t.id === tabId)
+      if (tab && tab.items.length > 0) {
+        setCloseTabConfirm(tabId)
+      } else {
+        removeTab(tabId)
+      }
+    },
+    [tabs, removeTab],
+  )
 
   const categories = useLiveQuery(
     () =>
@@ -163,19 +221,74 @@ export function PosPage() {
     )
   }
 
-  const shiftOpenedTime = currentShift?.opened_at ? formatTime(currentShift.opened_at) : ''
-
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem-56px)]">
-      {/* Shift info bar */}
-      {currentShift && (
-        <div className="flex items-center gap-2 px-4 py-1.5 bg-success/10 border-b border-success/20 text-sm text-success">
-          <Clock size={14} weight="fill" />
-          <span>Shift aktif sejak {shiftOpenedTime}</span>
-          <span className="text-success/60">|</span>
-          <span>Kas awal: {formatCurrency(currentShift.opening_cash)}</span>
-        </div>
-      )}
+      {/* Tab bar */}
+      <div className="flex items-end gap-0 px-3 pt-2 bg-muted/30 border-b border-border overflow-hidden">
+          <LayoutGroup>
+            {tabs.map((tab) => {
+              const isActive = tab.id === activeTabId
+              const tabItemCount = tab.items.length
+              return (
+                <motion.button
+                  key={tab.id}
+                  layout
+                  type="button"
+                  onClick={() => switchTab(tab.id)}
+                  className={cn(
+                    'relative flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-t-lg transition-colors',
+                    'max-w-[160px] touch-manipulation',
+                    isActive
+                      ? 'bg-card text-foreground border border-b-0 border-border z-10 -mb-px'
+                      : 'bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50',
+                  )}
+                >
+                  <span className="truncate">{tab.label}</span>
+                  {tabItemCount > 0 && (
+                    <span
+                      className={cn(
+                        'shrink-0 text-[10px] font-bold rounded-full w-4.5 h-4.5 flex items-center justify-center',
+                        isActive
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted-foreground/20 text-muted-foreground',
+                      )}
+                    >
+                      {tabItemCount}
+                    </span>
+                  )}
+                  {tabs.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleCloseTab(tab.id)
+                      }}
+                      className={cn(
+                        'shrink-0 rounded-full p-0.5 transition-colors',
+                        isActive
+                          ? 'hover:bg-destructive/10 text-muted-foreground hover:text-destructive'
+                          : 'hover:bg-destructive/10 text-muted-foreground/50 hover:text-destructive',
+                      )}
+                    >
+                      <X size={12} weight="bold" />
+                    </button>
+                  )}
+                </motion.button>
+              )
+            })}
+          </LayoutGroup>
+          {tabs.length < 3 && (
+            <button
+              type="button"
+              onClick={addTab}
+              className="shrink-0 flex items-center justify-center w-8 h-8 mb-0.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors touch-manipulation"
+              aria-label="Tambah sesi"
+            >
+              <Plus size={16} weight="bold" />
+            </button>
+          )}
+      </div>
+
       <div className="flex flex-1 min-h-0">
         {/* Left: Services */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
@@ -329,20 +442,31 @@ export function PosPage() {
             </div>
           </div>
 
-          {/* Sticky cart bar (desktop) */}
-          {itemCount > 0 && (
-            <div className="hidden md:flex items-center justify-between px-4 py-3 border-t border-border bg-card">
-              <div className="flex items-center gap-2">
-                <ShoppingCart size={20} weight="fill" className="text-primary" />
-                <span className="text-sm font-medium">{itemCount} item</span>
-              </div>
-              <span className="text-base font-bold">{formatCurrency(total)}</span>
+          {/* Sticky bottom bar (desktop): item count + member search */}
+          <div className="hidden md:flex items-center gap-3 px-4 py-2.5 border-t border-border bg-card">
+            <div className="flex items-center gap-2 shrink-0">
+              <ShoppingCart size={18} weight="fill" className="text-primary" />
+              <span className="text-sm font-medium">{itemCount} item</span>
             </div>
-          )}
+            <div className="flex-1 min-w-0">
+              <CustomerSearch />
+            </div>
+          </div>
         </div>
 
         {/* Right: Cart (tablet+) */}
-        <div className="hidden md:flex md:w-[280px] lg:w-[340px] xl:w-[400px] border-l border-border bg-card flex-col">
+        <div
+          className="hidden md:flex border-l border-border bg-card flex-col relative shrink-0"
+          style={{ width: cartWidth }}
+        >
+          {/* Drag handle */}
+          <div
+            className="absolute top-0 bottom-0 w-5 cursor-col-resize hover:bg-primary/10 active:bg-primary/20 transition-colors z-10 flex items-center justify-center"
+            style={{ left: '-10px' }}
+            onMouseDown={handleDragStart}
+          >
+            <div className="w-1 h-12 rounded-full bg-gray-300" />
+          </div>
           <CartPanel onTransactionComplete={handleTransactionComplete} />
         </div>
 
@@ -412,17 +536,50 @@ export function PosPage() {
               cartItems.find((ci) => ci.serviceId === quantityService.id)?.quantity
             }
             onConfirm={handleConfirmQuantity}
+            onRemove={() => {
+              const cartItem = cartItems.find((ci) => ci.serviceId === quantityService.id)
+              if (cartItem) removeItem(cartItem.id)
+            }}
           />
         )}
 
-        {/* Success celebration overlay */}
-        <SuccessOverlay
-          open={!!successTx}
-          transaction={successTx}
-          onNewTransaction={() => setSuccessTx(null)}
-          onClose={() => setSuccessTx(null)}
-        />
       </div>
+
+      {/* Close tab confirmation dialog */}
+      <Dialog open={!!closeTabConfirm} onOpenChange={(open) => !open && setCloseTabConfirm(null)}>
+        <DialogContent className="max-w-xs">
+          <DialogHeader className="flex-row items-start gap-3 text-left">
+            <div className="shrink-0 w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
+              <Warning size={20} weight="fill" className="text-destructive" />
+            </div>
+            <div className="flex-1 space-y-1">
+              <DialogTitle className="text-left">Tutup sesi ini?</DialogTitle>
+              <DialogDescription className="text-left">
+                Sesi ini masih memiliki item di keranjang. Semua item akan dihapus jika sesi ditutup.
+              </DialogDescription>
+            </div>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2 sm:flex-row">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setCloseTabConfirm(null)}
+            >
+              Batal
+            </Button>
+            <Button
+              variant="destructive"
+              className="flex-1"
+              onClick={() => {
+                if (closeTabConfirm) removeTab(closeTabConfirm)
+                setCloseTabConfirm(null)
+              }}
+            >
+              Tutup Sesi
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
