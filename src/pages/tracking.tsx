@@ -1,7 +1,8 @@
-import { CheckCircle, CircleNotch, Package, TShirt, Timer, Wind } from '@phosphor-icons/react'
+import { CheckCircle, Package, TShirt, Timer, Wind } from '@phosphor-icons/react'
 import { useParams } from '@tanstack/react-router'
 import ky from 'ky'
 import { useCallback, useEffect, useState } from 'react'
+import { LoadingSpinner } from '@/components/shared/loading-spinner'
 import { API_BASE_URL, APP_NAME } from '@/lib/constants'
 
 interface TrackingData {
@@ -56,7 +57,7 @@ export function OrderTrackingPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <CircleNotch size={32} className="animate-spin text-muted-foreground" />
+        <LoadingSpinner />
       </div>
     )
   }

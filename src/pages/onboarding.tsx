@@ -11,9 +11,12 @@ import {
 import { useRouter } from '@tanstack/react-router'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useCallback, useEffect, useState } from 'react'
+import { EmptyState } from '@/components/shared/empty-state'
+import { LoadingSpinner } from '@/components/shared/loading-spinner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { showToast } from '@/components/ui/toast'
+import { SUPPORT_EMAIL } from '@/lib/constants'
 import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { ownerApi } from '@/services/owner-api'
@@ -301,20 +304,13 @@ export function OnboardingPage() {
                   </p>
 
                   {servicesLoading ? (
-                    <div className="flex items-center justify-center py-12">
-                      <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                    </div>
+                    <LoadingSpinner size={24} />
                   ) : services.length === 0 ? (
-                    <div className="text-center py-8">
-                      <CurrencyDollar
-                        size={48}
-                        className="mx-auto text-muted-foreground mb-3"
-                        weight="fill"
-                      />
-                      <p className="text-sm text-muted-foreground">
-                        Belum ada template layanan tersedia.
-                      </p>
-                    </div>
+                    <EmptyState
+                      icon={<CurrencyDollar size={32} weight="fill" />}
+                      title="Belum ada layanan"
+                      description="Belum ada template layanan tersedia."
+                    />
                   ) : (
                     <div className="space-y-4 max-h-[45vh] overflow-y-auto -mx-1 px-1">
                       {Object.entries(servicesByCategory).map(([category, categoryServices]) => (
@@ -516,20 +512,13 @@ export function OnboardingPage() {
                   </p>
 
                   {paymentMethodsLoading ? (
-                    <div className="flex items-center justify-center py-12">
-                      <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                    </div>
+                    <LoadingSpinner size={24} />
                   ) : paymentMethods.length === 0 ? (
-                    <div className="text-center py-8">
-                      <CreditCard
-                        size={48}
-                        className="mx-auto text-muted-foreground mb-3"
-                        weight="fill"
-                      />
-                      <p className="text-sm text-muted-foreground">
-                        Belum ada metode pembayaran tersedia.
-                      </p>
-                    </div>
+                    <EmptyState
+                      icon={<CreditCard size={32} weight="fill" />}
+                      title="Belum ada metode pembayaran"
+                      description="Belum ada metode pembayaran tersedia."
+                    />
                   ) : (
                     <div className="space-y-2 max-h-[45vh] overflow-y-auto -mx-1 px-1">
                       {paymentMethods.map((method) => (
@@ -623,10 +612,10 @@ export function OnboardingPage() {
           <p className="text-sm text-primary-foreground/80">
             Butuh bantuan? Hubungi kami di{' '}
             <a
-              href="mailto:help@kelarin.co.id"
+              href={`mailto:${SUPPORT_EMAIL}`}
               className="text-primary-foreground font-medium hover:underline"
             >
-              help@kelarin.co.id
+              {SUPPORT_EMAIL}
             </a>
           </p>
         </motion.div>
