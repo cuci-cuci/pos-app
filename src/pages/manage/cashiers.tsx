@@ -2,6 +2,7 @@ import { ArrowLeft, Plus, UserCircle } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
 import { EmptyState } from '@/components/shared/empty-state'
+import { InlineError } from '@/components/shared/inline-error'
 import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
 import { Button } from '@/components/ui/button'
 import {
@@ -28,6 +29,7 @@ export function ManageCashiersPage() {
   const router = useRouter()
   const [cashiers, setCashiers] = useState<Cashier[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingCashier, setEditingCashier] = useState<Cashier | null>(null)
   const [formName, setFormName] = useState('')
@@ -39,10 +41,12 @@ export function ManageCashiersPage() {
   const fetchCashiers = useCallback(async () => {
     try {
       setLoading(true)
+      setError(false)
       const res = await ownerApi.listCashiers()
       setCashiers(res.data ?? [])
     } catch {
       showToast('Gagal memuat data kasir', 'error')
+      setError(true)
     } finally {
       setLoading(false)
     }
@@ -127,6 +131,8 @@ export function ManageCashiersPage() {
       <div className="px-4 pb-6">
         {loading ? (
           <ManageListSkeleton />
+        ) : error ? (
+          <InlineError message="Gagal memuat data kasir." onRetry={fetchCashiers} />
         ) : cashiers.length === 0 ? (
           <EmptyState
             icon={<UserCircle size={48} weight="fill" />}

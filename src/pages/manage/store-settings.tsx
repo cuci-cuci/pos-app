@@ -1,6 +1,7 @@
 import { ArrowLeft, Storefront } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
+import { InlineError } from '@/components/shared/inline-error'
 import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -18,6 +19,7 @@ interface StoreSettings {
 export function ManageStoreSettingsPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [storeName, setStoreName] = useState('')
   const [address, setAddress] = useState('')
@@ -28,6 +30,7 @@ export function ManageStoreSettingsPage() {
   const fetchSettings = useCallback(async () => {
     try {
       setLoading(true)
+      setError(false)
       const res = await ownerApi.getStoreSettings()
       const s: StoreSettings = res.data
       setStoreName(s.store_name)
@@ -37,6 +40,7 @@ export function ManageStoreSettingsPage() {
       setReceiptFooter(s.receipt_footer)
     } catch {
       showToast('Gagal memuat pengaturan toko', 'error')
+      setError(true)
     } finally {
       setLoading(false)
     }
@@ -83,6 +87,8 @@ export function ManageStoreSettingsPage() {
       <div className="px-4 pb-6">
         {loading ? (
           <ManageListSkeleton />
+        ) : error ? (
+          <InlineError message="Gagal memuat pengaturan toko." onRetry={fetchSettings} />
         ) : (
           <div className="space-y-4">
             <div className="bg-card border rounded-[var(--radius)] p-4 space-y-4">

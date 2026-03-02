@@ -14,6 +14,7 @@ import type { ReactNode } from 'react'
 import { useCallback, useEffect, useState } from 'react'
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { EmptyState } from '@/components/shared/empty-state'
+import { InlineError } from '@/components/shared/inline-error'
 import { AnalyticsSkeleton } from '@/components/shared/skeleton-loaders'
 import { Button } from '@/components/ui/button'
 import { showToast } from '@/components/ui/toast'
@@ -103,11 +104,13 @@ export function ManageAnalyticsPage() {
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethodAnalytics[]>([])
   const [dailyLoading, setDailyLoading] = useState(true)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
 
   const fetchAnalytics = useCallback(async () => {
     try {
       setLoading(true)
       setDailyLoading(true)
+      setError(false)
       const days = period.replace('d', '')
       const [summaryRes, outletsRes, dailyRes, servicesRes, paymentRes] = await Promise.all([
         ownerApi.analyticsSummary({ period }),
@@ -123,6 +126,7 @@ export function ManageAnalyticsPage() {
       setPaymentMethods(paymentRes.data ?? [])
     } catch {
       showToast('Gagal memuat data analitik', 'error')
+      setError(true)
     } finally {
       setLoading(false)
       setDailyLoading(false)
@@ -205,6 +209,8 @@ export function ManageAnalyticsPage() {
       <div className="px-4 pb-6">
         {loading ? (
           <AnalyticsSkeleton />
+        ) : error ? (
+          <InlineError message="Gagal memuat data analitik." onRetry={fetchAnalytics} />
         ) : !summary ? (
           <EmptyState
             icon={<ChartBar size={48} weight="fill" />}

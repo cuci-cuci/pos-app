@@ -2,6 +2,7 @@ import { ArrowLeft, MapPin, Phone, Plus, Storefront } from '@phosphor-icons/reac
 import { useRouter } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
 import { EmptyState } from '@/components/shared/empty-state'
+import { InlineError } from '@/components/shared/inline-error'
 import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
 import { Button } from '@/components/ui/button'
 import {
@@ -27,6 +28,7 @@ export function ManageOutletsPage() {
   const router = useRouter()
   const [outlets, setOutlets] = useState<Outlet[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingOutlet, setEditingOutlet] = useState<Outlet | null>(null)
   const [formName, setFormName] = useState('')
@@ -37,10 +39,12 @@ export function ManageOutletsPage() {
   const fetchOutlets = useCallback(async () => {
     try {
       setLoading(true)
+      setError(false)
       const res = await ownerApi.listOutlets()
       setOutlets(res.data ?? [])
     } catch {
       showToast('Gagal memuat data outlet', 'error')
+      setError(true)
     } finally {
       setLoading(false)
     }
@@ -108,6 +112,8 @@ export function ManageOutletsPage() {
       <div className="px-4 pb-6">
         {loading ? (
           <ManageListSkeleton />
+        ) : error ? (
+          <InlineError message="Gagal memuat data outlet." onRetry={fetchOutlets} />
         ) : outlets.length === 0 ? (
           <EmptyState
             icon={<Storefront size={48} weight="fill" />}

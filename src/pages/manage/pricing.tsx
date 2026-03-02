@@ -2,6 +2,7 @@ import { ArrowLeft, FloppyDisk, Lightning, Tag } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
 import { EmptyState } from '@/components/shared/empty-state'
+import { InlineError } from '@/components/shared/inline-error'
 import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,12 +24,14 @@ export function ManagePricingPage() {
   const router = useRouter()
   const [services, setServices] = useState<Service[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
   const [editingPrices, setEditingPrices] = useState<Record<string, string>>({})
   const [saving, setSaving] = useState(false)
 
   const fetchServices = useCallback(async () => {
     try {
       setLoading(true)
+      setError(false)
       const res = await ownerApi.listServices()
       // Map API response to local interface
       const data = (res.data ?? []).map((s: any) => ({
@@ -43,6 +46,7 @@ export function ManagePricingPage() {
       setServices(data)
     } catch {
       showToast('Gagal memuat data layanan', 'error')
+      setError(true)
     } finally {
       setLoading(false)
     }
@@ -120,6 +124,8 @@ export function ManagePricingPage() {
       <div className="px-4 pb-6">
         {loading ? (
           <ManageListSkeleton />
+        ) : error ? (
+          <InlineError message="Gagal memuat data harga." onRetry={fetchServices} />
         ) : services.length === 0 ? (
           <EmptyState
             icon={<Tag size={48} weight="fill" />}

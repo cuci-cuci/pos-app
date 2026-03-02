@@ -2,6 +2,7 @@ import { ArrowLeft, CreditCard, Plus, Trash } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
 import { EmptyState } from '@/components/shared/empty-state'
+import { InlineError } from '@/components/shared/inline-error'
 import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
 import { Button } from '@/components/ui/button'
 import {
@@ -27,6 +28,7 @@ export function ManagePaymentMethodsPage() {
   const router = useRouter()
   const [methods, setMethods] = useState<PaymentMethod[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingMethod, setEditingMethod] = useState<PaymentMethod | null>(null)
   const [formName, setFormName] = useState('')
@@ -38,10 +40,12 @@ export function ManagePaymentMethodsPage() {
   const fetchMethods = useCallback(async () => {
     try {
       setLoading(true)
+      setError(false)
       const res = await ownerApi.listPaymentMethods()
       setMethods(res.data ?? [])
     } catch {
       showToast('Gagal memuat data metode pembayaran', 'error')
+      setError(true)
     } finally {
       setLoading(false)
     }
@@ -131,6 +135,8 @@ export function ManagePaymentMethodsPage() {
       <div className="px-4 pb-6">
         {loading ? (
           <ManageListSkeleton />
+        ) : error ? (
+          <InlineError message="Gagal memuat metode pembayaran." onRetry={fetchMethods} />
         ) : methods.length === 0 ? (
           <EmptyState
             icon={<CreditCard size={48} weight="fill" />}
