@@ -1,17 +1,21 @@
 import {
   ArrowLeft,
+  ArrowSquareOut,
   Bank,
+  CheckCircle,
   CircleNotch,
   type Icon,
   Money,
   QrCode,
   RadioButton,
+  Timer,
   Wallet,
+  WarningCircle,
   WifiSlash,
 } from '@phosphor-icons/react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { AnimatePresence, motion } from 'framer-motion'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -21,7 +25,9 @@ import { showToast } from '@/components/ui/toast'
 import { db } from '@/db'
 import type { PaymentMethod, Transaction } from '@/db/schema'
 import { formatCurrency } from '@/lib/format'
+import { generateId } from '@/lib/id-generator'
 import { cn } from '@/lib/utils'
+import { createGatewayPayment, getGatewayPaymentStatus } from '@/services/gateway-api'
 import { createTransaction } from '@/services/order-service'
 import { useAuthStore } from '@/stores/auth-store'
 import { useCartStore } from '@/stores/cart-store'
@@ -51,6 +57,23 @@ const methodColors: Record<string, string> = {
   other: 'text-muted-foreground',
 }
 
+type GatewayStep = 'initiating' | 'waiting' | 'paid' | 'expired' | 'error'
+
+function toGatewayType(methodType: string): 'qris' | 'virtual_account' | 'ewallet' | null {
+  switch (methodType) {
+    case 'qris': return 'qris'
+    case 'bank_transfer': return 'virtual_account'
+    case 'ewallet': return 'ewallet'
+    default: return null
+  }
+}
+
+function formatTimeLeft(seconds: number): string {
+  const m = Math.floor(seconds / 60)
+  const s = seconds % 60
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+}
+
 export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: PaymentDialogProps) {
   const [step, setStep] = useState<Step>('method')
   const [selectedMethod, setSelectedMethod] = useState<{
@@ -60,6 +83,18 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
   } | null>(null)
   const [cashTendered, setCashTendered] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
+
+  // Gateway payment state
+  const [gatewayStep, setGatewayStep] = useState<GatewayStep>('initiating')
+  const [gatewayData, setGatewayData] = useState<{
+    externalId: string
+    paymentUrl: string
+    expiresAt: string
+  } | null>(null)
+  const [gatewayError, setGatewayError] = useState('')
+  const [timeLeft, setTimeLeft] = useState(0)
+  const preIdsRef = useRef<{ transactionId: string; paymentItemId: string } | null>(null)
+  const gatewayRetryRef = useRef(0)
 
   const isOnline = useSyncStore((s) => s.isOnline)
   const tenantId = useAuthStore((s) => s.user?.tenantId)
@@ -137,14 +172,26 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
     if (selectedMethod.type === 'cash') {
       setStep('cash')
     } else {
+      // Pre-generate IDs for gateway payment idempotency
+      preIdsRef.current = {
+        transactionId: generateId(),
+        paymentItemId: generateId(),
+      }
+      gatewayRetryRef.current = 0
+      setGatewayStep('initiating')
+      setGatewayData(null)
+      setGatewayError('')
       setStep('noncash')
     }
   }
 
-  const handleConfirmPayment = async (
-    method: { id: string; name: string; type: string } = selectedMethod!,
-  ) => {
-    if (isProcessing) return
+  const handleConfirmPayment = async (opts?: {
+    gatewayExternalId?: string
+    gatewayPaymentUrl?: string
+    gatewayStatus?: string
+  }) => {
+    const method = selectedMethod
+    if (!method || isProcessing) return
     setIsProcessing(true)
 
     try {
@@ -153,6 +200,11 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
         methodName: method.name,
         methodType: method.type,
         cashTendered: method.type === 'cash' ? cashAmount : undefined,
+        transactionId: preIdsRef.current?.transactionId,
+        paymentItemId: preIdsRef.current?.paymentItemId,
+        gatewayExternalId: opts?.gatewayExternalId,
+        gatewayPaymentUrl: opts?.gatewayPaymentUrl,
+        gatewayStatus: opts?.gatewayStatus,
       })
       handleClose()
       onTransactionComplete?.(tx)
@@ -167,8 +219,255 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
     setStep('method')
     setSelectedMethod(null)
     setCashTendered('')
+    setGatewayStep('initiating')
+    setGatewayData(null)
+    setGatewayError('')
+    preIdsRef.current = null
     onOpenChange(false)
   }
+
+  // Initiate gateway payment when entering noncash step
+  const initiateGateway = useCallback(async () => {
+    if (!selectedMethod || !preIdsRef.current) return
+    const gwType = toGatewayType(selectedMethod.type)
+    if (!gwType) {
+      // Non-gateway method (e.g. "other") — skip gateway, allow manual confirm
+      setGatewayStep('error')
+      setGatewayError('Metode ini tidak mendukung pembayaran gateway')
+      return
+    }
+
+    setGatewayStep('initiating')
+    setGatewayError('')
+
+    try {
+      const res = await createGatewayPayment({
+        transaction_id: preIdsRef.current.transactionId,
+        payment_item_id: preIdsRef.current.paymentItemId,
+        gateway_type: gwType,
+        amount: total,
+      })
+
+      if (res.gateway_payment_url) {
+        setGatewayData({
+          externalId: res.external_id,
+          paymentUrl: res.gateway_payment_url,
+          expiresAt: res.expires_at ?? '',
+        })
+        setGatewayStep('waiting')
+      } else if (res.gateway_status === 'PAID') {
+        setGatewayStep('paid')
+      } else {
+        // ACTIVE but no URL? Shouldn't happen, treat as waiting
+        setGatewayData({
+          externalId: res.external_id,
+          paymentUrl: '',
+          expiresAt: res.expires_at ?? '',
+        })
+        setGatewayStep('waiting')
+      }
+    } catch (err) {
+      setGatewayStep('error')
+      setGatewayError(err instanceof Error ? err.message : 'Gagal membuat pembayaran')
+    }
+  }, [selectedMethod, total])
+
+  useEffect(() => {
+    if (step === 'noncash' && gatewayStep === 'initiating' && preIdsRef.current) {
+      void initiateGateway()
+    }
+  }, [step, gatewayStep, initiateGateway])
+
+  // Poll gateway payment status every 3s when waiting
+  useEffect(() => {
+    if (step !== 'noncash' || gatewayStep !== 'waiting' || !gatewayData?.externalId) return
+
+    const interval = setInterval(async () => {
+      try {
+        const status = await getGatewayPaymentStatus(gatewayData.externalId)
+        if (status.gateway_status === 'PAID') {
+          setGatewayStep('paid')
+          clearInterval(interval)
+          // Auto-confirm payment
+          void handleConfirmPayment({
+            gatewayExternalId: gatewayData.externalId,
+            gatewayPaymentUrl: gatewayData.paymentUrl,
+            gatewayStatus: 'PAID',
+          })
+        } else if (status.is_final) {
+          setGatewayStep(status.gateway_status === 'EXPIRED' ? 'expired' : 'error')
+          setGatewayError(status.gateway_status === 'EXPIRED' ? 'Pembayaran kedaluwarsa' : 'Pembayaran gagal')
+          clearInterval(interval)
+        }
+      } catch {
+        // Silently retry on network errors
+      }
+    }, 3000)
+
+    return () => clearInterval(interval)
+  }, [step, gatewayStep, gatewayData]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Countdown timer
+  useEffect(() => {
+    if (step !== 'noncash' || gatewayStep !== 'waiting' || !gatewayData?.expiresAt) return
+
+    const expiresAt = new Date(gatewayData.expiresAt).getTime()
+    const updateTimeLeft = () => {
+      const remaining = Math.max(0, Math.floor((expiresAt - Date.now()) / 1000))
+      setTimeLeft(remaining)
+      if (remaining <= 0) {
+        setGatewayStep('expired')
+        setGatewayError('Pembayaran kedaluwarsa')
+      }
+    }
+
+    updateTimeLeft()
+    const interval = setInterval(updateTimeLeft, 1000)
+    return () => clearInterval(interval)
+  }, [step, gatewayStep, gatewayData?.expiresAt])
+
+  const handleRetryGateway = () => {
+    // Generate new payment item ID for retry (reuse transaction ID)
+    if (preIdsRef.current) {
+      preIdsRef.current.paymentItemId = generateId()
+    }
+    gatewayRetryRef.current++
+    setGatewayStep('initiating')
+    setGatewayData(null)
+    setGatewayError('')
+  }
+
+  // Gateway payment UI (reused in mobile + tablet noncash step)
+  const noncashGatewayContent = (
+    <>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setStep('method')}
+          className="p-1 rounded hover:bg-accent"
+        >
+          <ArrowLeft size={20} weight="bold" />
+        </button>
+        <h2 className="text-lg font-bold">{selectedMethod?.name}</h2>
+      </div>
+
+      <div className="text-center py-2">
+        <p className="text-sm text-muted-foreground">Total Pembayaran</p>
+        <p className="text-3xl font-bold mt-1">{formatCurrency(total)}</p>
+      </div>
+
+      {/* Initiating */}
+      {gatewayStep === 'initiating' && (
+        <div className="flex flex-col items-center py-6 gap-3">
+          <CircleNotch size={32} weight="bold" className="animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Memproses pembayaran...</p>
+        </div>
+      )}
+
+      {/* Waiting for payment */}
+      {gatewayStep === 'waiting' && gatewayData && (
+        <div className="space-y-4">
+          {gatewayData.paymentUrl && (
+            <Button
+              size="lg"
+              className="w-full h-12 text-base font-bold gap-2"
+              onClick={() => window.open(gatewayData.paymentUrl, '_blank')}
+            >
+              <ArrowSquareOut size={20} weight="bold" />
+              Buka Halaman Pembayaran
+            </Button>
+          )}
+
+          {gatewayData.expiresAt && timeLeft > 0 && (
+            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+              <Timer size={16} weight="bold" />
+              <span>Berlaku {formatTimeLeft(timeLeft)}</span>
+            </div>
+          )}
+
+          <div className="flex items-center justify-center gap-2 py-3">
+            <CircleNotch size={16} weight="bold" className="animate-spin text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">Menunggu pembayaran...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Payment confirmed */}
+      {gatewayStep === 'paid' && (
+        <div className="flex flex-col items-center py-6 gap-3">
+          <CheckCircle size={48} weight="fill" className="text-green-500" />
+          <p className="text-base font-semibold text-green-600">Pembayaran diterima!</p>
+          {isProcessing && (
+            <div className="flex items-center gap-2">
+              <CircleNotch size={16} weight="bold" className="animate-spin" />
+              <p className="text-sm text-muted-foreground">Membuat transaksi...</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Expired */}
+      {gatewayStep === 'expired' && (
+        <div className="space-y-4">
+          <div className="flex flex-col items-center py-6 gap-3">
+            <WarningCircle size={48} weight="fill" className="text-amber-500" />
+            <p className="text-base font-semibold text-amber-600">Pembayaran kedaluwarsa</p>
+            <p className="text-sm text-muted-foreground text-center">
+              Batas waktu pembayaran telah habis. Silakan coba lagi.
+            </p>
+          </div>
+          <Button
+            size="lg"
+            className="w-full h-12 text-base font-bold gap-2"
+            onClick={handleRetryGateway}
+          >
+            Coba Lagi
+          </Button>
+        </div>
+      )}
+
+      {/* Error */}
+      {gatewayStep === 'error' && (
+        <div className="space-y-4">
+          <div className="flex flex-col items-center py-6 gap-3">
+            <WarningCircle size={48} weight="fill" className="text-destructive" />
+            <p className="text-base font-semibold text-destructive">Gagal memproses pembayaran</p>
+            {gatewayError && (
+              <p className="text-sm text-muted-foreground text-center">{gatewayError}</p>
+            )}
+          </div>
+          <Button
+            size="lg"
+            className="w-full h-12 text-base font-bold gap-2"
+            onClick={handleRetryGateway}
+          >
+            Coba Lagi
+          </Button>
+        </div>
+      )}
+
+      {/* Manual confirm fallback — always available when not auto-confirming */}
+      {gatewayStep !== 'paid' && gatewayStep !== 'initiating' && (
+        <>
+          <div className="flex items-center gap-2 py-1">
+            <Separator className="flex-1" />
+            <span className="text-xs text-muted-foreground">atau</span>
+            <Separator className="flex-1" />
+          </div>
+          <Button
+            variant="outline"
+            size="lg"
+            className="w-full h-12 text-base font-bold gap-2"
+            disabled={isProcessing}
+            onClick={() => void handleConfirmPayment()}
+          >
+            {isProcessing && <CircleNotch size={18} weight="bold" className="animate-spin" />}
+            {isProcessing ? 'Memproses...' : 'Konfirmasi Manual'}
+          </Button>
+        </>
+      )}
+    </>
+  )
 
   // Order summary component (reused in both mobile and tablet layouts)
   const orderSummary = (
@@ -385,32 +684,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
               transition={{ duration: 0.15 }}
               className="space-y-4 p-6"
             >
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setStep('method')}
-                  className="p-1 rounded hover:bg-accent"
-                >
-                  <ArrowLeft size={20} weight="bold" />
-                </button>
-                <h2 className="text-lg font-bold">{selectedMethod?.name}</h2>
-              </div>
-
-              <div className="text-center py-8">
-                <p className="text-sm text-muted-foreground">Total Pembayaran</p>
-                <p className="text-3xl font-bold mt-1">{formatCurrency(total)}</p>
-                <p className="text-sm text-muted-foreground mt-4">Menunggu pembayaran...</p>
-              </div>
-
-              <Button
-                size="lg"
-                className="w-full h-12 text-base font-bold gap-2"
-                disabled={isProcessing}
-                onClick={() => void handleConfirmPayment()}
-              >
-                {isProcessing && <CircleNotch size={18} weight="bold" className="animate-spin" />}
-                {isProcessing ? 'Memproses...' : 'Konfirmasi Pembayaran Diterima'}
-              </Button>
+              {noncashGatewayContent}
             </motion.div>
           )}
         </AnimatePresence>
@@ -561,32 +835,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
               transition={{ duration: 0.15 }}
               className="space-y-4 p-6"
             >
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setStep('method')}
-                  className="p-1 rounded hover:bg-accent"
-                >
-                  <ArrowLeft size={20} weight="bold" />
-                </button>
-                <h2 className="text-lg font-bold">{selectedMethod?.name}</h2>
-              </div>
-
-              <div className="text-center py-8">
-                <p className="text-sm text-muted-foreground">Total Pembayaran</p>
-                <p className="text-3xl font-bold mt-1">{formatCurrency(total)}</p>
-                <p className="text-sm text-muted-foreground mt-4">Menunggu pembayaran...</p>
-              </div>
-
-              <Button
-                size="lg"
-                className="w-full h-12 text-base font-bold gap-2"
-                disabled={isProcessing}
-                onClick={() => void handleConfirmPayment()}
-              >
-                {isProcessing && <CircleNotch size={18} weight="bold" className="animate-spin" />}
-                {isProcessing ? 'Memproses...' : 'Konfirmasi Pembayaran Diterima'}
-              </Button>
+              {noncashGatewayContent}
             </motion.div>
           )}
         </AnimatePresence>
