@@ -29,7 +29,8 @@ import { generateId } from '@/lib/id-generator'
 import { cn } from '@/lib/utils'
 import { GATEWAY_COUNTDOWN_INTERVAL_MS, GATEWAY_MAX_RETRIES, GATEWAY_POLL_INTERVAL_MS } from '@/lib/constants'
 import { createGatewayPayment, getGatewayPaymentStatus } from '@/services/gateway-api'
-import { createTransaction } from '@/services/order-service'
+import { buildTransaction, createTransaction } from '@/services/order-service'
+import { pushSingleTransaction } from '@/sync/push-service'
 import { useAuthStore } from '@/stores/auth-store'
 import { useCartStore } from '@/stores/cart-store'
 import { useSyncStore } from '@/stores/sync-store'
@@ -58,7 +59,7 @@ const methodColors: Record<string, string> = {
   other: 'text-muted-foreground',
 }
 
-type GatewayStep = 'initiating' | 'waiting' | 'paid' | 'expired' | 'error'
+type GatewayStep = 'syncing' | 'initiating' | 'waiting' | 'paid' | 'expired' | 'error'
 
 function toGatewayType(methodType: string): 'qris' | 'virtual_account' | 'ewallet' | null {
   switch (methodType) {
@@ -86,7 +87,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
   const [isProcessing, setIsProcessing] = useState(false)
 
   // Gateway payment state
-  const [gatewayStep, setGatewayStep] = useState<GatewayStep>('initiating')
+  const [gatewayStep, setGatewayStep] = useState<GatewayStep>('syncing')
   const [gatewayData, setGatewayData] = useState<{
     externalId: string
     paymentUrl: string
@@ -95,6 +96,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
   const [gatewayError, setGatewayError] = useState('')
   const [timeLeft, setTimeLeft] = useState(0)
   const preIdsRef = useRef<{ transactionId: string; paymentItemId: string } | null>(null)
+  const gatewayTxRef = useRef<Transaction | null>(null)
   const gatewayRetryRef = useRef(0)
 
   const isOnline = useSyncStore((s) => s.isOnline)
@@ -164,7 +166,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
     setSelectedMethod(method)
   }
 
-  const handleProceed = () => {
+  const handleProceed = async () => {
     if (!selectedMethod) return
     if (!isOnline && selectedMethod.type !== 'cash') {
       setSelectedMethod(null)
@@ -174,15 +176,37 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
       setStep('cash')
     } else {
       // Pre-generate IDs for gateway payment idempotency
-      preIdsRef.current = {
+      const ids = {
         transactionId: generateId(),
         paymentItemId: generateId(),
       }
+      preIdsRef.current = ids
       gatewayRetryRef.current = 0
-      setGatewayStep('initiating')
+      setGatewayStep('syncing')
       setGatewayData(null)
       setGatewayError('')
       setStep('noncash')
+
+      // Build transaction, save to IndexedDB, and sync to backend BEFORE gateway
+      try {
+        const tx = await buildTransaction({
+          methodId: selectedMethod.id,
+          methodName: selectedMethod.name,
+          methodType: selectedMethod.type,
+          transactionId: ids.transactionId,
+          paymentItemId: ids.paymentItemId,
+        })
+        await db.transactions.add(tx)
+        await pushSingleTransaction(tx)
+        gatewayTxRef.current = tx
+        // Sync succeeded — now trigger gateway initiation via effect
+        setGatewayStep('initiating')
+      } catch (err) {
+        setGatewayStep('error')
+        setGatewayError(
+          err instanceof Error ? err.message : 'Gagal menyinkronkan transaksi ke server',
+        )
+      }
     }
   }
 
@@ -196,17 +220,41 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
     setIsProcessing(true)
 
     try {
-      const tx = await createTransaction({
-        methodId: method.id,
-        methodName: method.name,
-        methodType: method.type,
-        cashTendered: method.type === 'cash' ? cashAmount : undefined,
-        transactionId: preIdsRef.current?.transactionId,
-        paymentItemId: preIdsRef.current?.paymentItemId,
-        gatewayExternalId: opts?.gatewayExternalId,
-        gatewayPaymentUrl: opts?.gatewayPaymentUrl,
-        gatewayStatus: opts?.gatewayStatus,
-      })
+      let tx: Transaction
+
+      if (gatewayTxRef.current) {
+        // Gateway payment: transaction already created & synced before gateway initiation
+        tx = gatewayTxRef.current
+        // Update payment metadata from gateway response
+        if (opts?.gatewayExternalId || opts?.gatewayPaymentUrl || opts?.gatewayStatus) {
+          const updatedPayment = {
+            ...tx.payments[0],
+            gatewayExternalId: opts.gatewayExternalId,
+            gatewayPaymentUrl: opts.gatewayPaymentUrl,
+            gatewayStatus: opts.gatewayStatus,
+          }
+          await db.transactions.update(tx.id, {
+            payments: [updatedPayment],
+            updatedAt: new Date().toISOString(),
+          })
+        }
+        // Clear the cart (transaction was already saved to DB in handleProceed)
+        useCartStore.getState().clear()
+      } else {
+        // Cash payment: create transaction normally
+        tx = await createTransaction({
+          methodId: method.id,
+          methodName: method.name,
+          methodType: method.type,
+          cashTendered: method.type === 'cash' ? cashAmount : undefined,
+          transactionId: preIdsRef.current?.transactionId,
+          paymentItemId: preIdsRef.current?.paymentItemId,
+          gatewayExternalId: opts?.gatewayExternalId,
+          gatewayPaymentUrl: opts?.gatewayPaymentUrl,
+          gatewayStatus: opts?.gatewayStatus,
+        })
+      }
+
       handleClose()
       onTransactionComplete?.(tx)
     } catch (error) {
@@ -221,10 +269,11 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
     setStep('method')
     setSelectedMethod(null)
     setCashTendered('')
-    setGatewayStep('initiating')
+    setGatewayStep('syncing')
     setGatewayData(null)
     setGatewayError('')
     preIdsRef.current = null
+    gatewayTxRef.current = null
     onOpenChange(false)
   }
 
@@ -382,7 +431,15 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
         <p className="text-3xl font-bold mt-1">{formatCurrency(total)}</p>
       </div>
 
-      {/* Initiating */}
+      {/* Syncing transaction to server */}
+      {gatewayStep === 'syncing' && (
+        <div className="flex flex-col items-center py-6 gap-3">
+          <CircleNotch size={32} weight="bold" className="animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Menyinkronkan transaksi...</p>
+        </div>
+      )}
+
+      {/* Initiating gateway payment */}
       {gatewayStep === 'initiating' && (
         <div className="flex flex-col items-center py-6 gap-3">
           <CircleNotch size={32} weight="bold" className="animate-spin text-primary" />
@@ -493,7 +550,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
       )}
 
       {/* Manual confirm fallback — always available when not auto-confirming */}
-      {gatewayStep !== 'paid' && gatewayStep !== 'initiating' && (
+      {gatewayStep !== 'paid' && gatewayStep !== 'initiating' && gatewayStep !== 'syncing' && (
         <>
           <div className="flex items-center gap-2 py-1">
             <Separator className="flex-1" />
