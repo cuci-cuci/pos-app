@@ -22,6 +22,7 @@
     "dexie-react-hooks": "^4.2.0",
     "framer-motion": "^12.34.3",
     "ky": "^1.14.3",
+    "qrcode.react": "^4.2.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.71.2",

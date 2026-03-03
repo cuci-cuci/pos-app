@@ -15,6 +15,7 @@ import {
 } from '@phosphor-icons/react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { AnimatePresence, motion } from 'framer-motion'
+import { QRCodeSVG } from 'qrcode.react'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
@@ -450,7 +451,32 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
       {/* Waiting for payment */}
       {gatewayStep === 'waiting' && gatewayData && (
         <div className="space-y-4">
-          {gatewayData.paymentUrl && (
+          {gatewayData.paymentUrl && selectedMethod?.type === 'qris' ? (
+            <>
+              {/* Inline QR code for QRIS */}
+              <div className="flex flex-col items-center gap-3 py-2">
+                <div className="bg-white p-4 rounded-xl border">
+                  <QRCodeSVG
+                    value={gatewayData.paymentUrl}
+                    size={200}
+                    level="M"
+                    includeMargin={false}
+                  />
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Scan QR code untuk membayar
+                </p>
+                <button
+                  type="button"
+                  onClick={() => window.open(gatewayData.paymentUrl, '_blank')}
+                  className="text-xs text-primary hover:underline flex items-center gap-1"
+                >
+                  <ArrowSquareOut size={12} weight="bold" />
+                  Buka di browser
+                </button>
+              </div>
+            </>
+          ) : gatewayData.paymentUrl ? (
             <Button
               size="lg"
               className="w-full h-12 text-base font-bold gap-2"
@@ -459,7 +485,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
               <ArrowSquareOut size={20} weight="bold" />
               Buka Halaman Pembayaran
             </Button>
-          )}
+          ) : null}
 
           {gatewayData.expiresAt && timeLeft > 0 && (
             <div className={cn(
