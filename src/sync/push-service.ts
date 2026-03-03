@@ -5,6 +5,53 @@ import { apiClient } from '@/services/api-client'
 import { useAuthStore } from '@/stores/auth-store'
 import { useDeviceStore } from '@/stores/device-store'
 
+function mapTransactionToPayload(t: Transaction, outletId: string, userId: string) {
+  return {
+    id: t.id,
+    outlet_id: outletId,
+    local_order_number: t.orderNumber,
+    customer_name: t.customerName ?? null,
+    member_id: t.memberId ?? null,
+    items: t.items,
+    subtotal: t.subtotal,
+    discount_amount: t.discountAmount,
+    tax_amount: t.taxAmount,
+    total_amount: t.totalAmount,
+    payment_status: 'paid',
+    payments: t.payments,
+    status: t.status,
+    config_version_id: '00000000-0000-0000-0000-000000000000',
+    notes: t.notes || null,
+    created_by: userId,
+    created_at: t.createdAt,
+    shift_id: t.shiftId ?? null,
+    customer_phone: t.customerPhone ?? null,
+    estimated_duration_hours: t.estimatedDurationHours ?? null,
+  }
+}
+
+/** Push a single transaction to backend immediately (used before gateway payment). */
+export async function pushSingleTransaction(tx: Transaction): Promise<void> {
+  const deviceState = useDeviceStore.getState()
+  const authUser = useAuthStore.getState().user
+  const payload = mapTransactionToPayload(
+    tx,
+    deviceState.outletId,
+    authUser?.id ?? '00000000-0000-0000-0000-000000000000',
+  )
+
+  await apiClient
+    .post('pos/sync/upload', {
+      json: { transactions: [payload] },
+    })
+    .json()
+
+  await db.transactions.update(tx.id, {
+    syncStatus: 'synced',
+    syncedAt: new Date().toISOString(),
+  })
+}
+
 export async function pushPendingTransactions(tenantId: string): Promise<number> {
   const pending = await db.transactions
     .where('[tenantId+syncStatus]')
@@ -19,28 +66,10 @@ export async function pushPendingTransactions(tenantId: string): Promise<number>
 
   const deviceState = useDeviceStore.getState()
   const authUser = useAuthStore.getState().user
-  const transactionsWithOutlet = pending.map((t: Transaction) => ({
-    id: t.id,
-    outlet_id: deviceState.outletId,
-    local_order_number: t.orderNumber,
-    customer_name: t.customerName ?? null,
-    member_id: t.memberId ?? null,
-    items: t.items,
-    subtotal: t.subtotal,
-    discount_amount: t.discountAmount,
-    tax_amount: t.taxAmount,
-    total_amount: t.totalAmount,
-    payment_status: 'paid',
-    payments: t.payments,
-    status: t.status,
-    config_version_id: '00000000-0000-0000-0000-000000000000',
-    notes: t.notes || null,
-    created_by: authUser?.id ?? '00000000-0000-0000-0000-000000000000',
-    created_at: t.createdAt,
-    shift_id: t.shiftId ?? null,
-    customer_phone: t.customerPhone ?? null,
-    estimated_duration_hours: t.estimatedDurationHours ?? null,
-  }))
+  const userId = authUser?.id ?? '00000000-0000-0000-0000-000000000000'
+  const transactionsWithOutlet = pending.map((t: Transaction) =>
+    mapTransactionToPayload(t, deviceState.outletId, userId),
+  )
 
   try {
     await apiClient

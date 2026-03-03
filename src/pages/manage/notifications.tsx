@@ -1,6 +1,7 @@
 import { ArrowLeft, ChartBar, WhatsappLogo } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
+import { InlineError } from '@/components/shared/inline-error'
 import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
 import { Button } from '@/components/ui/button'
 import { showToast } from '@/components/ui/toast'
@@ -90,7 +91,7 @@ export function ManageNotificationsPage() {
         {loading ? (
           <ManageListSkeleton />
         ) : !settings ? (
-          <p className="text-center text-muted-foreground py-8">Gagal memuat data</p>
+          <InlineError message="Gagal memuat pengaturan notifikasi." onRetry={fetchSettings} />
         ) : (
           <div className="space-y-4">
             {/* WhatsApp Toggle */}

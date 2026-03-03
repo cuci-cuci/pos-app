@@ -1,6 +1,7 @@
 import { ArrowLeft, CrownSimple, Lightning, Warning } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
+import { InlineError } from '@/components/shared/inline-error'
 import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -64,7 +65,7 @@ export function ManageSubscriptionPage() {
         {loading ? (
           <ManageListSkeleton />
         ) : !info ? (
-          <p className="text-center text-muted-foreground py-8">Gagal memuat data</p>
+          <InlineError message="Gagal memuat data langganan." onRetry={fetch} />
         ) : (
           <div className="space-y-4">
             {/* Current plan */}

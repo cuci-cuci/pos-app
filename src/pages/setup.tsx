@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { db } from '@/db'
 import type { Outlet } from '@/db/schema'
+import { SUPPORT_EMAIL } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { apiClient } from '@/services/api-client'
 import { useAuthStore } from '@/stores/auth-store'
@@ -447,10 +448,10 @@ export function SetupPage() {
           <p className="text-sm text-muted-foreground">
             Butuh bantuan? Hubungi kami di{' '}
             <a
-              href="mailto:help@kelarin.co.id"
+              href={`mailto:${SUPPORT_EMAIL}`}
               className="text-foreground font-medium hover:underline"
             >
-              help@kelarin.co.id
+              {SUPPORT_EMAIL}
             </a>
           </p>
         </motion.div>

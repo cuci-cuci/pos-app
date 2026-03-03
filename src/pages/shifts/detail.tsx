@@ -1,7 +1,8 @@
-import { CaretLeft, WarningCircle } from '@phosphor-icons/react'
+import { CaretLeft, ClipboardText } from '@phosphor-icons/react'
 import { useParams, useRouter } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { EmptyState } from '@/components/shared/empty-state'
+import { InlineError } from '@/components/shared/inline-error'
 import { DetailSkeleton } from '@/components/shared/skeleton-loaders'
 import { ShiftSummary } from '@/components/shift/shift-summary'
 import { Button } from '@/components/ui/button'
@@ -29,13 +30,40 @@ export function ShiftDetailPage() {
     return <DetailSkeleton />
   }
 
-  if (error || !summary) {
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full p-4">
+        <InlineError
+          message="Tidak dapat memuat detail shift."
+          onRetry={() => {
+            setError(false)
+            setLoading(true)
+            shiftApi
+              .getSummary(id!)
+              .then((res) => setSummary(res.data))
+              .catch(() => setError(true))
+              .finally(() => setLoading(false))
+          }}
+        />
+        <Button
+          variant="outline"
+          className="mt-4"
+          onClick={() => router.navigate({ to: '/shifts' })}
+        >
+          <CaretLeft size={16} className="mr-1" weight="bold" />
+          Kembali
+        </Button>
+      </div>
+    )
+  }
+
+  if (!summary) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-4">
         <EmptyState
-          icon={<WarningCircle size={48} weight="fill" />}
-          title="Gagal memuat"
-          description="Tidak dapat memuat detail shift."
+          icon={<ClipboardText size={48} weight="fill" />}
+          title="Shift Tidak Ditemukan"
+          description="Data shift tidak tersedia."
         />
         <Button
           variant="outline"

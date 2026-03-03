@@ -2,6 +2,7 @@ import { ArrowLeft, Copy, Envelope, MagnifyingGlass, Phone, Plus, ShareNetwork, 
 import { useRouter } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
 import { EmptyState } from '@/components/shared/empty-state'
+import { InlineError } from '@/components/shared/inline-error'
 import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
 import { Button } from '@/components/ui/button'
 import {
@@ -38,6 +39,7 @@ export function ManageMembersPage() {
   const router = useRouter()
   const [members, setMembers] = useState<Member[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
   const [search, setSearch] = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingMember, setEditingMember] = useState<Member | null>(null)
@@ -49,10 +51,12 @@ export function ManageMembersPage() {
   const fetchMembers = useCallback(async () => {
     try {
       setLoading(true)
+      setError(false)
       const res = await ownerApi.listMembers()
       setMembers(res.data ?? [])
     } catch {
       showToast('Gagal memuat data member', 'error')
+      setError(true)
     } finally {
       setLoading(false)
     }
@@ -163,6 +167,8 @@ export function ManageMembersPage() {
       <div className="px-4 pb-6">
         {loading ? (
           <ManageListSkeleton />
+        ) : error ? (
+          <InlineError message="Gagal memuat data member." onRetry={fetchMembers} />
         ) : filteredMembers.length === 0 ? (
           <EmptyState
             icon={<Users size={48} weight="fill" />}

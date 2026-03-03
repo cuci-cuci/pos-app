@@ -21,7 +21,8 @@ interface PaymentInput {
   paymentItemId?: string
 }
 
-export async function createTransaction(paymentInput: PaymentInput): Promise<Transaction> {
+/** Build a Transaction object from current cart state without saving or clearing. */
+export async function buildTransaction(paymentInput: PaymentInput): Promise<Transaction> {
   const cart = useCartStore.getState()
   const auth = useAuthStore.getState()
   const sync = useSyncStore.getState()
@@ -86,7 +87,7 @@ export async function createTransaction(paymentInput: PaymentInput): Promise<Tra
 
   const now = new Date().toISOString()
 
-  const transaction: Transaction = {
+  return {
     id: paymentInput.transactionId ?? generateId(),
     tenantId: auth.user.tenantId,
     outletId: useDeviceStore.getState().outletId,
@@ -113,9 +114,13 @@ export async function createTransaction(paymentInput: PaymentInput): Promise<Tra
     createdAt: now,
     updatedAt: now,
   }
+}
+
+export async function createTransaction(paymentInput: PaymentInput): Promise<Transaction> {
+  const transaction = await buildTransaction(paymentInput)
 
   await db.transactions.add(transaction)
-  cart.clear()
+  useCartStore.getState().clear()
 
   // Trigger immediate sync so transaction appears on server quickly
   void syncEngine.triggerSync()
