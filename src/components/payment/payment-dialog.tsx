@@ -92,6 +92,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
   const [gatewayData, setGatewayData] = useState<{
     externalId: string
     paymentUrl: string
+    qrString: string
     expiresAt: string
   } | null>(null)
   const [gatewayError, setGatewayError] = useState('')
@@ -306,7 +307,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
         amount: total,
       })
 
-      if (res.gateway_payment_url) {
+      if (res.gateway_payment_url || res.qr_string) {
         // Validate expiry timestamp
         if (res.expires_at) {
           const expiresMs = new Date(res.expires_at).getTime()
@@ -318,17 +319,19 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
         }
         setGatewayData({
           externalId: res.external_id,
-          paymentUrl: res.gateway_payment_url,
+          paymentUrl: res.gateway_payment_url ?? '',
+          qrString: res.qr_string ?? '',
           expiresAt: res.expires_at ?? '',
         })
         setGatewayStep('waiting')
       } else if (res.gateway_status === 'PAID') {
         setGatewayStep('paid')
       } else {
-        // ACTIVE but no URL? Shouldn't happen, treat as waiting
+        // ACTIVE but no URL or QR? Shouldn't happen, treat as waiting
         setGatewayData({
           externalId: res.external_id,
           paymentUrl: '',
+          qrString: '',
           expiresAt: res.expires_at ?? '',
         })
         setGatewayStep('waiting')
@@ -451,13 +454,13 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
       {/* Waiting for payment */}
       {gatewayStep === 'waiting' && gatewayData && (
         <div className="space-y-4">
-          {gatewayData.paymentUrl && selectedMethod?.type === 'qris' ? (
+          {gatewayData.qrString && selectedMethod?.type === 'qris' ? (
             <>
-              {/* Inline QR code for QRIS */}
+              {/* Inline QRIS QR code from Xendit qr_string */}
               <div className="flex flex-col items-center gap-3 py-2">
                 <div className="bg-white p-4 rounded-xl border">
                   <QRCodeSVG
-                    value={gatewayData.paymentUrl}
+                    value={gatewayData.qrString}
                     size={200}
                     level="M"
                     includeMargin={false}
@@ -466,14 +469,6 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
                 <p className="text-sm text-muted-foreground">
                   Scan QR code untuk membayar
                 </p>
-                <button
-                  type="button"
-                  onClick={() => window.open(gatewayData.paymentUrl, '_blank')}
-                  className="text-xs text-primary hover:underline flex items-center gap-1"
-                >
-                  <ArrowSquareOut size={12} weight="bold" />
-                  Buka di browser
-                </button>
               </div>
             </>
           ) : gatewayData.paymentUrl ? (

@@ -10,6 +10,7 @@ export interface GatewayPaymentResponse {
   gateway_type: GatewayType
   amount: number
   gateway_payment_url?: string
+  qr_string?: string
   expires_at?: string
   created_at: string
 }
