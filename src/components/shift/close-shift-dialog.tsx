@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { showToast } from '@/components/ui/toast'
-import { formatCurrency } from '@/lib/format'
+import { formatCurrency, parseCurrencyInput, sanitizeCurrencyInput } from '@/lib/format'
 import type { ShiftSummary } from '@/services/shift-api'
 import { shiftApi } from '@/services/shift-api'
 import { useShiftStore } from '@/stores/shift-store'
@@ -50,7 +50,7 @@ export function CloseShiftDialog({ open, onOpenChange }: CloseShiftDialogProps) 
     setLoading(true)
     try {
       await closeShift({
-        closing_cash: Number(closingCash) || 0,
+        closing_cash: parseCurrencyInput(closingCash),
         notes: notes || undefined,
       })
       // Fetch the closed shift summary with full details
@@ -77,7 +77,7 @@ export function CloseShiftDialog({ open, onOpenChange }: CloseShiftDialogProps) 
     setClosedSummary(null)
   }
 
-  const cashValue = Number(closingCash) || 0
+  const cashValue = parseCurrencyInput(closingCash)
   const expectedCash = summary
     ? (currentShift?.opening_cash ?? 0) + summary.total_revenue
     : (currentShift?.opening_cash ?? 0)
@@ -155,13 +155,13 @@ export function CloseShiftDialog({ open, onOpenChange }: CloseShiftDialogProps) 
                   />
                   <Input
                     id="closing-cash"
-                    type="number"
+                    type="text"
                     inputMode="numeric"
+                    pattern="[0-9]*"
                     placeholder="0"
                     value={closingCash}
-                    onChange={(e) => setClosingCash(e.target.value)}
+                    onChange={(e) => setClosingCash(sanitizeCurrencyInput(e.target.value))}
                     className="pl-9 text-lg font-semibold"
-                    min={0}
                   />
                 </div>
                 {cashValue > 0 && (

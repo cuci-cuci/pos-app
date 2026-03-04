@@ -32,6 +32,10 @@ function mapTransactionToPayload(t: Transaction, outletId: string, userId: strin
 
 /** Push a single transaction to backend immediately (used before gateway payment). */
 export async function pushSingleTransaction(tx: Transaction): Promise<void> {
+  // Idempotency: skip if already synced
+  const existing = await db.transactions.get(tx.id)
+  if (existing?.syncStatus === 'synced') return
+
   const deviceState = useDeviceStore.getState()
   const authUser = useAuthStore.getState().user
   const payload = mapTransactionToPayload(

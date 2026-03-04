@@ -3,6 +3,12 @@ import { apiClient } from './api-client'
 export type GatewayType = 'qris' | 'virtual_account' | 'ewallet'
 export type GatewayStatus = 'PENDING' | 'ACTIVE' | 'PAID' | 'EXPIRED' | 'FAILED' | 'CANCELLED'
 
+export interface VirtualAccountDetail {
+  bank_code: string
+  account_number: string
+  bank_name: string
+}
+
 export interface GatewayPaymentResponse {
   id: string
   external_id: string
@@ -11,6 +17,7 @@ export interface GatewayPaymentResponse {
   amount: number
   gateway_payment_url?: string
   qr_string?: string
+  virtual_accounts?: VirtualAccountDetail[]
   expires_at?: string
   created_at: string
 }

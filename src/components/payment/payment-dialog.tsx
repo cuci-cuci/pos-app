@@ -4,6 +4,7 @@ import {
   Bank,
   CheckCircle,
   CircleNotch,
+  Copy,
   type Icon,
   Money,
   QrCode,
@@ -25,7 +26,7 @@ import { Sheet, SheetContent } from '@/components/ui/sheet'
 import { showToast } from '@/components/ui/toast'
 import { db } from '@/db'
 import type { PaymentMethod, Transaction } from '@/db/schema'
-import { formatCurrency } from '@/lib/format'
+import { formatCurrency, parseCurrencyInput, sanitizeCurrencyInput } from '@/lib/format'
 import { generateId } from '@/lib/id-generator'
 import { cn } from '@/lib/utils'
 import { GATEWAY_COUNTDOWN_INTERVAL_MS, GATEWAY_MAX_RETRIES, GATEWAY_POLL_INTERVAL_MS } from '@/lib/constants'
@@ -93,6 +94,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
     externalId: string
     paymentUrl: string
     qrString: string
+    virtualAccounts?: { bank_code: string; account_number: string; bank_name: string }[]
     expiresAt: string
   } | null>(null)
   const [gatewayError, setGatewayError] = useState('')
@@ -130,17 +132,16 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
     { label: 'Rp 200rb', value: 200000 },
   ]
 
-  const cashAmount = parseInt(cashTendered, 10) || 0
+  const cashAmount = parseCurrencyInput(cashTendered)
   const changeAmount = cashAmount - total
 
   // Deduplicate payment methods by name+type
+  const fallbackCashId = useRef(`cash-fallback-${tenantId ?? 'local'}`).current
   const methods = useMemo(() => {
-    const defaultMethods = [
-      { id: 'cash-default', name: 'Tunai', type: 'cash' },
-      { id: 'qris-default', name: 'QRIS', type: 'qris' },
-    ]
-
-    if (!paymentMethods || paymentMethods.length === 0) return defaultMethods
+    if (!paymentMethods || paymentMethods.length === 0) {
+      // Only allow cash fallback when no methods synced
+      return [{ id: fallbackCashId, name: 'Tunai', type: 'cash' }]
+    }
 
     const seen = new Set<string>()
     const unique: { id: string; name: string; type: string }[] = []
@@ -169,14 +170,19 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
   }
 
   const handleProceed = async () => {
-    if (!selectedMethod) return
+    if (!selectedMethod || isProcessing) return
     if (!isOnline && selectedMethod.type !== 'cash') {
       setSelectedMethod(null)
+      return
+    }
+    if (total <= 0 || items.length === 0) {
+      showToast('Keranjang kosong atau total tidak valid', 'error')
       return
     }
     if (selectedMethod.type === 'cash') {
       setStep('cash')
     } else {
+      setIsProcessing(true)
       // Pre-generate IDs for gateway payment idempotency
       const ids = {
         transactionId: generateId(),
@@ -208,6 +214,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
         setGatewayError(
           err instanceof Error ? err.message : 'Gagal menyinkronkan transaksi ke server',
         )
+        setIsProcessing(false)
       }
     }
   }
@@ -268,6 +275,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
 
   const handleClose = () => {
     if (isProcessing) return
+    if (gatewayStep === 'syncing' || gatewayStep === 'initiating') return
     setStep('method')
     setSelectedMethod(null)
     setCashTendered('')
@@ -321,6 +329,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
           externalId: res.external_id,
           paymentUrl: res.gateway_payment_url ?? '',
           qrString: res.qr_string ?? '',
+          virtualAccounts: res.virtual_accounts,
           expiresAt: res.expires_at ?? '',
         })
         setGatewayStep('waiting')
@@ -332,6 +341,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
           externalId: res.external_id,
           paymentUrl: '',
           qrString: '',
+          virtualAccounts: res.virtual_accounts,
           expiresAt: res.expires_at ?? '',
         })
         setGatewayStep('waiting')
@@ -406,6 +416,10 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
 
   const handleRetryGateway = () => {
     if (gatewayRetryRef.current >= GATEWAY_MAX_RETRIES) return
+    if (!navigator.onLine) {
+      setGatewayError('Tidak ada koneksi internet. Periksa jaringan Anda.')
+      return
+    }
     // Generate new payment item ID for retry (reuse transaction ID)
     if (preIdsRef.current) {
       preIdsRef.current.paymentItemId = generateId()
@@ -471,6 +485,39 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
                 </p>
               </div>
             </>
+          ) : selectedMethod?.type === 'bank_transfer' && gatewayData.virtualAccounts?.length ? (
+            <div className="space-y-3">
+              <p className="text-sm font-medium text-center">Transfer ke Virtual Account:</p>
+              {gatewayData.virtualAccounts.map((va) => (
+                <div key={va.bank_code} className="bg-muted rounded-xl p-4 text-center space-y-1">
+                  <p className="text-xs text-muted-foreground font-medium">{va.bank_name}</p>
+                  <p className="text-xl font-bold font-mono tracking-wider">{va.account_number}</p>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="gap-1.5 text-xs"
+                    onClick={() => {
+                      void navigator.clipboard.writeText(va.account_number)
+                      showToast('Nomor rekening disalin', 'success')
+                    }}
+                  >
+                    <Copy size={14} weight="bold" />
+                    Salin
+                  </Button>
+                </div>
+              ))}
+              {gatewayData.paymentUrl && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full gap-2"
+                  onClick={() => window.open(gatewayData.paymentUrl, '_blank')}
+                >
+                  <ArrowSquareOut size={16} weight="bold" />
+                  Buka Halaman Pembayaran
+                </Button>
+              )}
+            </div>
           ) : gatewayData.paymentUrl ? (
             <Button
               size="lg"
@@ -711,7 +758,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
               <Button
                 size="lg"
                 className="w-full h-12 text-base font-bold"
-                disabled={!selectedMethod || (!isOnline && selectedMethod.type !== 'cash')}
+                disabled={!selectedMethod || isProcessing || (!isOnline && selectedMethod.type !== 'cash')}
                 onClick={handleProceed}
               >
                 Lanjutkan Pembayaran
@@ -769,16 +816,17 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
                 </label>
                 <Input
                   id="cash-amount-input"
-                  type="number"
+                  type="text"
                   inputMode="numeric"
+                  pattern="[0-9]*"
                   placeholder="Masukkan nominal..."
                   value={cashTendered}
-                  onChange={(e) => setCashTendered(e.target.value)}
+                  onChange={(e) => setCashTendered(sanitizeCurrencyInput(e.target.value))}
                   className="text-lg h-14 text-center font-semibold"
                 />
               </div>
 
-              {cashAmount > 0 && cashAmount >= total && (
+              {cashAmount > 0 && cashAmount >= total && changeAmount >= 0 && changeAmount <= cashAmount && (
                 <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center">
                   <p className="text-sm text-muted-foreground">Kembalian</p>
                   <p className="text-2xl font-bold text-green-600">
@@ -861,7 +909,7 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
                 <Button
                   size="lg"
                   className="w-full h-12 text-base font-bold"
-                  disabled={!selectedMethod || (!isOnline && selectedMethod.type !== 'cash')}
+                  disabled={!selectedMethod || isProcessing || (!isOnline && selectedMethod.type !== 'cash')}
                   onClick={handleProceed}
                 >
                   Lanjutkan Pembayaran
@@ -920,16 +968,17 @@ export function PaymentDialog({ open, onOpenChange, onTransactionComplete }: Pay
                 </label>
                 <Input
                   id="cash-amount-input-tablet"
-                  type="number"
+                  type="text"
                   inputMode="numeric"
+                  pattern="[0-9]*"
                   placeholder="Masukkan nominal..."
                   value={cashTendered}
-                  onChange={(e) => setCashTendered(e.target.value)}
+                  onChange={(e) => setCashTendered(sanitizeCurrencyInput(e.target.value))}
                   className="text-lg h-14 text-center font-semibold"
                 />
               </div>
 
-              {cashAmount > 0 && cashAmount >= total && (
+              {cashAmount > 0 && cashAmount >= total && changeAmount >= 0 && changeAmount <= cashAmount && (
                 <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center">
                   <p className="text-sm text-muted-foreground">Kembalian</p>
                   <p className="text-2xl font-bold text-green-600">

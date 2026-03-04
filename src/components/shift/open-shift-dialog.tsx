@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { showToast } from '@/components/ui/toast'
-import { formatCurrency } from '@/lib/format'
+import { formatCurrency, parseCurrencyInput, sanitizeCurrencyInput } from '@/lib/format'
 import { useDeviceStore } from '@/stores/device-store'
 import { useShiftStore } from '@/stores/shift-store'
 
@@ -37,7 +37,7 @@ export function OpenShiftDialog({ open, onOpenChange }: OpenShiftDialogProps) {
     try {
       await openShift({
         outlet_id: outletId,
-        opening_cash: Number(openingCash) || 0,
+        opening_cash: parseCurrencyInput(openingCash),
       })
       showToast('Shift berhasil dibuka', 'success')
       onOpenChange(false)
@@ -55,7 +55,7 @@ export function OpenShiftDialog({ open, onOpenChange }: OpenShiftDialogProps) {
     }
   }
 
-  const cashValue = Number(openingCash) || 0
+  const cashValue = parseCurrencyInput(openingCash)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -83,13 +83,13 @@ export function OpenShiftDialog({ open, onOpenChange }: OpenShiftDialogProps) {
               />
               <Input
                 id="opening-cash"
-                type="number"
+                type="text"
                 inputMode="numeric"
+                pattern="[0-9]*"
                 placeholder="0"
                 value={openingCash}
-                onChange={(e) => setOpeningCash(e.target.value)}
+                onChange={(e) => setOpeningCash(sanitizeCurrencyInput(e.target.value))}
                 className="pl-9 text-lg font-semibold"
-                min={0}
               />
             </div>
             {cashValue > 0 && (
