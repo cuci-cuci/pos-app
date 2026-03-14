@@ -4,6 +4,7 @@ import {
   ChartBar,
   CreditCard,
   CrownSimple,
+  CurrencyCircleDollar,
   GearSix,
   Storefront,
   Tag,
@@ -62,6 +63,14 @@ const menuItems: ManageMenuItem[] = [
     iconBg: 'bg-primary/10',
     iconColor: 'text-primary',
     path: '/manage/members',
+  },
+  {
+    label: 'Keuangan',
+    description: 'Pengeluaran, laba rugi, arus kas',
+    icon: CurrencyCircleDollar,
+    iconBg: 'bg-emerald-500/10',
+    iconColor: 'text-emerald-500',
+    path: '/manage/finance',
   },
   {
     label: 'Analitik',

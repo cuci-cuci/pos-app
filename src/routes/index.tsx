@@ -1,65 +1,145 @@
+import { Suspense, lazy } from 'react'
 import { createRootRoute, createRoute, createRouter, redirect } from '@tanstack/react-router'
 import { AppShell } from '@/components/layout/app-shell'
-import { DashboardPage } from '@/pages/dashboard'
-import { ForgotPasswordPage } from '@/pages/forgot-password'
-import { LoginPage } from '@/pages/login'
-import { ManagePage } from '@/pages/manage'
-import { ManageAnalyticsPage } from '@/pages/manage/analytics'
-import { ManageCashiersPage } from '@/pages/manage/cashiers'
-import { ManageMembersPage } from '@/pages/manage/members'
-import { ManageOutletsPage } from '@/pages/manage/outlets'
-import { ManagePaymentMethodsPage } from '@/pages/manage/payment-methods'
-import { ManagePricingPage } from '@/pages/manage/pricing'
-import { ManageStoreSettingsPage } from '@/pages/manage/store-settings'
-import { ManageNotificationsPage } from '@/pages/manage/notifications'
-import { ManageSubscriptionPage } from '@/pages/manage/subscription'
-import { OrderTrackingPage } from '@/pages/tracking'
-import { OnboardingPage } from '@/pages/onboarding'
-import { OrdersPage } from '@/pages/orders'
-import { OrderDetailPage } from '@/pages/orders/detail'
-import { PosPage } from '@/pages/pos'
-import { RegisterPage } from '@/pages/register'
-import { ResetPasswordPage } from '@/pages/reset-password'
-import { SettingsPage } from '@/pages/settings'
-import { SetupPage } from '@/pages/setup'
-import { ShiftDetailPage } from '@/pages/shifts/detail'
-import { ShiftsPage } from '@/pages/shifts/index'
-import { TransactionDetailPage } from '@/pages/transaction-detail-page'
-import { TransactionsPage } from '@/pages/transactions'
 import { RouteErrorFallback } from '@/components/shared/error-boundary'
+import {
+  AnalyticsSkeleton,
+  DashboardSkeleton,
+  DetailSkeleton,
+  ManageListSkeleton,
+  ServiceGridSkeleton,
+  TransactionListSkeleton,
+} from '@/components/shared/skeleton-loaders'
 import { useAuthStore } from '@/stores/auth-store'
 import { useDeviceStore } from '@/stores/device-store'
+
+// Lazy-loaded page components
+const LoginPage = lazy(() => import('@/pages/login').then((m) => ({ default: m.LoginPage })))
+const RegisterPage = lazy(() =>
+  import('@/pages/register').then((m) => ({ default: m.RegisterPage })),
+)
+const ForgotPasswordPage = lazy(() =>
+  import('@/pages/forgot-password').then((m) => ({ default: m.ForgotPasswordPage })),
+)
+const ResetPasswordPage = lazy(() =>
+  import('@/pages/reset-password').then((m) => ({ default: m.ResetPasswordPage })),
+)
+const OrderTrackingPage = lazy(() =>
+  import('@/pages/tracking').then((m) => ({ default: m.OrderTrackingPage })),
+)
+const OnboardingPage = lazy(() =>
+  import('@/pages/onboarding').then((m) => ({ default: m.OnboardingPage })),
+)
+const SetupPage = lazy(() => import('@/pages/setup').then((m) => ({ default: m.SetupPage })))
+const PosPage = lazy(() => import('@/pages/pos').then((m) => ({ default: m.PosPage })))
+const DashboardPage = lazy(() =>
+  import('@/pages/dashboard').then((m) => ({ default: m.DashboardPage })),
+)
+const TransactionsPage = lazy(() =>
+  import('@/pages/transactions').then((m) => ({ default: m.TransactionsPage })),
+)
+const TransactionDetailPage = lazy(() =>
+  import('@/pages/transaction-detail-page').then((m) => ({ default: m.TransactionDetailPage })),
+)
+const SettingsPage = lazy(() =>
+  import('@/pages/settings').then((m) => ({ default: m.SettingsPage })),
+)
+const OrdersPage = lazy(() => import('@/pages/orders').then((m) => ({ default: m.OrdersPage })))
+const OrderDetailPage = lazy(() =>
+  import('@/pages/orders/detail').then((m) => ({ default: m.OrderDetailPage })),
+)
+const ShiftsPage = lazy(() =>
+  import('@/pages/shifts/index').then((m) => ({ default: m.ShiftsPage })),
+)
+const ShiftDetailPage = lazy(() =>
+  import('@/pages/shifts/detail').then((m) => ({ default: m.ShiftDetailPage })),
+)
+const ManagePage = lazy(() => import('@/pages/manage').then((m) => ({ default: m.ManagePage })))
+const ManageOutletsPage = lazy(() =>
+  import('@/pages/manage/outlets').then((m) => ({ default: m.ManageOutletsPage })),
+)
+const ManagePricingPage = lazy(() =>
+  import('@/pages/manage/pricing').then((m) => ({ default: m.ManagePricingPage })),
+)
+const ManageCashiersPage = lazy(() =>
+  import('@/pages/manage/cashiers').then((m) => ({ default: m.ManageCashiersPage })),
+)
+const ManagePaymentMethodsPage = lazy(() =>
+  import('@/pages/manage/payment-methods').then((m) => ({
+    default: m.ManagePaymentMethodsPage,
+  })),
+)
+const ManageMembersPage = lazy(() =>
+  import('@/pages/manage/members').then((m) => ({ default: m.ManageMembersPage })),
+)
+const ManageStoreSettingsPage = lazy(() =>
+  import('@/pages/manage/store-settings').then((m) => ({ default: m.ManageStoreSettingsPage })),
+)
+const ManageSubscriptionPage = lazy(() =>
+  import('@/pages/manage/subscription').then((m) => ({ default: m.ManageSubscriptionPage })),
+)
+const ManageNotificationsPage = lazy(() =>
+  import('@/pages/manage/notifications').then((m) => ({ default: m.ManageNotificationsPage })),
+)
+const ManageAnalyticsPage = lazy(() =>
+  import('@/pages/manage/analytics').then((m) => ({ default: m.ManageAnalyticsPage })),
+)
+const ManageFinancePage = lazy(() =>
+  import('@/pages/manage/finance').then((m) => ({ default: m.ManageFinancePage })),
+)
+const ManageFinanceExpensesPage = lazy(() =>
+  import('@/pages/manage/finance-expenses').then((m) => ({
+    default: m.ManageFinanceExpensesPage,
+  })),
+)
+const ManageFinancePnlPage = lazy(() =>
+  import('@/pages/manage/finance-pnl').then((m) => ({ default: m.ManageFinancePnlPage })),
+)
+
+// Suspense wrapper helper
+function withSuspense(
+  Component: React.LazyExoticComponent<React.ComponentType>,
+  Fallback: React.ComponentType = () => null,
+) {
+  return function LazyRoute() {
+    return (
+      <Suspense fallback={<Fallback />}>
+        <Component />
+      </Suspense>
+    )
+  }
+}
 
 const rootRoute = createRootRoute({})
 
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/login',
-  component: LoginPage,
+  component: withSuspense(LoginPage),
 })
 
 const trackingRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/track/$token',
-  component: OrderTrackingPage,
+  component: withSuspense(OrderTrackingPage),
 })
 
 const forgotPasswordRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/forgot-password',
-  component: ForgotPasswordPage,
+  component: withSuspense(ForgotPasswordPage),
 })
 
 const resetPasswordRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/reset-password',
-  component: ResetPasswordPage,
+  component: withSuspense(ResetPasswordPage),
 })
 
 const registerRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/register',
-  component: RegisterPage,
+  component: withSuspense(RegisterPage),
   beforeLoad: () => {
     const isAuthenticated = useAuthStore.getState().isAuthenticated()
     if (isAuthenticated) {
@@ -71,7 +151,7 @@ const registerRoute = createRoute({
 const onboardingRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/onboarding',
-  component: OnboardingPage,
+  component: withSuspense(OnboardingPage),
   beforeLoad: () => {
     const isAuthenticated = useAuthStore.getState().isAuthenticated()
     if (!isAuthenticated) {
@@ -83,7 +163,7 @@ const onboardingRoute = createRoute({
 const setupRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/setup',
-  component: SetupPage,
+  component: withSuspense(SetupPage),
   beforeLoad: () => {
     const isAuthenticated = useAuthStore.getState().isAuthenticated()
     if (!isAuthenticated) {
@@ -118,7 +198,7 @@ const authenticatedRoute = createRoute({
 const posRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/',
-  component: PosPage,
+  component: withSuspense(PosPage, ServiceGridSkeleton),
   beforeLoad: () => {
     const user = useAuthStore.getState().user
     if (user?.role === 'tenant_owner') {
@@ -130,169 +210,147 @@ const posRoute = createRoute({
 const dashboardRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/dashboard',
-  component: DashboardPage,
+  component: withSuspense(DashboardPage, DashboardSkeleton),
 })
 
 const transactionsRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/transactions',
-  component: TransactionsPage,
+  component: withSuspense(TransactionsPage, TransactionListSkeleton),
 })
 
 const transactionDetailRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/transactions/$id',
-  component: TransactionDetailPage,
+  component: withSuspense(TransactionDetailPage, DetailSkeleton),
 })
 
 const settingsRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/settings',
-  component: SettingsPage,
+  component: withSuspense(SettingsPage),
 })
+
+const requireOwner = () => {
+  const user = useAuthStore.getState().user
+  if (user?.role !== 'tenant_owner') {
+    throw redirect({ to: '/' })
+  }
+}
 
 const manageRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/manage',
-  component: ManagePage,
-  beforeLoad: () => {
-    const user = useAuthStore.getState().user
-    if (user?.role !== 'tenant_owner') {
-      throw redirect({ to: '/' })
-    }
-  },
+  component: withSuspense(ManagePage, ManageListSkeleton),
+  beforeLoad: requireOwner,
 })
 
 const manageOutletsRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/manage/outlets',
-  component: ManageOutletsPage,
-  beforeLoad: () => {
-    const user = useAuthStore.getState().user
-    if (user?.role !== 'tenant_owner') {
-      throw redirect({ to: '/' })
-    }
-  },
+  component: withSuspense(ManageOutletsPage, ManageListSkeleton),
+  beforeLoad: requireOwner,
 })
 
 const managePricingRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/manage/pricing',
-  component: ManagePricingPage,
-  beforeLoad: () => {
-    const user = useAuthStore.getState().user
-    if (user?.role !== 'tenant_owner') {
-      throw redirect({ to: '/' })
-    }
-  },
+  component: withSuspense(ManagePricingPage, ManageListSkeleton),
+  beforeLoad: requireOwner,
 })
 
 const manageCashiersRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/manage/cashiers',
-  component: ManageCashiersPage,
-  beforeLoad: () => {
-    const user = useAuthStore.getState().user
-    if (user?.role !== 'tenant_owner') {
-      throw redirect({ to: '/' })
-    }
-  },
+  component: withSuspense(ManageCashiersPage, ManageListSkeleton),
+  beforeLoad: requireOwner,
 })
 
 const managePaymentMethodsRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/manage/payment-methods',
-  component: ManagePaymentMethodsPage,
-  beforeLoad: () => {
-    const user = useAuthStore.getState().user
-    if (user?.role !== 'tenant_owner') {
-      throw redirect({ to: '/' })
-    }
-  },
+  component: withSuspense(ManagePaymentMethodsPage, ManageListSkeleton),
+  beforeLoad: requireOwner,
 })
 
 const manageMembersRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/manage/members',
-  component: ManageMembersPage,
-  beforeLoad: () => {
-    const user = useAuthStore.getState().user
-    if (user?.role !== 'tenant_owner') {
-      throw redirect({ to: '/' })
-    }
-  },
+  component: withSuspense(ManageMembersPage, ManageListSkeleton),
+  beforeLoad: requireOwner,
 })
 
 const ordersRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/orders',
-  component: OrdersPage,
+  component: withSuspense(OrdersPage, TransactionListSkeleton),
 })
 
 const orderDetailRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/orders/$id',
-  component: OrderDetailPage,
+  component: withSuspense(OrderDetailPage, DetailSkeleton),
 })
 
 const shiftsRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/shifts',
-  component: ShiftsPage,
+  component: withSuspense(ShiftsPage, TransactionListSkeleton),
 })
 
 const shiftDetailRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/shifts/$id',
-  component: ShiftDetailPage,
+  component: withSuspense(ShiftDetailPage, DetailSkeleton),
 })
 
 const manageStoreSettingsRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/manage/store-settings',
-  component: ManageStoreSettingsPage,
-  beforeLoad: () => {
-    const user = useAuthStore.getState().user
-    if (user?.role !== 'tenant_owner') {
-      throw redirect({ to: '/' })
-    }
-  },
+  component: withSuspense(ManageStoreSettingsPage, ManageListSkeleton),
+  beforeLoad: requireOwner,
 })
 
 const manageSubscriptionRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/manage/subscription',
-  component: ManageSubscriptionPage,
-  beforeLoad: () => {
-    const user = useAuthStore.getState().user
-    if (user?.role !== 'tenant_owner') {
-      throw redirect({ to: '/' })
-    }
-  },
+  component: withSuspense(ManageSubscriptionPage, ManageListSkeleton),
+  beforeLoad: requireOwner,
 })
 
 const manageNotificationsRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/manage/notifications',
-  component: ManageNotificationsPage,
-  beforeLoad: () => {
-    const user = useAuthStore.getState().user
-    if (user?.role !== 'tenant_owner') {
-      throw redirect({ to: '/' })
-    }
-  },
+  component: withSuspense(ManageNotificationsPage, ManageListSkeleton),
+  beforeLoad: requireOwner,
 })
 
 const manageAnalyticsRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/manage/analytics',
-  component: ManageAnalyticsPage,
-  beforeLoad: () => {
-    const user = useAuthStore.getState().user
-    if (user?.role !== 'tenant_owner') {
-      throw redirect({ to: '/' })
-    }
-  },
+  component: withSuspense(ManageAnalyticsPage, AnalyticsSkeleton),
+  beforeLoad: requireOwner,
+})
+
+const manageFinanceRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: '/manage/finance',
+  component: withSuspense(ManageFinancePage, ManageListSkeleton),
+  beforeLoad: requireOwner,
+})
+
+const manageFinanceExpensesRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: '/manage/finance/expenses',
+  component: withSuspense(ManageFinanceExpensesPage, ManageListSkeleton),
+  beforeLoad: requireOwner,
+})
+
+const manageFinancePnlRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: '/manage/finance/pnl',
+  component: withSuspense(ManageFinancePnlPage, ManageListSkeleton),
+  beforeLoad: requireOwner,
 })
 
 const routeTree = rootRoute.addChildren([
@@ -318,6 +376,9 @@ const routeTree = rootRoute.addChildren([
     managePaymentMethodsRoute,
     manageMembersRoute,
     manageAnalyticsRoute,
+    manageFinanceRoute,
+    manageFinanceExpensesRoute,
+    manageFinancePnlRoute,
     manageNotificationsRoute,
     manageSubscriptionRoute,
     manageStoreSettingsRoute,

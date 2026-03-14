@@ -1,5 +1,5 @@
 import {
-  ArrowsClockwise,
+  ChartBar,
   ClipboardText,
   ClockCounterClockwise,
   CloudArrowUp,
@@ -8,14 +8,16 @@ import {
   Plus,
   Receipt,
   Stop,
+  Target,
   TrendUp,
   WarningCircle,
 } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
 import type { ReactNode } from 'react'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { EmptyState } from '@/components/shared/empty-state'
+import { InlineError } from '@/components/shared/inline-error'
 import { DashboardSkeleton } from '@/components/shared/skeleton-loaders'
 import { SyncStatusIcon } from '@/components/shared/sync-status-icon'
 import { CloseShiftDialog } from '@/components/shift/close-shift-dialog'
@@ -25,6 +27,14 @@ import { db } from '@/db'
 import { ROLE_TENANT_OWNER } from '@/lib/constants'
 import { formatCurrency, formatTime } from '@/lib/format'
 import { cn } from '@/lib/utils'
+import {
+  getDashboardSummary,
+  getCashierPerformance,
+  getGoals,
+  type DashboardSummary,
+  type CashierPerformanceItem,
+  type DashboardGoal,
+} from '@/services/dashboard-api'
 import { useAuthStore } from '@/stores/auth-store'
 import { useShiftStore } from '@/stores/shift-store'
 import { useSyncStore } from '@/stores/sync-store'
@@ -387,7 +397,68 @@ export function DashboardPage() {
     )
   }
 
-  // Owner dashboard
+  // Owner dashboard — uses API data
+  return (
+    <OwnerDashboard
+      user={user}
+      openShiftDialog={openShiftDialog}
+      closeShiftDialog={closeShiftDialog}
+      setOpenShiftDialog={setOpenShiftDialog}
+      setCloseShiftDialog={setCloseShiftDialog}
+    />
+  )
+}
+
+function OwnerDashboard({
+  user,
+  openShiftDialog,
+  closeShiftDialog,
+  setOpenShiftDialog,
+  setCloseShiftDialog,
+}: {
+  user: ReturnType<typeof useAuthStore.getState>['user']
+  openShiftDialog: boolean
+  closeShiftDialog: boolean
+  setOpenShiftDialog: (v: boolean) => void
+  setCloseShiftDialog: (v: boolean) => void
+}) {
+  const router = useRouter()
+  const pendingCount = useSyncStore((s) => s.pendingCount)
+
+  const [summary, setSummary] = useState<DashboardSummary | null>(null)
+  const [cashiers, setCashiers] = useState<CashierPerformanceItem[]>([])
+  const [goals, setGoals] = useState<DashboardGoal[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+
+  const fetchData = useCallback(async () => {
+    setLoading(true)
+    setError(false)
+    try {
+      const [summaryRes, cashierRes, goalsRes] = await Promise.all([
+        getDashboardSummary(),
+        getCashierPerformance(30),
+        getGoals(),
+      ])
+      setSummary(summaryRes.data)
+      setCashiers(cashierRes.data ?? [])
+      setGoals(goalsRes.data ?? [])
+    } catch {
+      setError(true)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
+
+  if (loading) return <DashboardSkeleton />
+  if (error) return <InlineError message="Gagal memuat dashboard" onRetry={fetchData} />
+
+  const growthSign = (summary?.revenue_growth_pct ?? 0) >= 0 ? '+' : ''
+
   return (
     <div className="flex flex-col h-full overflow-y-auto">
       <div className="px-4 pt-4 pb-2">
@@ -395,7 +466,7 @@ export function DashboardPage() {
         <p className="text-sm text-muted-foreground">Selamat datang, {user?.name}</p>
       </div>
 
-      {/* Shift status for owners too */}
+      {/* Shift status */}
       <div className="px-4 mb-3">
         <ShiftStatusCard
           onOpenShift={() => setOpenShiftDialog(true)}
@@ -403,36 +474,106 @@ export function DashboardPage() {
         />
       </div>
 
-      {/* Summary cards */}
+      {/* Summary cards — API sourced */}
       <div className="px-4 grid grid-cols-2 gap-3">
         <SummaryCard
           icon={<CurrencyDollar size={22} weight="fill" />}
           label="Revenue Hari Ini"
-          value={formatCurrency(todayRevenue)}
+          value={formatCurrency(summary?.today_revenue ?? 0)}
           variant="success"
         />
         <SummaryCard
           icon={<Receipt size={22} weight="fill" />}
-          label="Total Transaksi"
-          value={todayCount.toString()}
-          subValue="hari ini"
+          label="Transaksi Hari Ini"
+          value={String(summary?.today_transactions ?? 0)}
           variant="info"
         />
         <SummaryCard
-          icon={<CloudArrowUp size={22} weight="fill" />}
-          label="Pending Sync"
-          value={pendingCount.toString()}
-          subValue={pendingCount === 0 ? 'Semua tersinkron' : 'menunggu'}
-          variant="warning"
-        />
-        <SummaryCard
           icon={<TrendUp size={22} weight="fill" />}
-          label="Rata-rata Transaksi"
-          value={formatCurrency(avgTransaction)}
-          subValue="per transaksi"
+          label="Revenue Bulan Ini"
+          value={formatCurrency(summary?.month_revenue ?? 0)}
+          subValue={`${growthSign}${(summary?.revenue_growth_pct ?? 0).toFixed(1)}% dari bulan lalu`}
           variant="primary"
         />
+        <SummaryCard
+          icon={<ChartBar size={22} weight="fill" />}
+          label="Profit Bulan Ini"
+          value={formatCurrency(summary?.month_profit ?? 0)}
+          subValue={`Margin ${(summary?.margin_percent ?? 0).toFixed(1)}%`}
+          variant={(summary?.month_profit ?? 0) >= 0 ? 'success' : 'warning'}
+        />
       </div>
+
+      {/* Cashier performance */}
+      {cashiers.length > 0 && (
+        <div className="px-4 mt-4">
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase mb-2">
+            Performa Kasir (30 hari)
+          </h2>
+          <div className="bg-card border rounded-[var(--radius)] overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left p-3 text-xs font-semibold text-muted-foreground">Kasir</th>
+                  <th className="text-right p-3 text-xs font-semibold text-muted-foreground">Tx</th>
+                  <th className="text-right p-3 text-xs font-semibold text-muted-foreground">Revenue</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cashiers.map((c) => (
+                  <tr key={c.user_id} className="border-b last:border-b-0">
+                    <td className="p-3 font-medium">{c.name}</td>
+                    <td className="p-3 text-right text-muted-foreground">{c.tx_count}</td>
+                    <td className="p-3 text-right font-medium">{formatCurrency(c.revenue)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Goals */}
+      {goals.length > 0 && (
+        <div className="px-4 mt-4">
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase mb-2">
+            <Target size={14} weight="fill" className="inline mr-1" />
+            Target
+          </h2>
+          <div className="space-y-2">
+            {goals.map((g) => {
+              const pct = g.target_value > 0 ? Math.min((g.current_value / g.target_value) * 100, 100) : 0
+              const label =
+                g.goal_type === 'daily_revenue'
+                  ? 'Revenue Harian'
+                  : g.goal_type === 'monthly_revenue'
+                    ? 'Revenue Bulanan'
+                    : 'Transaksi Harian'
+              return (
+                <div key={g.id} className="bg-card border rounded-[var(--radius)] p-3">
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="font-medium">{label}</span>
+                    <span className="text-muted-foreground">
+                      {g.goal_type.includes('revenue')
+                        ? `${formatCurrency(g.current_value)} / ${formatCurrency(g.target_value)}`
+                        : `${g.current_value} / ${g.target_value}`}
+                    </span>
+                  </div>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className={cn(
+                        'h-full rounded-full transition-all',
+                        pct >= 100 ? 'bg-green-500' : pct >= 50 ? 'bg-primary' : 'bg-amber-500',
+                      )}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Quick actions */}
       <div className="px-4 mt-4">
@@ -441,10 +582,18 @@ export function DashboardPage() {
           <Button
             variant="outline"
             className="h-auto py-3 flex-col gap-1.5"
-            onClick={() => router.navigate({ to: '/' })}
+            onClick={() => router.navigate({ to: '/manage/analytics' as any })}
           >
-            <Plus size={20} weight="bold" />
-            <span className="text-xs">Buat Transaksi</span>
+            <ChartBar size={20} weight="fill" />
+            <span className="text-xs">Analitik</span>
+          </Button>
+          <Button
+            variant="outline"
+            className="h-auto py-3 flex-col gap-1.5"
+            onClick={() => router.navigate({ to: '/manage/finance' as any })}
+          >
+            <CurrencyDollar size={20} weight="fill" />
+            <span className="text-xs">Keuangan</span>
           </Button>
           <Button
             variant="outline"
@@ -452,69 +601,24 @@ export function DashboardPage() {
             onClick={() => router.navigate({ to: '/transactions' })}
           >
             <ClockCounterClockwise size={20} weight="fill" />
-            <span className="text-xs">Lihat Riwayat</span>
-          </Button>
-          <Button
-            variant="outline"
-            className="h-auto py-3 flex-col gap-1.5"
-            onClick={() => router.navigate({ to: '/settings' })}
-          >
-            <ArrowsClockwise size={20} weight="bold" />
-            <span className="text-xs">Sinkronisasi</span>
+            <span className="text-xs">Riwayat</span>
           </Button>
         </div>
       </div>
 
-      {/* Recent transactions */}
-      <div className="px-4 mt-4 pb-6">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-sm font-semibold text-muted-foreground uppercase">
-            Transaksi Terbaru
-          </h2>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-xs h-7"
-            onClick={() => router.navigate({ to: '/transactions' })}
-          >
-            Lihat Semua
-          </Button>
-        </div>
-        {recentTransactions.length === 0 ? (
-          <EmptyState
-            icon={<Receipt size={32} weight="fill" />}
-            title="Belum Ada Transaksi"
-            description="Transaksi hari ini akan muncul di sini."
-          />
-        ) : (
-          <div className="space-y-2">
-            {recentTransactions.map((tx) => (
-              <button
-                type="button"
-                key={tx.id}
-                onClick={() => router.navigate({ to: '/transactions/$id', params: { id: tx.id } })}
-                className="w-full text-left bg-card border rounded-[var(--radius)] p-3 active:bg-muted transition-colors touch-manipulation"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <SyncStatusIcon status={tx.syncStatus} />
-                    <div className="min-w-0">
-                      <span className="text-sm font-semibold">#{tx.orderNumber}</span>
-                      {tx.customerName && (
-                        <p className="text-xs text-muted-foreground truncate">{tx.customerName}</p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-sm font-semibold">{formatCurrency(tx.totalAmount)}</p>
-                    <p className="text-xs text-muted-foreground">{formatTime(tx.createdAt)}</p>
-                  </div>
-                </div>
-              </button>
-            ))}
+      {/* Sync status */}
+      {pendingCount > 0 && (
+        <div className="px-4 mt-3">
+          <div className="bg-warning/10 border border-warning/20 rounded-[var(--radius)] p-3 flex items-center gap-2">
+            <CloudArrowUp size={18} weight="fill" className="text-warning" />
+            <span className="text-sm text-warning font-medium">
+              {pendingCount} transaksi menunggu sinkronisasi
+            </span>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      <div className="pb-6" />
 
       <OpenShiftDialog open={openShiftDialog} onOpenChange={setOpenShiftDialog} />
       <CloseShiftDialog open={closeShiftDialog} onOpenChange={setCloseShiftDialog} />

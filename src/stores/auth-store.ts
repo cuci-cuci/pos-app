@@ -42,6 +42,12 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'laundry-pos-auth',
+      partialize: (state) => ({
+        token: state.token,
+        user: state.user,
+        onboardingComplete: state.onboardingComplete,
+        // refreshToken excluded — stored in httpOnly cookie by backend
+      }),
     },
   ),
 )

@@ -5,6 +5,20 @@ import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 
 export default defineConfig({
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom'],
+          'vendor-router': ['@tanstack/react-router'],
+          'vendor-data': ['dexie', 'zustand'],
+          'vendor-charts': ['recharts'],
+          'vendor-icons': ['@phosphor-icons/react'],
+          'vendor-motion': ['framer-motion'],
+        },
+      },
+    },
+  },
   plugins: [
     react(),
     tailwindcss(),
