@@ -34,13 +34,17 @@ export interface DashboardGoal {
   is_active: boolean
 }
 
-export async function getDashboardSummary() {
-  return apiClient.get('owner/dashboard/summary').json<{ data: DashboardSummary }>()
+export async function getDashboardSummary(outletId?: string) {
+  const searchParams: Record<string, string | number> = {}
+  if (outletId) searchParams.outlet_id = outletId
+  return apiClient.get('owner/dashboard/summary', { searchParams }).json<{ data: DashboardSummary }>()
 }
 
-export async function getCashierPerformance(days = 30) {
+export async function getCashierPerformance(days = 30, outletId?: string) {
+  const searchParams: Record<string, string | number> = { days }
+  if (outletId) searchParams.outlet_id = outletId
   return apiClient
-    .get('owner/dashboard/cashier-performance', { searchParams: { days } })
+    .get('owner/dashboard/cashier-performance', { searchParams })
     .json<{ data: CashierPerformanceItem[] }>()
 }
 

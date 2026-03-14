@@ -1,4 +1,4 @@
-import { ArrowLeft, Plus, Receipt, Trash } from '@phosphor-icons/react'
+import { ArrowLeft, DownloadSimple, Plus, Receipt, Trash } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
 import { EmptyState } from '@/components/shared/empty-state'
@@ -6,6 +6,7 @@ import { InlineError } from '@/components/shared/inline-error'
 import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
 import { Button } from '@/components/ui/button'
 import { showToast } from '@/components/ui/toast'
+import { exportCSV } from '@/lib/export'
 import { formatCurrency, formatDate } from '@/lib/format'
 import { parseCurrencyInput, sanitizeCurrencyInput } from '@/lib/format'
 import {
@@ -90,6 +91,26 @@ export function ManageFinanceExpensesPage() {
     }
   }
 
+  const handleExport = () => {
+    if (expenses.length === 0) return
+    const rows = expenses.map((e) => ({
+      tanggal: e.expense_date,
+      deskripsi: e.description || '-',
+      kategori: e.category_name || '-',
+      jumlah: e.amount,
+    }))
+    exportCSV(
+      rows,
+      [
+        { key: 'tanggal', label: 'Tanggal' },
+        { key: 'deskripsi', label: 'Deskripsi' },
+        { key: 'kategori', label: 'Kategori' },
+        { key: 'jumlah', label: 'Jumlah' },
+      ],
+      `pengeluaran-${new Date().toISOString().split('T')[0]}`,
+    )
+  }
+
   if (loading) return <ManageListSkeleton />
   if (error) return <InlineError message={error} onRetry={fetchData} />
 
@@ -106,9 +127,16 @@ export function ManageFinanceExpensesPage() {
           </Button>
           <h1 className="text-xl font-bold">Pengeluaran</h1>
         </div>
-        <Button size="sm" onClick={() => setShowForm(!showForm)}>
-          <Plus size={16} className="mr-1" /> Tambah
-        </Button>
+        <div className="flex gap-2">
+          {expenses.length > 0 && (
+            <Button size="sm" variant="outline" onClick={handleExport}>
+              <DownloadSimple size={16} className="mr-1" /> Export
+            </Button>
+          )}
+          <Button size="sm" onClick={() => setShowForm(!showForm)}>
+            <Plus size={16} className="mr-1" /> Tambah
+          </Button>
+        </div>
       </div>
 
       <div className="px-4 pb-6 space-y-3">

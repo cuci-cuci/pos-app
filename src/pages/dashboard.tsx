@@ -4,6 +4,7 @@ import {
   ClockCounterClockwise,
   CloudArrowUp,
   CurrencyDollar,
+  Funnel,
   Play,
   Plus,
   Receipt,
@@ -425,6 +426,9 @@ function OwnerDashboard({
   const router = useRouter()
   const pendingCount = useSyncStore((s) => s.pendingCount)
 
+  const outlets = useLiveQuery(() => db.outlets.toArray()) ?? []
+  const [selectedOutletId, setSelectedOutletId] = useState<string>('')
+
   const [summary, setSummary] = useState<DashboardSummary | null>(null)
   const [cashiers, setCashiers] = useState<CashierPerformanceItem[]>([])
   const [goals, setGoals] = useState<DashboardGoal[]>([])
@@ -435,9 +439,10 @@ function OwnerDashboard({
     setLoading(true)
     setError(false)
     try {
+      const outletParam = selectedOutletId || undefined
       const [summaryRes, cashierRes, goalsRes] = await Promise.all([
-        getDashboardSummary(),
-        getCashierPerformance(30),
+        getDashboardSummary(outletParam),
+        getCashierPerformance(30, outletParam),
         getGoals(),
       ])
       setSummary(summaryRes.data)
@@ -448,7 +453,7 @@ function OwnerDashboard({
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [selectedOutletId])
 
   useEffect(() => {
     fetchData()
@@ -462,8 +467,27 @@ function OwnerDashboard({
   return (
     <div className="flex flex-col h-full overflow-y-auto">
       <div className="px-4 pt-4 pb-2">
-        <h1 className="text-xl font-bold">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">Selamat datang, {user?.name}</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold">Dashboard</h1>
+            <p className="text-sm text-muted-foreground">Selamat datang, {user?.name}</p>
+          </div>
+          {outlets.length > 1 && (
+            <div className="flex items-center gap-1.5">
+              <Funnel size={16} weight="fill" className="text-muted-foreground" />
+              <select
+                value={selectedOutletId}
+                onChange={(e) => setSelectedOutletId(e.target.value)}
+                className="text-sm bg-background border border-input rounded-[var(--radius)] px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="">Semua Outlet</option>
+                {outlets.map((o) => (
+                  <option key={o.id} value={o.id}>{o.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Shift status */}

@@ -1,10 +1,11 @@
-import { ArrowLeft, TrendDown, TrendUp } from '@phosphor-icons/react'
+import { ArrowLeft, DownloadSimple, TrendDown, TrendUp } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { InlineError } from '@/components/shared/inline-error'
 import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
 import { Button } from '@/components/ui/button'
+import { exportCSV } from '@/lib/export'
 import { formatCurrency } from '@/lib/format'
 import { getPnLReport, getCashFlowReport, type PnLReport, type CashFlowReport } from '@/services/finance-api'
 
@@ -75,6 +76,35 @@ export function ManageFinancePnlPage() {
 
   const periodLabel = getPeriodRange(period).label
 
+  const handleExport = () => {
+    if (!pnl) return
+    const rows = [
+      { item: 'Pendapatan', jumlah: pnl.revenue },
+      { item: 'Pengeluaran', jumlah: -pnl.expenses },
+      { item: 'Laba Bersih', jumlah: pnl.gross_profit },
+      { item: `Margin (%)`, jumlah: pnl.margin_percent },
+      ...pnl.expense_by_category.map((c) => ({
+        item: `Kategori: ${c.category_name}`,
+        jumlah: c.amount,
+      })),
+    ]
+    if (cashflow) {
+      rows.push(
+        { item: 'Kas Masuk', jumlah: cashflow.cash_in },
+        { item: 'Kas Keluar', jumlah: -cashflow.cash_out },
+        { item: 'Arus Kas Bersih', jumlah: cashflow.net_flow },
+      )
+    }
+    exportCSV(
+      rows,
+      [
+        { key: 'item', label: 'Item' },
+        { key: 'jumlah', label: 'Jumlah' },
+      ],
+      `laporan-laba-rugi-${periodLabel}`,
+    )
+  }
+
   if (loading) return <ManageListSkeleton />
   if (error) return <InlineError message={error} onRetry={fetchData} />
 
@@ -86,18 +116,25 @@ export function ManageFinancePnlPage() {
 
   return (
     <div className="flex flex-col h-full overflow-y-auto">
-      <div className="flex items-center gap-3 px-4 pt-4 pb-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => router.navigate({ to: '/manage/finance' as any })}
-        >
-          <ArrowLeft size={20} />
-        </Button>
-        <div>
-          <h1 className="text-xl font-bold">Laba Rugi</h1>
-          <p className="text-sm text-muted-foreground">{periodLabel}</p>
+      <div className="flex items-center justify-between px-4 pt-4 pb-2">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.navigate({ to: '/manage/finance' as any })}
+          >
+            <ArrowLeft size={20} />
+          </Button>
+          <div>
+            <h1 className="text-xl font-bold">Laba Rugi</h1>
+            <p className="text-sm text-muted-foreground">{periodLabel}</p>
+          </div>
         </div>
+        {pnl && (
+          <Button size="sm" variant="outline" onClick={handleExport}>
+            <DownloadSimple size={16} className="mr-1" /> Export
+          </Button>
+        )}
       </div>
 
       <div className="px-4 pb-6 space-y-4">
