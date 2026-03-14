@@ -39,6 +39,7 @@ export interface Order {
   delivery_fee: number
   scheduled_pickup_at?: string
   customer_phone?: string
+  tracking_token?: string
   created_at: string
   updated_at: string
 }

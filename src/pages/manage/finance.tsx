@@ -109,6 +109,12 @@ export function ManageFinancePage() {
             onClick={() => router.navigate({ to: '/manage/finance/pnl' as any })}
           />
           <MenuLink
+            icon={<Receipt size={20} className="text-amber-500" />}
+            label="Laporan Pajak (PPN)"
+            description="Ringkasan pajak pertambahan nilai"
+            onClick={() => router.navigate({ to: '/manage/finance/tax' as any })}
+          />
+          <MenuLink
             icon={<Repeat size={20} className="text-violet-500" />}
             label="Pengeluaran Berulang"
             description="Biaya rutin otomatis (sewa, gaji, dll)"

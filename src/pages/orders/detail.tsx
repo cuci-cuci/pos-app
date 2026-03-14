@@ -1,6 +1,6 @@
 import { ArrowCounterClockwise, ArrowLeft, MapPin, Truck } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { ReceiptActions } from '@/components/receipt/receipt-actions'
 import { ReceiptTemplate } from '@/components/receipt/receipt-template'
 import { InlineError } from '@/components/shared/inline-error'
@@ -111,6 +111,7 @@ function StatusBadge({ status }: { status: OrderStatus }) {
 
 export function OrderDetailPage() {
   const router = useRouter()
+  const receiptRef = useRef<HTMLDivElement>(null)
   const [order, setOrder] = useState<OrderDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -354,10 +355,12 @@ export function OrderDetailPage() {
         )}
 
         {/* Receipt */}
-        <ReceiptTemplate order={order} />
+        <div ref={receiptRef}>
+          <ReceiptTemplate order={order} />
+        </div>
 
         {/* Receipt actions */}
-        <ReceiptActions order={order} />
+        <ReceiptActions order={order} receiptRef={receiptRef} />
 
         {/* Repeat order button */}
         {order.transaction && order.status !== 'cancelled' && (

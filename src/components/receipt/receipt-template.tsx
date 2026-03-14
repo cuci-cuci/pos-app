@@ -1,3 +1,4 @@
+import { QRCodeSVG } from 'qrcode.react'
 import { formatCurrency, formatDate, formatTime } from '@/lib/format'
 import type { OrderDetail } from '@/services/order-api'
 import { useDeviceStore } from '@/stores/device-store'
@@ -92,6 +93,21 @@ export function ReceiptTemplate({ order }: ReceiptTemplateProps) {
           <div className="flex justify-between my-2">
             <span>Pembayaran</span>
             <span className="uppercase">{tx.payment_method}</span>
+          </div>
+        </>
+      )}
+
+      {/* Tracking QR Code */}
+      {order.tracking_token && (
+        <>
+          <p className="text-[10px] text-center">--------------------------------</p>
+          <div className="flex flex-col items-center my-2">
+            <QRCodeSVG
+              value={`${window.location.origin}/track/${order.tracking_token}`}
+              size={80}
+              level="L"
+            />
+            <p className="text-[10px] mt-1 text-gray-500">Scan untuk lacak pesanan</p>
           </div>
         </>
       )}

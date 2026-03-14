@@ -38,7 +38,7 @@ export async function buildTransaction(paymentInput: PaymentInput): Promise<Tran
   const taxConfig = await db.tenantConfig.toCollection().first()
   const taxRate = taxConfig?.taxRate ?? 0
 
-  const priceResult = calculatePrice({
+  const basePrice = calculatePrice({
     items: cart.items.map((item: CartItem) => ({
       quantity: item.quantity,
       pricePerUnit: item.pricePerUnit,
@@ -46,6 +46,15 @@ export async function buildTransaction(paymentInput: PaymentInput): Promise<Tran
     discountPercent: cart.discountPercent,
     taxRate,
   })
+
+  // Apply points discount (fixed amount) after percentage discount, before tax
+  const pointsDiscount = cart.pointsDiscount ?? 0
+  const afterPercentDiscount = basePrice.subtotal - basePrice.discountAmount
+  const afterPointsDiscount = Math.max(0, afterPercentDiscount - pointsDiscount)
+  const adjustedTax = Math.round(afterPointsDiscount * (taxRate / 100))
+  const priceResult = pointsDiscount > 0
+    ? { ...basePrice, discountAmount: basePrice.discountAmount + pointsDiscount, taxAmount: adjustedTax, totalAmount: afterPointsDiscount + adjustedTax }
+    : basePrice
 
   const transactionItems: TransactionItem[] = cart.items.map((item: CartItem) => ({
     id: generateId(),

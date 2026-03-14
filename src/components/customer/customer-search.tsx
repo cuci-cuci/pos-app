@@ -1,5 +1,6 @@
 import {
   CircleNotch,
+  Coin,
   Crown,
   Envelope,
   Gift,
@@ -59,6 +60,7 @@ export function CustomerSearch() {
       email?: string
       tier: MemberTier
       totalSpending: number
+      totalPoints: number
       discountPercent: number
     }>
   >([])
@@ -71,8 +73,12 @@ export function CustomerSearch() {
   const [regReferralCode, setRegReferralCode] = useState('')
   const [isRegistering, setIsRegistering] = useState(false)
 
+  const [redeemOpen, setRedeemOpen] = useState(false)
+  const [redeemPoints, setRedeemPoints] = useState('')
+  const [isRedeeming, setIsRedeeming] = useState(false)
+
   const tenantId = useAuthStore((s) => s.user?.tenantId)
-  const { customerId, customerName, memberInfo, setMember, setCustomer } = useCartStore()
+  const { customerId, customerName, memberInfo, pointsDiscount, setMember, setCustomer, setPointsDiscount } = useCartStore()
 
   const customers = useLiveQuery(() => {
     if (!tenantId || query.length < 2) return [] as Customer[]
@@ -98,6 +104,7 @@ export function CustomerSearch() {
           email: m.email,
           tier: m.tier,
           totalSpending: m.total_spending,
+          totalPoints: m.total_points ?? 0,
           discountPercent: m.discount_percent,
         })),
       )
@@ -131,6 +138,7 @@ export function CustomerSearch() {
       email?: string
       tier: MemberTier
       totalSpending: number
+      totalPoints: number
       discountPercent: number
     }) => {
       setMember({
@@ -140,6 +148,7 @@ export function CustomerSearch() {
         email: member.email,
         tier: member.tier,
         totalSpending: member.totalSpending,
+        totalPoints: member.totalPoints,
         discountPercent: member.discountPercent,
       })
       setQuery('')
@@ -159,6 +168,7 @@ export function CustomerSearch() {
           email: customer.email || undefined,
           tier: customer.tier,
           totalSpending: customer.totalSpending ?? 0,
+          totalPoints: (customer as unknown as { totalPoints?: number }).totalPoints ?? 0,
           discountPercent: customer.discountPercent ?? 0,
         })
       } else {
@@ -204,6 +214,7 @@ export function CustomerSearch() {
         email: m.email,
         tier: m.tier,
         totalSpending: m.total_spending,
+        totalPoints: m.total_points ?? 0,
         discountPercent: m.discount_percent,
       })
       setRegisterOpen(false)
@@ -215,6 +226,32 @@ export function CustomerSearch() {
       setIsRegistering(false)
     }
   }, [regName, regPhone, regEmail, regReferralCode, setMember])
+
+  const handleRedeem = useCallback(async () => {
+    if (!memberInfo) return
+    const pts = parseInt(redeemPoints, 10)
+    if (!pts || pts <= 0 || pts % 100 !== 0) {
+      showToast('Poin harus kelipatan 100', 'error')
+      return
+    }
+    if (pts > memberInfo.totalPoints) {
+      showToast('Poin tidak mencukupi', 'error')
+      return
+    }
+    setIsRedeeming(true)
+    try {
+      const res = await memberApi.redeemPoints(memberInfo.id, pts)
+      setPointsDiscount(res.data.discount_amount, res.data.points_redeemed)
+      setMember({ ...memberInfo, totalPoints: res.data.remaining_points })
+      setRedeemOpen(false)
+      setRedeemPoints('')
+      showToast(`${res.data.points_redeemed} poin ditukar = ${formatCurrency(res.data.discount_amount)} diskon`, 'success')
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'Gagal menukar poin', 'error')
+    } finally {
+      setIsRedeeming(false)
+    }
+  }, [memberInfo, redeemPoints, setPointsDiscount, setMember])
 
   // Show selected member info
   if (customerId && memberInfo) {
@@ -242,7 +279,35 @@ export function CustomerSearch() {
                 <Tag size={12} />
                 Diskon {memberInfo.discountPercent}%
               </span>
+              <span className="flex items-center gap-1 text-xs text-amber-600 font-medium">
+                <Coin size={12} />
+                {memberInfo.totalPoints.toLocaleString()} poin
+              </span>
             </div>
+            {memberInfo.totalPoints >= 100 && !pointsDiscount && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-2 h-7 text-xs gap-1"
+                onClick={() => { setRedeemPoints(''); setRedeemOpen(true) }}
+              >
+                <Coin size={14} weight="fill" className="text-amber-500" />
+                Tukar Poin
+              </Button>
+            )}
+            {pointsDiscount > 0 && (
+              <div className="mt-2 flex items-center gap-2 text-xs text-green-600 font-medium">
+                <Coin size={12} weight="fill" />
+                Diskon poin: -{formatCurrency(pointsDiscount)}
+                <button
+                  type="button"
+                  onClick={() => setPointsDiscount(0, 0)}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            )}
           </div>
           <button
             type="button"
@@ -252,6 +317,44 @@ export function CustomerSearch() {
             <X size={16} weight="bold" />
           </button>
         </div>
+
+        {/* Redeem points dialog */}
+        <Dialog open={redeemOpen} onOpenChange={setRedeemOpen}>
+          <DialogContent className="max-w-xs p-5 space-y-4">
+            <div className="text-center">
+              <Coin size={32} weight="fill" className="text-amber-500 mx-auto mb-2" />
+              <h3 className="font-semibold">Tukar Poin</h3>
+              <p className="text-xs text-muted-foreground">100 poin = Rp 1.000</p>
+            </div>
+            <div>
+              <p className="text-sm mb-1">Poin tersedia: <span className="font-semibold">{memberInfo.totalPoints.toLocaleString()}</span></p>
+              <Input
+                type="number"
+                placeholder="Masukkan jumlah poin (kelipatan 100)"
+                value={redeemPoints}
+                onChange={(e) => setRedeemPoints(e.target.value)}
+                min={100}
+                step={100}
+                max={memberInfo.totalPoints}
+                className="h-10"
+              />
+              {redeemPoints && parseInt(redeemPoints, 10) > 0 && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Diskon: {formatCurrency(Math.floor(parseInt(redeemPoints, 10) / 100) * 1000)}
+                </p>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1" onClick={() => setRedeemOpen(false)} disabled={isRedeeming}>
+                Batal
+              </Button>
+              <Button className="flex-1" onClick={() => void handleRedeem()} disabled={isRedeeming || !redeemPoints}>
+                {isRedeeming ? <CircleNotch size={16} className="animate-spin mr-1" /> : null}
+                Tukar
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     )
   }
@@ -277,6 +380,7 @@ export function CustomerSearch() {
     email?: string
     tier?: MemberTier
     totalSpending?: number
+    totalPoints?: number
     discountPercent?: number
     isMember: boolean
   }> = []
@@ -367,6 +471,7 @@ export function CustomerSearch() {
                         email: result.email,
                         tier: result.tier,
                         totalSpending: result.totalSpending ?? 0,
+                        totalPoints: result.totalPoints ?? 0,
                         discountPercent: result.discountPercent ?? 0,
                       })
                     } else {

@@ -6,6 +6,7 @@ import { InlineError } from '@/components/shared/inline-error'
 import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
 import { Button } from '@/components/ui/button'
 import { exportCSV } from '@/lib/export'
+import { exportExcel } from '@/lib/export-excel'
 import { formatCurrency } from '@/lib/format'
 import { getPnLReport, getCashFlowReport, type PnLReport, type CashFlowReport } from '@/services/finance-api'
 
@@ -76,8 +77,13 @@ export function ManageFinancePnlPage() {
 
   const periodLabel = getPeriodRange(period).label
 
-  const handleExport = () => {
-    if (!pnl) return
+  const pnlColumns = [
+    { key: 'item' as const, label: 'Item' },
+    { key: 'jumlah' as const, label: 'Jumlah' },
+  ]
+
+  const getPnlExportRows = () => {
+    if (!pnl) return []
     const rows = [
       { item: 'Pendapatan', jumlah: pnl.revenue },
       { item: 'Pengeluaran', jumlah: -pnl.expenses },
@@ -95,12 +101,20 @@ export function ManageFinancePnlPage() {
         { item: 'Arus Kas Bersih', jumlah: cashflow.net_flow },
       )
     }
-    exportCSV(
-      rows,
-      [
-        { key: 'item', label: 'Item' },
-        { key: 'jumlah', label: 'Jumlah' },
-      ],
+    return rows
+  }
+
+  const handleExportCSV = () => {
+    const rows = getPnlExportRows()
+    if (rows.length === 0) return
+    exportCSV(rows, pnlColumns, `laporan-laba-rugi-${periodLabel}`)
+  }
+
+  const handleExportExcel = () => {
+    const rows = getPnlExportRows()
+    if (rows.length === 0) return
+    exportExcel(
+      [{ name: 'Laba Rugi', columns: pnlColumns, data: rows }],
       `laporan-laba-rugi-${periodLabel}`,
     )
   }
@@ -131,9 +145,14 @@ export function ManageFinancePnlPage() {
           </div>
         </div>
         {pnl && (
-          <Button size="sm" variant="outline" onClick={handleExport}>
-            <DownloadSimple size={16} className="mr-1" /> Export
-          </Button>
+          <div className="flex gap-1">
+            <Button size="sm" variant="outline" onClick={handleExportCSV}>
+              <DownloadSimple size={16} className="mr-1" /> CSV
+            </Button>
+            <Button size="sm" variant="outline" onClick={handleExportExcel}>
+              <DownloadSimple size={16} className="mr-1" /> Excel
+            </Button>
+          </div>
         )}
       </div>
 

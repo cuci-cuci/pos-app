@@ -7,6 +7,7 @@ import { ManageListSkeleton } from '@/components/shared/skeleton-loaders'
 import { Button } from '@/components/ui/button'
 import { showToast } from '@/components/ui/toast'
 import { exportCSV } from '@/lib/export'
+import { exportExcel } from '@/lib/export-excel'
 import { formatCurrency, formatDate } from '@/lib/format'
 import { parseCurrencyInput, sanitizeCurrencyInput } from '@/lib/format'
 import {
@@ -91,22 +92,30 @@ export function ManageFinanceExpensesPage() {
     }
   }
 
-  const handleExport = () => {
-    if (expenses.length === 0) return
-    const rows = expenses.map((e) => ({
+  const expenseColumns = [
+    { key: 'tanggal' as const, label: 'Tanggal' },
+    { key: 'deskripsi' as const, label: 'Deskripsi' },
+    { key: 'kategori' as const, label: 'Kategori' },
+    { key: 'jumlah' as const, label: 'Jumlah' },
+  ]
+
+  const getExportRows = () =>
+    expenses.map((e) => ({
       tanggal: e.expense_date,
       deskripsi: e.description || '-',
       kategori: e.category_name || '-',
       jumlah: e.amount,
     }))
-    exportCSV(
-      rows,
-      [
-        { key: 'tanggal', label: 'Tanggal' },
-        { key: 'deskripsi', label: 'Deskripsi' },
-        { key: 'kategori', label: 'Kategori' },
-        { key: 'jumlah', label: 'Jumlah' },
-      ],
+
+  const handleExportCSV = () => {
+    if (expenses.length === 0) return
+    exportCSV(getExportRows(), expenseColumns, `pengeluaran-${new Date().toISOString().split('T')[0]}`)
+  }
+
+  const handleExportExcel = () => {
+    if (expenses.length === 0) return
+    exportExcel(
+      [{ name: 'Pengeluaran', columns: expenseColumns, data: getExportRows() }],
       `pengeluaran-${new Date().toISOString().split('T')[0]}`,
     )
   }
@@ -129,9 +138,14 @@ export function ManageFinanceExpensesPage() {
         </div>
         <div className="flex gap-2">
           {expenses.length > 0 && (
-            <Button size="sm" variant="outline" onClick={handleExport}>
-              <DownloadSimple size={16} className="mr-1" /> Export
-            </Button>
+            <div className="flex gap-1">
+              <Button size="sm" variant="outline" onClick={handleExportCSV}>
+                <DownloadSimple size={16} className="mr-1" /> CSV
+              </Button>
+              <Button size="sm" variant="outline" onClick={handleExportExcel}>
+                <DownloadSimple size={16} className="mr-1" /> Excel
+              </Button>
+            </div>
           )}
           <Button size="sm" onClick={() => setShowForm(!showForm)}>
             <Plus size={16} className="mr-1" /> Tambah

@@ -123,3 +123,31 @@ export async function getCashFlowReport(startDate: string, endDate: string) {
     .get('owner/finance/cashflow', { searchParams: { start_date: startDate, end_date: endDate } })
     .json<{ data: CashFlowReport }>()
 }
+
+export interface TaxReport {
+  month: number
+  year: number
+  gross_sales: number
+  total_discount: number
+  net_sales: number
+  taxable_base: number
+  ppn_amount: number
+  transaction_count: number
+  outlet_breakdown: TaxByOutlet[]
+}
+
+export interface TaxByOutlet {
+  outlet_id: string
+  outlet_name: string
+  gross_sales: number
+  discount: number
+  net_sales: number
+  ppn_amount: number
+  transaction_count: number
+}
+
+export async function getTaxReport(month: number, year: number) {
+  return apiClient
+    .get('owner/finance/tax', { searchParams: { month: String(month), year: String(year) } })
+    .json<{ data: TaxReport }>()
+}

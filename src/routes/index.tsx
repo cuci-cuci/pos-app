@@ -95,6 +95,9 @@ const ManageFinanceExpensesPage = lazy(() =>
 const ManageFinancePnlPage = lazy(() =>
   import('@/pages/manage/finance-pnl').then((m) => ({ default: m.ManageFinancePnlPage })),
 )
+const ManageFinanceTaxPage = lazy(() =>
+  import('@/pages/manage/finance-tax').then((m) => ({ default: m.ManageFinanceTaxPage })),
+)
 const ManageInventoryPage = lazy(() =>
   import('@/pages/manage/inventory').then((m) => ({ default: m.ManageInventoryPage })),
 )
@@ -359,6 +362,13 @@ const manageFinancePnlRoute = createRoute({
   beforeLoad: requireOwner,
 })
 
+const manageFinanceTaxRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: '/manage/finance/tax',
+  component: withSuspense(ManageFinanceTaxPage, ManageListSkeleton),
+  beforeLoad: requireOwner,
+})
+
 const manageInventoryRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/manage/inventory',
@@ -399,6 +409,7 @@ const routeTree = rootRoute.addChildren([
     manageFinanceRoute,
     manageFinanceExpensesRoute,
     manageFinancePnlRoute,
+    manageFinanceTaxRoute,
     manageInventoryRoute,
     manageStaffRoute,
     manageNotificationsRoute,

@@ -20,6 +20,7 @@ export interface MemberInfo {
   email?: string
   tier: MemberTier
   totalSpending: number
+  totalPoints: number
   discountPercent: number
 }
 
@@ -33,6 +34,8 @@ export interface CartTab {
   customerName: string | null
   memberInfo: MemberInfo | null
   discountPercent: number
+  pointsDiscount: number
+  pointsUsed: number
   taxRate: number
   notes: string
   customerPhone: string
@@ -56,6 +59,8 @@ function createEmptyTab(label?: string): CartTab {
     customerName: null,
     memberInfo: null,
     discountPercent: 0,
+    pointsDiscount: 0,
+    pointsUsed: 0,
     taxRate: 0,
     notes: '',
     customerPhone: '',
@@ -82,6 +87,8 @@ interface CartState {
   customerName: string | null
   memberInfo: MemberInfo | null
   discountPercent: number
+  pointsDiscount: number
+  pointsUsed: number
   taxRate: number
   notes: string
   customerPhone: string
@@ -98,6 +105,7 @@ interface CartState {
   setCustomer: (id: string | null, name: string | null) => void
   setMember: (member: MemberInfo | null) => void
   setDiscount: (percent: number) => void
+  setPointsDiscount: (amount: number, pointsUsed: number) => void
   setTaxRate: (rate: number) => void
   setNotes: (notes: string) => void
   setCustomerPhone: (phone: string) => void
@@ -131,6 +139,8 @@ function deriveFromActiveTab(tabs: CartTab[], activeTabId: string) {
     customerName: tab.customerName,
     memberInfo: tab.memberInfo,
     discountPercent: tab.discountPercent,
+    pointsDiscount: tab.pointsDiscount,
+    pointsUsed: tab.pointsUsed,
     taxRate: tab.taxRate,
     notes: tab.notes,
     customerPhone: tab.customerPhone,
@@ -265,6 +275,8 @@ export const useCartStore = create<CartState>()(
             customerName: null,
             memberInfo: null,
             discountPercent: 0,
+            pointsDiscount: 0,
+            pointsUsed: 0,
             customerPhone: '',
           }
         })
@@ -274,6 +286,12 @@ export const useCartStore = create<CartState>()(
       setDiscount: (percent) => {
         const { tabs, activeTabId } = get()
         const newTabs = updateActiveTab(tabs, activeTabId, () => ({ discountPercent: percent }))
+        set({ tabs: newTabs, ...deriveFromActiveTab(newTabs, activeTabId) })
+      },
+
+      setPointsDiscount: (amount, pointsUsed) => {
+        const { tabs, activeTabId } = get()
+        const newTabs = updateActiveTab(tabs, activeTabId, () => ({ pointsDiscount: amount, pointsUsed }))
         set({ tabs: newTabs, ...deriveFromActiveTab(newTabs, activeTabId) })
       },
 
@@ -342,6 +360,8 @@ export const useCartStore = create<CartState>()(
           customerName: null,
           memberInfo: null,
           discountPercent: 0,
+          pointsDiscount: 0,
+          pointsUsed: 0,
           taxRate: 0,
           notes: '',
           customerPhone: '',
@@ -365,18 +385,18 @@ export const useCartStore = create<CartState>()(
         const tab = getActiveTab(tabs, activeTabId)
         const subtotal = tab.items.reduce((sum, item) => sum + item.subtotal, 0)
         const discount = Math.round(subtotal * (tab.discountPercent / 100))
-        const afterDiscount = subtotal - discount
+        const afterDiscount = Math.max(0, subtotal - discount - tab.pointsDiscount)
         const tax = Math.round(afterDiscount * (tab.taxRate / 100))
         return afterDiscount + tax
       },
     }),
     {
       name: 'laundry-pos-cart',
-      version: 2,
+      version: 3,
       migrate: (persisted: unknown, version: number) => {
+        const old = persisted as Record<string, unknown>
         if (version < 2) {
           // Migrate from single-cart format to multi-tab
-          const old = persisted as Record<string, unknown>
           const tab: CartTab = {
             id: crypto.randomUUID(),
             label: (old.customerName as string) || 'Sesi 1',
@@ -385,6 +405,8 @@ export const useCartStore = create<CartState>()(
             customerName: (old.customerName as string | null) ?? null,
             memberInfo: (old.memberInfo as MemberInfo | null) ?? null,
             discountPercent: (old.discountPercent as number) ?? 0,
+            pointsDiscount: 0,
+            pointsUsed: 0,
             taxRate: (old.taxRate as number) ?? 0,
             notes: (old.notes as string) ?? '',
             customerPhone: (old.customerPhone as string) ?? '',
@@ -400,6 +422,16 @@ export const useCartStore = create<CartState>()(
             activeTabId: tab.id,
             ...deriveFromActiveTab([tab], tab.id),
           }
+        }
+        if (version < 3) {
+          // Add pointsDiscount/pointsUsed to existing tabs
+          const tabs = (old.tabs as CartTab[]) ?? []
+          const updated = tabs.map((t) => ({
+            ...t,
+            pointsDiscount: t.pointsDiscount ?? 0,
+            pointsUsed: t.pointsUsed ?? 0,
+          }))
+          return { ...old, tabs: updated }
         }
         return persisted
       },
