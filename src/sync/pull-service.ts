@@ -147,6 +147,7 @@ export async function pullConfig(tenantId: string, currentVersion: number): Prom
       db.paymentMethods,
       db.customers,
       db.outlets,
+      db.deliveryZones,
     ],
     async () => {
       if (response.config) {
@@ -178,6 +179,13 @@ export async function pullConfig(tenantId: string, currentVersion: number): Prom
 
       if (response.members?.length) {
         await db.customers.bulkPut(response.members.map((m) => mapMember(tenantId, m)))
+      }
+
+      if (response.delivery_zones?.length) {
+        await db.deliveryZones.clear()
+        await db.deliveryZones.bulkPut(
+          response.delivery_zones.map((dz) => mapDeliveryZone(tenantId, dz)),
+        )
       }
     },
   )
