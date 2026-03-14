@@ -27,6 +27,10 @@ function mapTransactionToPayload(t: Transaction, outletId: string, userId: strin
     shift_id: t.shiftId ?? null,
     customer_phone: t.customerPhone ?? null,
     estimated_duration_hours: t.estimatedDurationHours ?? null,
+    delivery_type: t.deliveryType ?? null,
+    delivery_address: t.deliveryAddress ?? null,
+    delivery_fee: t.deliveryFee ?? null,
+    scheduled_pickup_at: t.scheduledPickupAt ?? null,
   }
 }
 

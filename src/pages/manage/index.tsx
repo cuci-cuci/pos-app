@@ -6,10 +6,12 @@ import {
   CrownSimple,
   CurrencyCircleDollar,
   GearSix,
+  Package,
   Storefront,
   Tag,
   UserCircle,
   Users,
+  UsersThree,
   WhatsappLogo,
 } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
@@ -65,12 +67,28 @@ const menuItems: ManageMenuItem[] = [
     path: '/manage/members',
   },
   {
+    label: 'Inventaris',
+    description: 'Kelola stok bahan dan perlengkapan',
+    icon: Package,
+    iconBg: 'bg-orange-500/10',
+    iconColor: 'text-orange-500',
+    path: '/manage/inventory',
+  },
+  {
     label: 'Keuangan',
     description: 'Pengeluaran, laba rugi, arus kas',
     icon: CurrencyCircleDollar,
     iconBg: 'bg-emerald-500/10',
     iconColor: 'text-emerald-500',
     path: '/manage/finance',
+  },
+  {
+    label: 'Performa Staf',
+    description: 'Pantau kinerja kasir dan karyawan',
+    icon: UsersThree,
+    iconBg: 'bg-blue-500/10',
+    iconColor: 'text-blue-500',
+    path: '/manage/staff',
   },
   {
     label: 'Analitik',

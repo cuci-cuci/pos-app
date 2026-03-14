@@ -1,4 +1,4 @@
-import { ArrowsClockwise, Package } from '@phosphor-icons/react'
+import { ArrowsClockwise, Package, Truck } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
 import { EmptyState } from '@/components/shared/empty-state'
@@ -177,6 +177,11 @@ export function OrdersPage() {
                         #{order.order_number}
                       </span>
                       <StatusBadge status={order.status} />
+                      {order.delivery_type === 'delivery' && (
+                        <span className="inline-flex items-center gap-0.5 text-xs text-primary">
+                          <Truck size={12} weight="bold" />
+                        </span>
+                      )}
                     </div>
                     {order.customer_name && (
                       <p className="text-xs text-muted-foreground mt-0.5 truncate">

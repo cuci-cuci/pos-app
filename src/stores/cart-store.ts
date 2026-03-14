@@ -23,6 +23,8 @@ export interface MemberInfo {
   discountPercent: number
 }
 
+export type DeliveryType = 'pickup' | 'delivery'
+
 export interface CartTab {
   id: string
   label: string
@@ -35,6 +37,10 @@ export interface CartTab {
   notes: string
   customerPhone: string
   estimatedDurationHours: number | null
+  deliveryType: DeliveryType
+  deliveryAddress: string
+  deliveryFee: number
+  scheduledPickupAt: string
 }
 
 const MAX_TABS = 3
@@ -54,6 +60,10 @@ function createEmptyTab(label?: string): CartTab {
     notes: '',
     customerPhone: '',
     estimatedDurationHours: null,
+    deliveryType: 'pickup',
+    deliveryAddress: '',
+    deliveryFee: 0,
+    scheduledPickupAt: '',
   }
 }
 
@@ -76,6 +86,10 @@ interface CartState {
   notes: string
   customerPhone: string
   estimatedDurationHours: number | null
+  deliveryType: DeliveryType
+  deliveryAddress: string
+  deliveryFee: number
+  scheduledPickupAt: string
 
   // Active tab mutations
   addItem: (item: Omit<CartItem, 'id' | 'subtotal'>) => void
@@ -88,6 +102,10 @@ interface CartState {
   setNotes: (notes: string) => void
   setCustomerPhone: (phone: string) => void
   setEstimatedDuration: (hours: number | null) => void
+  setDeliveryType: (type: DeliveryType) => void
+  setDeliveryAddress: (address: string) => void
+  setDeliveryFee: (fee: number) => void
+  setScheduledPickupAt: (dateTime: string) => void
   clear: () => void
   getSubtotal: () => number
   getTotal: () => number
@@ -117,6 +135,10 @@ function deriveFromActiveTab(tabs: CartTab[], activeTabId: string) {
     notes: tab.notes,
     customerPhone: tab.customerPhone,
     estimatedDurationHours: tab.estimatedDurationHours,
+    deliveryType: tab.deliveryType,
+    deliveryAddress: tab.deliveryAddress,
+    deliveryFee: tab.deliveryFee,
+    scheduledPickupAt: tab.scheduledPickupAt,
   }
 }
 
@@ -281,6 +303,33 @@ export const useCartStore = create<CartState>()(
         set({ tabs: newTabs, ...deriveFromActiveTab(newTabs, activeTabId) })
       },
 
+      setDeliveryType: (type) => {
+        const { tabs, activeTabId } = get()
+        const newTabs = updateActiveTab(tabs, activeTabId, () => ({
+          deliveryType: type,
+          ...(type === 'pickup' ? { deliveryAddress: '', deliveryFee: 0 } : {}),
+        }))
+        set({ tabs: newTabs, ...deriveFromActiveTab(newTabs, activeTabId) })
+      },
+
+      setDeliveryAddress: (address) => {
+        const { tabs, activeTabId } = get()
+        const newTabs = updateActiveTab(tabs, activeTabId, () => ({ deliveryAddress: address }))
+        set({ tabs: newTabs, ...deriveFromActiveTab(newTabs, activeTabId) })
+      },
+
+      setDeliveryFee: (fee) => {
+        const { tabs, activeTabId } = get()
+        const newTabs = updateActiveTab(tabs, activeTabId, () => ({ deliveryFee: fee }))
+        set({ tabs: newTabs, ...deriveFromActiveTab(newTabs, activeTabId) })
+      },
+
+      setScheduledPickupAt: (dateTime) => {
+        const { tabs, activeTabId } = get()
+        const newTabs = updateActiveTab(tabs, activeTabId, () => ({ scheduledPickupAt: dateTime }))
+        set({ tabs: newTabs, ...deriveFromActiveTab(newTabs, activeTabId) })
+      },
+
       clear: () => {
         const { tabs, activeTabId } = get()
         const tab = getActiveTab(tabs, activeTabId)
@@ -297,6 +346,10 @@ export const useCartStore = create<CartState>()(
           notes: '',
           customerPhone: '',
           estimatedDurationHours: null,
+          deliveryType: 'pickup',
+          deliveryAddress: '',
+          deliveryFee: 0,
+          scheduledPickupAt: '',
         }))
         set({ tabs: newTabs, ...deriveFromActiveTab(newTabs, activeTabId) })
       },
@@ -336,6 +389,10 @@ export const useCartStore = create<CartState>()(
             notes: (old.notes as string) ?? '',
             customerPhone: (old.customerPhone as string) ?? '',
             estimatedDurationHours: (old.estimatedDurationHours as number | null) ?? null,
+            deliveryType: 'pickup' as DeliveryType,
+            deliveryAddress: '',
+            deliveryFee: 0,
+            scheduledPickupAt: '',
           }
           return {
             ...old,

@@ -95,6 +95,12 @@ const ManageFinanceExpensesPage = lazy(() =>
 const ManageFinancePnlPage = lazy(() =>
   import('@/pages/manage/finance-pnl').then((m) => ({ default: m.ManageFinancePnlPage })),
 )
+const ManageInventoryPage = lazy(() =>
+  import('@/pages/manage/inventory').then((m) => ({ default: m.ManageInventoryPage })),
+)
+const ManageStaffPage = lazy(() =>
+  import('@/pages/manage/staff').then((m) => ({ default: m.ManageStaffPage })),
+)
 
 // Suspense wrapper helper
 function withSuspense(
@@ -353,6 +359,20 @@ const manageFinancePnlRoute = createRoute({
   beforeLoad: requireOwner,
 })
 
+const manageInventoryRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: '/manage/inventory',
+  component: withSuspense(ManageInventoryPage, ManageListSkeleton),
+  beforeLoad: requireOwner,
+})
+
+const manageStaffRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: '/manage/staff',
+  component: withSuspense(ManageStaffPage, ManageListSkeleton),
+  beforeLoad: requireOwner,
+})
+
 const routeTree = rootRoute.addChildren([
   loginRoute,
   forgotPasswordRoute,
@@ -379,6 +399,8 @@ const routeTree = rootRoute.addChildren([
     manageFinanceRoute,
     manageFinanceExpensesRoute,
     manageFinancePnlRoute,
+    manageInventoryRoute,
+    manageStaffRoute,
     manageNotificationsRoute,
     manageSubscriptionRoute,
     manageStoreSettingsRoute,

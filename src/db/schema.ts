@@ -125,6 +125,10 @@ export interface Transaction {
   shiftId?: string
   customerPhone?: string
   estimatedDurationHours?: number
+  deliveryType?: string
+  deliveryAddress?: string
+  deliveryFee?: number
+  scheduledPickupAt?: string
   createdAt: string
   updatedAt: string
   syncedAt?: string

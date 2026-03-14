@@ -1,4 +1,4 @@
-import { CaretDown, CaretUp, Crown, ShoppingCart, Trash, Warning } from '@phosphor-icons/react'
+import { CaretDown, CaretUp, Crown, ShoppingCart, Trash, Truck, Warning } from '@phosphor-icons/react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 import { PaymentDialog } from '@/components/payment/payment-dialog'
@@ -15,8 +15,9 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { db } from '@/db'
 import type { Transaction } from '@/db/schema'
-import { formatCurrency } from '@/lib/format'
+import { formatCurrency, parseCurrencyInput, sanitizeCurrencyInput } from '@/lib/format'
 import { useCartStore } from '@/stores/cart-store'
+import type { DeliveryType } from '@/stores/cart-store'
 import { CartItemRow } from './cart-item-row'
 
 function formatPhoneDisplay(phone: string): string {
@@ -42,12 +43,18 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
     notes,
     customerPhone,
     estimatedDurationHours,
+    deliveryType,
+    deliveryAddress,
+    deliveryFee,
     removeItem,
     updateQuantity,
     setDiscount,
     setNotes,
     setCustomerPhone,
     setEstimatedDuration,
+    setDeliveryType,
+    setDeliveryAddress,
+    setDeliveryFee,
     clear,
     getSubtotal,
     tabs,
@@ -64,7 +71,7 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
   const discountAmount = Math.round(subtotal * (discountPercent / 100))
   const taxRate = tenantConfig?.taxRate ?? 0
   const taxAmount = Math.round(((subtotal - discountAmount) * taxRate) / 100)
-  const total = subtotal - discountAmount + taxAmount
+  const total = subtotal - discountAmount + taxAmount + deliveryFee
 
   if (items.length === 0) {
     return (
@@ -149,7 +156,7 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
             <CaretDown size={14} weight="bold" />
           )}
           <span>Detail pesanan</span>
-          {(customerPhone || estimatedDurationHours) && !orderDetailsExpanded && (
+          {(customerPhone || estimatedDurationHours || deliveryType === 'delivery') && !orderDetailsExpanded && (
             <span className="text-xs text-primary ml-auto">Diisi</span>
           )}
         </button>
@@ -187,6 +194,59 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
                 className="h-9 text-sm"
               />
             </div>
+            {/* Delivery type toggle */}
+            <div>
+              <label className="text-xs text-muted-foreground mb-1.5 block">Tipe pengambilan</label>
+              <div className="flex gap-2">
+                {(['pickup', 'delivery'] as DeliveryType[]).map((type) => (
+                  <button
+                    type="button"
+                    key={type}
+                    onClick={() => setDeliveryType(type)}
+                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-[var(--radius)] border text-sm font-medium transition-colors ${
+                      deliveryType === type
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'bg-background text-muted-foreground border-input hover:bg-muted'
+                    }`}
+                  >
+                    {type === 'delivery' && <Truck size={16} weight="bold" />}
+                    {type === 'pickup' ? 'Ambil Sendiri' : 'Antar'}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {deliveryType === 'delivery' && (
+              <>
+                <div>
+                  <label htmlFor="delivery-address" className="text-xs text-muted-foreground mb-1 block">
+                    Alamat pengantaran
+                  </label>
+                  <textarea
+                    id="delivery-address"
+                    value={deliveryAddress}
+                    onChange={(e) => setDeliveryAddress(e.target.value)}
+                    placeholder="Alamat lengkap pelanggan..."
+                    className="w-full rounded-[var(--radius)] border border-input bg-background px-3 py-2 text-sm resize-none h-16 focus:outline-none focus:ring-2 focus:ring-ring"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="delivery-fee" className="text-xs text-muted-foreground mb-1 block">
+                    Ongkos kirim
+                  </label>
+                  <Input
+                    id="delivery-fee"
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="0"
+                    value={deliveryFee ? deliveryFee.toLocaleString('id-ID') : ''}
+                    onChange={(e) =>
+                      setDeliveryFee(parseCurrencyInput(sanitizeCurrencyInput(e.target.value)))
+                    }
+                    className="h-9 text-sm"
+                  />
+                </div>
+              </>
+            )}
           </div>
         )}
       </div>
@@ -239,6 +299,13 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
           <span className="text-muted-foreground">Pajak{taxRate > 0 ? ` (${taxRate}%)` : ''}</span>
           <span>{formatCurrency(taxAmount)}</span>
         </div>
+
+        {deliveryFee > 0 && (
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Ongkos kirim</span>
+            <span>{formatCurrency(deliveryFee)}</span>
+          </div>
+        )}
 
         <Separator />
 

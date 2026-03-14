@@ -34,6 +34,11 @@ export interface Order {
   customer_name: string
   status: OrderStatus
   total_amount: number
+  delivery_type: 'pickup' | 'delivery'
+  delivery_address?: string
+  delivery_fee: number
+  scheduled_pickup_at?: string
+  customer_phone?: string
   created_at: string
   updated_at: string
 }

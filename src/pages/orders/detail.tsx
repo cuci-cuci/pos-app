@@ -1,4 +1,4 @@
-import { ArrowCounterClockwise, ArrowLeft } from '@phosphor-icons/react'
+import { ArrowCounterClockwise, ArrowLeft, MapPin, Truck } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
 import { ReceiptActions } from '@/components/receipt/receipt-actions'
@@ -209,6 +209,12 @@ export function OrderDetailPage() {
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-bold">#{order.order_number}</h1>
             <StatusBadge status={order.status} />
+            {order.delivery_type === 'delivery' && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+                <Truck size={12} weight="bold" />
+                Antar
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -228,6 +234,36 @@ export function OrderDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* Delivery info */}
+        {order.delivery_type === 'delivery' && (
+          <div className="bg-card border rounded-[var(--radius)] p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Truck size={18} weight="bold" className="text-primary" />
+              <h2 className="text-sm font-semibold">Pengantaran</h2>
+            </div>
+            {order.delivery_address && (
+              <div className="flex items-start gap-2 text-sm">
+                <MapPin size={16} className="text-muted-foreground shrink-0 mt-0.5" />
+                <p className="text-muted-foreground">{order.delivery_address}</p>
+              </div>
+            )}
+            {order.delivery_fee > 0 && (
+              <div className="flex justify-between text-sm mt-2">
+                <span className="text-muted-foreground">Ongkos kirim</span>
+                <span className="font-medium">{formatCurrency(order.delivery_fee)}</span>
+              </div>
+            )}
+            {order.scheduled_pickup_at && (
+              <div className="flex justify-between text-sm mt-1">
+                <span className="text-muted-foreground">Jadwal pickup</span>
+                <span className="font-medium">
+                  {formatDate(order.scheduled_pickup_at)} {formatTime(order.scheduled_pickup_at)}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Items */}
         {order.transaction && (
@@ -264,9 +300,15 @@ export function OrderDetailPage() {
                   <span>{formatCurrency(order.transaction.tax)}</span>
                 </div>
               )}
+              {order.delivery_fee > 0 && (
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>Ongkos kirim</span>
+                  <span>{formatCurrency(order.delivery_fee)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-sm font-bold pt-1">
                 <span>Total</span>
-                <span>{formatCurrency(order.transaction.total_amount)}</span>
+                <span>{formatCurrency(order.transaction.total_amount + (order.delivery_fee || 0))}</span>
               </div>
             </div>
           </div>
