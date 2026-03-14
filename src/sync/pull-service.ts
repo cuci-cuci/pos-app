@@ -1,6 +1,7 @@
 import { db } from '@/db'
 import type {
   Customer,
+  DeliveryZone,
   Outlet,
   PaymentMethod,
   Service,
@@ -19,6 +20,7 @@ interface PullResponse {
   payment_methods?: any[]
   members?: any[]
   outlets?: any[]
+  delivery_zones?: any[]
 }
 
 function mapOutlet(tenantId: string, o: any): Outlet {
@@ -104,6 +106,19 @@ function mapConfig(tenantId: string, c: any): TenantConfig {
     currency: c.data?.currency ?? 'IDR',
     version: c.version ?? 1,
     updatedAt: c.created_at ?? '',
+  }
+}
+
+function mapDeliveryZone(tenantId: string, dz: any): DeliveryZone {
+  return {
+    id: dz.id,
+    tenantId: dz.tenant_id ?? tenantId,
+    outletId: dz.outlet_id ?? '',
+    name: dz.name,
+    district: dz.district ?? undefined,
+    fee: dz.fee ?? 0,
+    estimatedMinutes: dz.estimated_minutes ?? 60,
+    isActive: dz.is_active ?? true,
   }
 }
 

@@ -74,6 +74,17 @@ export interface Customer {
   updatedAt: string
 }
 
+export interface DeliveryZone {
+  id: string
+  tenantId: string
+  outletId: string
+  name: string
+  district?: string
+  fee: number
+  estimatedMinutes: number
+  isActive: boolean
+}
+
 export type SyncStatus = 'pending' | 'syncing' | 'synced' | 'failed'
 export type TransactionStatus = 'completed' | 'cancelled' | 'refunded'
 

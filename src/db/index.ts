@@ -1,6 +1,7 @@
 import Dexie, { type Table } from 'dexie'
 import type {
   Customer,
+  DeliveryZone,
   Outlet,
   PaymentMethod,
   Service,
@@ -21,6 +22,7 @@ export class PosDatabase extends Dexie {
   syncLogs!: Table<SyncLog, number>
   syncState!: Table<SyncState, string>
   outlets!: Table<Outlet, string>
+  deliveryZones!: Table<DeliveryZone, string>
 
   constructor() {
     super('LaundryPOS')
@@ -46,6 +48,19 @@ export class PosDatabase extends Dexie {
       syncLogs: '++id, direction, timestamp',
       syncState: 'id',
       outlets: 'id, tenantId',
+    })
+
+    this.version(3).stores({
+      serviceCategories: 'id, tenantId, sortOrder',
+      services: 'id, [tenantId+categoryId], tenantId',
+      paymentMethods: 'id, tenantId',
+      tenantConfig: 'id',
+      customers: 'id, tenantId, phone, name',
+      transactions: 'id, [tenantId+syncStatus], [tenantId+status], createdAt, outletId',
+      syncLogs: '++id, direction, timestamp',
+      syncState: 'id',
+      outlets: 'id, tenantId',
+      deliveryZones: 'id, tenantId, outletId',
     })
   }
 }
