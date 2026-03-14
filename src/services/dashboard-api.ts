@@ -1,3 +1,5 @@
+import { API_BASE_URL } from '@/lib/constants'
+import { useAuthStore } from '@/stores/auth-store'
 import { apiClient } from './api-client'
 
 export interface DashboardSummary {
@@ -62,4 +64,32 @@ export async function upsertGoal(goalType: string, targetValue: number) {
   return apiClient
     .put('owner/dashboard/goals', { json: { goal_type: goalType, target_value: targetValue } })
     .json<{ data: { status: string } }>()
+}
+
+export interface DateRangeSummary {
+  revenue: number
+  transactions: number
+  expenses: number
+  profit: number
+  prev_revenue: number
+  prev_transactions: number
+  prev_expenses: number
+  prev_profit: number
+  revenue_growth_pct: number
+}
+
+export async function getSummaryRange(start: string, end: string, outletId?: string) {
+  const searchParams: Record<string, string> = { start, end }
+  if (outletId) searchParams.outlet_id = outletId
+  return apiClient
+    .get('owner/dashboard/summary/range', { searchParams })
+    .json<{ data: DateRangeSummary }>()
+}
+
+export function streamDashboardSummary(outletId?: string): EventSource {
+  const accessToken = useAuthStore.getState().token
+  const url = new URL(`${API_BASE_URL}/owner/dashboard/summary/stream`)
+  if (accessToken) url.searchParams.set('token', accessToken)
+  if (outletId) url.searchParams.set('outlet_id', outletId)
+  return new EventSource(url.toString())
 }

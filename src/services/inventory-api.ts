@@ -41,6 +41,37 @@ export interface LowStockAlert {
   outlet_name?: string
 }
 
+export interface ServiceSupplyMapping {
+  id: string
+  tenant_id: string
+  service_template_id: string
+  supply_id: string
+  quantity_per_unit: number
+  unit: string
+  service_name: string
+  supply_name: string
+  created_at: string
+}
+
+export interface CreateMappingRequest {
+  service_template_id: string
+  supply_id: string
+  quantity_per_unit: number
+  unit: string
+}
+
+export interface UpdateMappingRequest {
+  quantity_per_unit: number
+  unit: string
+}
+
+export interface ServiceCost {
+  service_template_id: string
+  service_name: string
+  total_cost_per_unit: number
+  mapping_count: number
+}
+
 export const inventoryApi = {
   listCategories: () =>
     apiClient.get('owner/supply-categories').json<{ data: SupplyCategory[] }>(),
@@ -61,4 +92,28 @@ export const inventoryApi = {
 
   getLowStockAlerts: () =>
     apiClient.get('owner/stock-alerts').json<{ data: LowStockAlert[] }>(),
+
+  // Service-Supply Mappings
+  listMappings: (serviceTemplateId?: string) =>
+    apiClient
+      .get('owner/service-supply-mappings', {
+        searchParams: serviceTemplateId
+          ? { service_template_id: serviceTemplateId }
+          : undefined,
+      })
+      .json<{ data: ServiceSupplyMapping[] }>(),
+  createMapping: (data: CreateMappingRequest) =>
+    apiClient
+      .post('owner/service-supply-mappings', { json: data })
+      .json<{ data: ServiceSupplyMapping }>(),
+  updateMapping: (id: string, data: UpdateMappingRequest) =>
+    apiClient
+      .put(`owner/service-supply-mappings/${id}`, { json: data })
+      .json<any>(),
+  deleteMapping: (id: string) =>
+    apiClient.delete(`owner/service-supply-mappings/${id}`).json<any>(),
+
+  // Service Costs
+  getServiceCosts: () =>
+    apiClient.get('owner/service-costs').json<{ data: ServiceCost[] }>(),
 }

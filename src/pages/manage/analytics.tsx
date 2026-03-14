@@ -1,5 +1,6 @@
 import {
   ArrowLeft,
+  CalendarBlank,
   ChartBar,
   CreditCard,
   CurrencyCircleDollar,
@@ -12,7 +13,7 @@ import {
 } from '@phosphor-icons/react'
 import { useRouter } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { EmptyState } from '@/components/shared/empty-state'
 import { InlineError } from '@/components/shared/inline-error'
@@ -58,7 +59,7 @@ interface PaymentMethodAnalytics {
   transaction_count: number
 }
 
-type Period = '7d' | '30d' | '90d'
+type Period = '7d' | '30d' | '90d' | 'custom'
 
 function SummaryCard({
   icon,
@@ -96,9 +97,26 @@ function SummaryCard({
   )
 }
 
+function computeDateRange(period: Period, customStart: string, customEnd: string) {
+  if (period === 'custom' && customStart && customEnd) {
+    return { start_date: customStart, end_date: customEnd }
+  }
+  const daysMap: Record<string, number> = { '7d': 7, '30d': 30, '90d': 90 }
+  const days = daysMap[period] ?? 30
+  const end = new Date()
+  const start = new Date()
+  start.setDate(start.getDate() - days)
+  return {
+    start_date: start.toISOString().slice(0, 10),
+    end_date: end.toISOString().slice(0, 10),
+  }
+}
+
 export function ManageAnalyticsPage() {
   const router = useRouter()
   const [period, setPeriod] = useState<Period>('30d')
+  const [customStartDate, setCustomStartDate] = useState('')
+  const [customEndDate, setCustomEndDate] = useState('')
   const [summary, setSummary] = useState<SummaryData | null>(null)
   const [outlets, setOutlets] = useState<OutletAnalytics[]>([])
   const [dailyData, setDailyData] = useState<DailyRevenuePoint[]>([])
@@ -108,18 +126,27 @@ export function ManageAnalyticsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
 
+  const dateRange = useMemo(
+    () => computeDateRange(period, customStartDate, customEndDate),
+    [period, customStartDate, customEndDate],
+  )
+
   const fetchAnalytics = useCallback(async () => {
+    if (period === 'custom' && (!customStartDate || !customEndDate)) return
     try {
       setLoading(true)
       setDailyLoading(true)
       setError(false)
-      const days = period.replace('d', '')
+      const days = period === 'custom'
+        ? String(Math.max(1, Math.ceil((new Date(customEndDate).getTime() - new Date(customStartDate).getTime()) / (1000 * 60 * 60 * 24))))
+        : period.replace('d', '')
+      const dateParams = { start_date: dateRange.start_date, end_date: dateRange.end_date }
       const [summaryRes, outletsRes, dailyRes, servicesRes, paymentRes] = await Promise.all([
-        ownerApi.analyticsSummary({ period }),
-        ownerApi.analyticsOutlets({ period }),
-        ownerApi.dailyRevenue({ period: days }),
-        ownerApi.analyticsByService({ period }),
-        ownerApi.analyticsByPaymentMethod({ period }),
+        ownerApi.analyticsSummary({ period, ...dateParams }),
+        ownerApi.analyticsOutlets({ period, ...dateParams }),
+        ownerApi.dailyRevenue({ period: days, ...dateParams }),
+        ownerApi.analyticsByService({ period, ...dateParams }),
+        ownerApi.analyticsByPaymentMethod({ period, ...dateParams }),
       ])
       setSummary(summaryRes.data ?? null)
       setOutlets(outletsRes.data ?? [])
@@ -133,7 +160,7 @@ export function ManageAnalyticsPage() {
       setLoading(false)
       setDailyLoading(false)
     }
-  }, [period])
+  }, [period, dateRange, customStartDate, customEndDate])
 
   useEffect(() => {
     fetchAnalytics()
@@ -176,6 +203,7 @@ export function ManageAnalyticsPage() {
     { value: '7d', label: '7 Hari' },
     { value: '30d', label: '30 Hari' },
     { value: '90d', label: '90 Hari' },
+    { value: 'custom', label: 'Kustom' },
   ]
 
   return (
@@ -195,7 +223,7 @@ export function ManageAnalyticsPage() {
         )}
       </div>
 
-      <div className="px-4 pb-3 flex gap-2">
+      <div className="px-4 pb-3 flex flex-wrap gap-2">
         {periods.map((p) => (
           <Button
             key={p.value}
@@ -203,10 +231,30 @@ export function ManageAnalyticsPage() {
             size="sm"
             onClick={() => setPeriod(p.value)}
           >
+            {p.value === 'custom' && <CalendarBlank size={14} weight="fill" className="mr-1" />}
             {p.label}
           </Button>
         ))}
       </div>
+
+      {period === 'custom' && (
+        <div className="px-4 pb-3 flex items-center gap-2">
+          <input
+            type="date"
+            value={customStartDate}
+            onChange={(e) => setCustomStartDate(e.target.value)}
+            className="text-sm bg-background border border-input rounded-[var(--radius)] px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-ring"
+          />
+          <span className="text-sm text-muted-foreground">s/d</span>
+          <input
+            type="date"
+            value={customEndDate}
+            onChange={(e) => setCustomEndDate(e.target.value)}
+            min={customStartDate}
+            className="text-sm bg-background border border-input rounded-[var(--radius)] px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-ring"
+          />
+        </div>
+      )}
 
       <div className="px-4 pb-6">
         {loading ? (

@@ -1,10 +1,13 @@
 import {
+  ArrowDown,
+  ArrowUp,
   ChartBar,
   ClipboardText,
   ClockCounterClockwise,
   CloudArrowUp,
   CurrencyDollar,
   Funnel,
+  Lightning,
   Play,
   Plus,
   Receipt,
@@ -16,7 +19,8 @@ import {
 import { useRouter } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
 import type { ReactNode } from 'react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { DateRangePicker } from '@/components/dashboard/date-range-picker'
 import { EmptyState } from '@/components/shared/empty-state'
 import { InlineError } from '@/components/shared/inline-error'
 import { DashboardSkeleton } from '@/components/shared/skeleton-loaders'
@@ -25,6 +29,7 @@ import { CloseShiftDialog } from '@/components/shift/close-shift-dialog'
 import { OpenShiftDialog } from '@/components/shift/open-shift-dialog'
 import { Button } from '@/components/ui/button'
 import { db } from '@/db'
+import { useLiveRevenue } from '@/hooks/use-live-revenue'
 import { ROLE_TENANT_OWNER } from '@/lib/constants'
 import { formatCurrency, formatTime } from '@/lib/format'
 import { cn } from '@/lib/utils'
@@ -32,6 +37,7 @@ import {
   getDashboardSummary,
   getCashierPerformance,
   getGoals,
+  streamDashboardSummary,
   type DashboardSummary,
   type CashierPerformanceItem,
   type DashboardGoal,
@@ -425,6 +431,7 @@ function OwnerDashboard({
 }) {
   const router = useRouter()
   const pendingCount = useSyncStore((s) => s.pendingCount)
+  const { data: liveRevenue, connected: liveConnected } = useLiveRevenue()
 
   const outlets = useLiveQuery(() => db.outlets.toArray()) ?? []
   const [selectedOutletId, setSelectedOutletId] = useState<string>('')
@@ -459,6 +466,34 @@ function OwnerDashboard({
     fetchData()
   }, [fetchData])
 
+  // SSE realtime updates for summary
+  const esRef = useRef<EventSource | null>(null)
+  useEffect(() => {
+    const outletParam = selectedOutletId || undefined
+    const es = streamDashboardSummary(outletParam)
+    esRef.current = es
+
+    es.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data) as DashboardSummary
+        setSummary(data)
+      } catch {
+        // ignore parse errors
+      }
+    }
+
+    es.onerror = () => {
+      // On error, close the stream and fall back to polling
+      es.close()
+      esRef.current = null
+    }
+
+    return () => {
+      es.close()
+      esRef.current = null
+    }
+  }, [selectedOutletId])
+
   if (loading) return <DashboardSkeleton />
   if (error) return <InlineError message="Gagal memuat dashboard" onRetry={fetchData} />
 
@@ -469,7 +504,15 @@ function OwnerDashboard({
       <div className="px-4 pt-4 pb-2">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold">Dashboard</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold">Dashboard</h1>
+              {liveConnected && (
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-success/15 text-success text-[10px] font-semibold uppercase">
+                  <Lightning size={10} weight="fill" />
+                  Live
+                </span>
+              )}
+            </div>
             <p className="text-sm text-muted-foreground">Selamat datang, {user?.name}</p>
           </div>
           {outlets.length > 1 && (
@@ -498,18 +541,20 @@ function OwnerDashboard({
         />
       </div>
 
-      {/* Summary cards — API sourced */}
+      {/* Summary cards — API sourced, with live overlay */}
       <div className="px-4 grid grid-cols-2 gap-3">
         <SummaryCard
           icon={<CurrencyDollar size={22} weight="fill" />}
           label="Revenue Hari Ini"
-          value={formatCurrency(summary?.today_revenue ?? 0)}
+          value={formatCurrency(liveRevenue?.revenue ?? summary?.today_revenue ?? 0)}
+          subValue={liveConnected ? 'Realtime' : undefined}
           variant="success"
         />
         <SummaryCard
           icon={<Receipt size={22} weight="fill" />}
           label="Transaksi Hari Ini"
-          value={String(summary?.today_transactions ?? 0)}
+          value={String(liveRevenue?.transactions ?? summary?.today_transactions ?? 0)}
+          subValue={liveConnected ? 'Realtime' : undefined}
           variant="info"
         />
         <SummaryCard
@@ -527,6 +572,51 @@ function OwnerDashboard({
           variant={(summary?.month_profit ?? 0) >= 0 ? 'success' : 'warning'}
         />
       </div>
+
+      {/* Month-over-Month comparison */}
+      {summary && (summary.prev_month_revenue > 0 || summary.month_revenue > 0) && (
+        <div className="px-4 mt-3">
+          <div className="bg-card border rounded-[var(--radius)] p-4">
+            <p className="text-xs font-semibold text-muted-foreground uppercase mb-3">
+              Perbandingan Bulan
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs text-muted-foreground">Bulan Lalu</p>
+                <p className="text-base font-bold mt-0.5">
+                  {formatCurrency(summary.prev_month_revenue)}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Bulan Ini</p>
+                <p className="text-base font-bold mt-0.5">
+                  {formatCurrency(summary.month_revenue)}
+                </p>
+              </div>
+            </div>
+            <div className="mt-3 flex items-center gap-2">
+              {(summary.revenue_growth_pct ?? 0) >= 0 ? (
+                <div className="flex items-center gap-1 text-success">
+                  <ArrowUp size={16} weight="bold" />
+                  <span className="text-sm font-semibold">
+                    +{(summary.revenue_growth_pct ?? 0).toFixed(1)}%
+                  </span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1 text-destructive">
+                  <ArrowDown size={16} weight="bold" />
+                  <span className="text-sm font-semibold">
+                    {(summary.revenue_growth_pct ?? 0).toFixed(1)}%
+                  </span>
+                </div>
+              )}
+              <span className="text-xs text-muted-foreground">
+                {(summary.revenue_growth_pct ?? 0) >= 0 ? 'pertumbuhan' : 'penurunan'} dari bulan lalu
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Cashier performance */}
       {cashiers.length > 0 && (
@@ -598,6 +688,11 @@ function OwnerDashboard({
           </div>
         </div>
       )}
+
+      {/* Date range comparison */}
+      <div className="px-4 mt-4">
+        <DateRangePicker outletId={selectedOutletId || undefined} />
+      </div>
 
       {/* Quick actions */}
       <div className="px-4 mt-4">

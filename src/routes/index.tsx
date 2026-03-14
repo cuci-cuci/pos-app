@@ -104,6 +104,21 @@ const ManageInventoryPage = lazy(() =>
 const ManageStaffPage = lazy(() =>
   import('@/pages/manage/staff').then((m) => ({ default: m.ManageStaffPage })),
 )
+const ManageDeliveryZonesPage = lazy(() =>
+  import('@/pages/manage/delivery-zones').then((m) => ({
+    default: m.ManageDeliveryZonesPage,
+  })),
+)
+const ManageDeliveryRequestsPage = lazy(() =>
+  import('@/pages/manage/delivery-requests').then((m) => ({
+    default: m.ManageDeliveryRequestsPage,
+  })),
+)
+const ManageServiceSuppliesPage = lazy(() =>
+  import('@/pages/manage/service-supplies').then((m) => ({
+    default: m.ManageServiceSuppliesPage,
+  })),
+)
 
 // Suspense wrapper helper
 function withSuspense(
@@ -383,6 +398,27 @@ const manageStaffRoute = createRoute({
   beforeLoad: requireOwner,
 })
 
+const manageDeliveryZonesRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: '/manage/delivery-zones',
+  component: withSuspense(ManageDeliveryZonesPage, ManageListSkeleton),
+  beforeLoad: requireOwner,
+})
+
+const manageDeliveryRequestsRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: '/manage/delivery-requests',
+  component: withSuspense(ManageDeliveryRequestsPage, ManageListSkeleton),
+  beforeLoad: requireOwner,
+})
+
+const manageServiceSuppliesRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: '/manage/service-supplies',
+  component: withSuspense(ManageServiceSuppliesPage, ManageListSkeleton),
+  beforeLoad: requireOwner,
+})
+
 const routeTree = rootRoute.addChildren([
   loginRoute,
   forgotPasswordRoute,
@@ -411,7 +447,10 @@ const routeTree = rootRoute.addChildren([
     manageFinancePnlRoute,
     manageFinanceTaxRoute,
     manageInventoryRoute,
+    manageServiceSuppliesRoute,
     manageStaffRoute,
+    manageDeliveryZonesRoute,
+    manageDeliveryRequestsRoute,
     manageNotificationsRoute,
     manageSubscriptionRoute,
     manageStoreSettingsRoute,

@@ -8,13 +8,20 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vendor-react': ['react', 'react-dom'],
-          'vendor-router': ['@tanstack/react-router'],
-          'vendor-data': ['dexie', 'zustand'],
-          'vendor-charts': ['recharts'],
-          'vendor-icons': ['@phosphor-icons/react'],
-          'vendor-motion': ['framer-motion'],
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            // Heavy libs split into their own chunks (lazy-loaded)
+            if (id.includes('xlsx') || id.includes('sheetjs')) return 'vendor-xlsx'
+            if (id.includes('jspdf') || id.includes('html2canvas')) return 'vendor-pdf'
+
+            // Core vendor splits (order matters — specific matches before general)
+            if (id.includes('@phosphor-icons/react')) return 'vendor-icons'
+            if (id.includes('@tanstack/react-router')) return 'vendor-router'
+            if (id.includes('react-dom') || id.includes('/react/')) return 'vendor-react'
+            if (id.includes('dexie') || id.includes('zustand')) return 'vendor-data'
+            if (id.includes('recharts')) return 'vendor-charts'
+            if (id.includes('framer-motion')) return 'vendor-motion'
+          }
         },
       },
     },

@@ -1,6 +1,6 @@
 import { CaretDown, CaretUp, Crown, ShoppingCart, Trash, Truck, Warning } from '@phosphor-icons/react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { PaymentDialog } from '@/components/payment/payment-dialog'
 import { EmptyState } from '@/components/shared/empty-state'
 import { Button } from '@/components/ui/button'
@@ -16,8 +16,10 @@ import { Separator } from '@/components/ui/separator'
 import { db } from '@/db'
 import type { Transaction } from '@/db/schema'
 import { formatCurrency, parseCurrencyInput, sanitizeCurrencyInput } from '@/lib/format'
+import { posDeliveryApi, type DeliveryZone } from '@/services/delivery-api'
 import { useCartStore } from '@/stores/cart-store'
 import type { DeliveryType } from '@/stores/cart-store'
+import { useDeviceStore } from '@/stores/device-store'
 import { CartItemRow } from './cart-item-row'
 
 function formatPhoneDisplay(phone: string): string {
@@ -64,8 +66,36 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
   const [clearConfirmOpen, setClearConfirmOpen] = useState(false)
   const [notesExpanded, setNotesExpanded] = useState(false)
   const [orderDetailsExpanded, setOrderDetailsExpanded] = useState(false)
+  const [deliveryZones, setDeliveryZones] = useState<DeliveryZone[]>([])
+  const [selectedZoneId, setSelectedZoneId] = useState('')
+  const outletId = useDeviceStore((s) => s.outletId)
 
   const tenantConfig = useLiveQuery(() => db.tenantConfig.toCollection().first())
+
+  const fetchZones = useCallback(async () => {
+    try {
+      const res = await posDeliveryApi.listZones(outletId || undefined)
+      setDeliveryZones(res.data ?? [])
+    } catch {
+      // Zones are optional, silently ignore errors
+    }
+  }, [outletId])
+
+  useEffect(() => {
+    fetchZones()
+  }, [fetchZones])
+
+  const handleZoneSelect = (zoneId: string) => {
+    setSelectedZoneId(zoneId)
+    if (zoneId) {
+      const zone = deliveryZones.find((z) => z.id === zoneId)
+      if (zone) {
+        setDeliveryFee(zone.fee)
+      }
+    } else {
+      setDeliveryFee(0)
+    }
+  }
 
   const subtotal = getSubtotal()
   const discountAmount = Math.round(subtotal * (discountPercent / 100))
@@ -229,6 +259,26 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
                     className="w-full rounded-[var(--radius)] border border-input bg-background px-3 py-2 text-sm resize-none h-16 focus:outline-none focus:ring-2 focus:ring-ring"
                   />
                 </div>
+                {deliveryZones.length > 0 && (
+                  <div>
+                    <label htmlFor="delivery-zone" className="text-xs text-muted-foreground mb-1 block">
+                      Zona pengiriman (auto ongkir)
+                    </label>
+                    <select
+                      id="delivery-zone"
+                      value={selectedZoneId}
+                      onChange={(e) => handleZoneSelect(e.target.value)}
+                      className="w-full h-9 rounded-[var(--radius)] border border-input bg-background px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    >
+                      <option value="">Manual / tanpa zona</option>
+                      {deliveryZones.map((z) => (
+                        <option key={z.id} value={z.id}>
+                          {z.name}{z.district ? ` (${z.district})` : ''} - {formatCurrency(z.fee)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
                 <div>
                   <label htmlFor="delivery-fee" className="text-xs text-muted-foreground mb-1 block">
                     Ongkos kirim
@@ -239,9 +289,10 @@ export function CartPanel({ onTransactionComplete }: CartPanelProps = {}) {
                     inputMode="numeric"
                     placeholder="0"
                     value={deliveryFee ? deliveryFee.toLocaleString('id-ID') : ''}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      setSelectedZoneId('')
                       setDeliveryFee(parseCurrencyInput(sanitizeCurrencyInput(e.target.value)))
-                    }
+                    }}
                     className="h-9 text-sm"
                   />
                 </div>

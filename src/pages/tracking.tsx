@@ -1,4 +1,4 @@
-import { CheckCircle, Package, TShirt, Timer, Wind } from '@phosphor-icons/react'
+import { CheckCircle, Package, Truck, TShirt, Timer, Wind } from '@phosphor-icons/react'
 import { useParams } from '@tanstack/react-router'
 import ky from 'ky'
 import { useCallback, useEffect, useState } from 'react'
@@ -36,6 +36,8 @@ export function OrderTrackingPage() {
   const [data, setData] = useState<TrackingData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [pickupRequesting, setPickupRequesting] = useState(false)
+  const [pickupRequested, setPickupRequested] = useState(false)
 
   const fetchOrder = useCallback(async () => {
     try {
@@ -53,6 +55,19 @@ export function OrderTrackingPage() {
   useEffect(() => {
     fetchOrder()
   }, [fetchOrder])
+
+  const handleRequestPickup = async () => {
+    setPickupRequesting(true)
+    try {
+      await ky.post(`${API_BASE_URL}/track/${token}/pickup-request`)
+      setPickupRequested(true)
+      await fetchOrder()
+    } catch {
+      // silently fail - user can retry
+    } finally {
+      setPickupRequesting(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -170,6 +185,35 @@ export function OrderTrackingPage() {
                 })}
               </p>
             </div>
+          </div>
+        )}
+
+        {/* Pickup request button - shown when order is done */}
+        {currentStatus === 'done' && !pickupRequested && (
+          <div className="bg-card border rounded-[var(--radius)] p-4 text-center space-y-3">
+            <p className="text-sm font-medium">Laundry Anda sudah selesai!</p>
+            <p className="text-xs text-muted-foreground">
+              Minta penjemputan agar kami mengantarkan pesanan ke alamat Anda.
+            </p>
+            <button
+              type="button"
+              onClick={() => void handleRequestPickup()}
+              disabled={pickupRequesting}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-[var(--radius)] bg-primary text-primary-foreground font-semibold text-sm disabled:opacity-50 transition-colors"
+            >
+              <Truck size={18} weight="bold" />
+              {pickupRequesting ? 'Mengirim permintaan...' : 'Minta Penjemputan'}
+            </button>
+          </div>
+        )}
+
+        {pickupRequested && (
+          <div className="bg-green-50 border border-green-200 rounded-[var(--radius)] p-4 text-center space-y-1">
+            <CheckCircle size={24} weight="fill" className="text-green-500 mx-auto" />
+            <p className="text-sm font-medium text-green-700">Permintaan penjemputan terkirim!</p>
+            <p className="text-xs text-green-600">
+              Tim kami akan segera menghubungi Anda.
+            </p>
           </div>
         )}
 
